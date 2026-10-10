@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import Charts
 
 struct CreditLineDetailView: View {

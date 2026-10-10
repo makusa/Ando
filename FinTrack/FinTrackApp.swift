@@ -47,11 +47,7 @@ struct FinTrackApp: App {
 
         // Screenshot harness (-FTDemoMode): force a throwaway in-memory store so
         // the demo dataset never touches the real on-disk / CloudKit data.
-        #if DEBUG
-        let demoMode = DemoMode.isActive
-        #else
-        let demoMode = false
-        #endif
+        let demoMode = DemoMode.isActive   // always false in Release (gated inside DemoMode)
 
         func recordCloudFailure(_ error: Error) {
             guard UIApplication.shared.isProtectedDataAvailable else {

@@ -8,17 +8,25 @@
 //  developer's real data on disk is never touched.
 //
 
-#if DEBUG
 import Foundation
-import SwiftData
 
-/// Launch-argument switch for the screenshot harness.
+/// Launch-argument switch for the screenshot harness. Compiled in every
+/// configuration but always false in Release: the gate lives here (not at the
+/// call site) so Release builds don't see a literal `false` and emit
+/// "will never be executed" warnings.
 enum DemoMode {
     static let launchArgument = "-FTDemoMode"
     static var isActive: Bool {
+        #if DEBUG
         ProcessInfo.processInfo.arguments.contains(launchArgument)
+        #else
+        false
+        #endif
     }
 }
+
+#if DEBUG
+import SwiftData
 
 enum DemoData {
 
