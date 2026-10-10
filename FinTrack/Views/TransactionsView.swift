@@ -9,6 +9,7 @@ import SwiftData
 struct TransactionsView: View {
     @Environment(\.modelContext) private var context
     @Environment(LanguageManager.self) private var lang
+    @Environment(EntitlementManager.self) private var entitlements
 
     @Query(sort: \Transaction.date, order: .reverse)
     private var allTransactions: [Transaction]
@@ -38,6 +39,7 @@ struct TransactionsView: View {
     enum ViewMode { case list, calendar }
     @State private var showAddTransfer = false
     @State private var showImportStatement = false
+    @State private var showScanReceipt = false
 
     enum TypeFilter: String, CaseIterable, Identifiable {
         case all, income, expense
@@ -196,6 +198,14 @@ struct TransactionsView: View {
                         } label: {
                             Label(lang["transfer.create"], systemImage: "arrow.left.arrow.right")
                         }
+                        // Same entry and gating as the Dashboard "+" menu (Pro or Max).
+                        if entitlements.hasPaidTier {
+                            Button {
+                                showScanReceipt = true
+                            } label: {
+                                Label(lang["scan.title"], systemImage: "doc.text.viewfinder")
+                            }
+                        }
                         Divider()
                         Button {
                             showImportStatement = true
@@ -223,6 +233,7 @@ struct TransactionsView: View {
             .sheet(isPresented: $showAddTransfer) {
                 AddTransferView()
             }
+            .sheet(isPresented: $showScanReceipt) { ScanReceiptView() }
             .sheet(isPresented: $showReview) {
                 DuplicateReviewView()
             }
@@ -397,4 +408,6 @@ struct TransactionsView: View {
 #Preview {
     TransactionsView()
         .modelContainer(for: [Account.self, Transaction.self, Category.self], inMemory: true)
+        .environment(LanguageManager.shared)
+        .environment(EntitlementManager.shared)
 }
