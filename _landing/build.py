@@ -70,7 +70,8 @@ def donnees_structurees(code, cfg, titre):
         "offers": [
             {"@type": "Offer", "name": "Courant", "price": "0",     "priceCurrency": "CAD"},
             {"@type": "Offer", "name": "Pro",     "price": "24.99", "priceCurrency": "CAD"},
-            {"@type": "Offer", "name": "Max",     "price": "3.99",  "priceCurrency": "CAD"},
+            # Max (abonnement) : réintroduire l'offre et son prix au lancement de
+            # la connexion bancaire. Absent pendant la bêta.
         ],
         "author": {"@type": "Organization", "name": "bmsk", "url": "https://bmsk.ca"},
     }, ensure_ascii=False, indent=2)

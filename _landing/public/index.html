@@ -166,6 +166,8 @@ p{max-width:63ch}
 @media(max-width:880px){.paliers{grid-template-columns:1fr}}
 .palier{background:var(--surface);border:1px solid var(--ligne);border-radius:8px;padding:26px 24px}
 .palier.mis-en-avant{border:1.5px solid var(--encre);box-shadow:0 2px 0 var(--verdigris)}
+.palier.a-venir{background:transparent;border-style:dashed}
+.palier.a-venir .palier-prix{color:var(--sourdine)}
 .palier-nom{font-size:1.0625rem;font-weight:650;font-variation-settings:"wdth" 110}
 .palier-prix{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;margin:12px 0 2px;letter-spacing:-.02em}
 .palier-prix small{font-size:.875rem;font-weight:500;color:var(--sourdine);letter-spacing:0}
@@ -230,12 +232,6 @@ p{max-width:63ch}
       "@type": "Offer",
       "name": "Pro",
       "price": "24.99",
-      "priceCurrency": "CAD"
-    },
-    {
-      "@type": "Offer",
-      "name": "Max",
-      "price": "3.99",
       "priceCurrency": "CAD"
     }
   ],
@@ -376,7 +372,6 @@ p{max-width:63ch}
       <figure class="car-item"><div class="tel"><img src="/img/08-budgets.webp" data-shot="08-budgets" width="620" height="1347" data-alt="alt08" alt="Budgets par catégorie avec barres de progression." loading="lazy"></div><figcaption><b data-t="c5b">Budgets</b><span data-t="c5s">Par catégorie, par période</span></figcaption></figure>
       <figure class="car-item"><div class="tel"><img src="/img/10-projets-epargne.webp" data-shot="10-projets-epargne" width="620" height="1347" data-alt="alt10" alt="Projets d'épargne avec montants atteints et objectifs." loading="lazy"></div><figcaption><b data-t="c6b">Projets d'épargne</b><span data-t="c6s">Avec date d'atteinte projetée</span></figcaption></figure>
       <figure class="car-item"><div class="tel"><img src="/img/13-prets.webp" data-shot="13-prets" width="620" height="1347" data-alt="alt13" alt="Liste des prêts : hypothèque et prêt auto, avec taux et soldes." loading="lazy"></div><figcaption><b data-t="c7b">Prêts</b><span data-t="c7s">Amortissement complet</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img/19-reglages.webp" data-shot="19-reglages" width="620" height="1347" data-alt="alt19" alt="Réglages : langue, sécurité, connexion bancaire, synchronisation iCloud, export CSV." loading="lazy"></div><figcaption><b data-t="c8b">Réglages</b><span data-t="c8s">Langue, sécurité, synchronisation</span></figcaption></figure>
     </div>
     <div class="car-jauge"><i id="carJauge" style="width:25%"></i></div>
     <p class="compar-note" data-t="cnote">Captures réelles de l'application, prises sur iPhone. Les montants proviennent d'un ménage québécois fictif utilisé pour la démonstration.</p>
@@ -397,7 +392,7 @@ p{max-width:63ch}
       <li data-t="i13">Widgets, quatre formats, écran verrouillé <em data-t="tPro">Pro</em></li>
       <li data-t="i14">Synchronisation entre vos appareils <em data-t="tPro">Pro</em></li>
       <li data-t="i15">Numérisation de reçus <em data-t="tPro">Pro</em></li>
-      <li data-t="i16">Connexion bancaire canadienne <em data-t="tMax">Max</em></li>
+      <li data-t="i16">Connexion bancaire <em data-t="tSoon">à venir</em></li>
       <li data-t="i17">Assistance par IA <em data-t="tSoon">à venir</em></li>
     </ul>
   </div>
@@ -443,7 +438,7 @@ p{max-width:63ch}
     <div class="privee-grille">
       <div><h3 data-t="p1h">Local par défaut</h3><p data-t="p1p">Les données vivent dans l'application, protégées par le chiffrement du système. Aucune inscription n'est requise pour commencer.</p></div>
       <div><h3 data-t="p2h">La synchronisation reste la vôtre</h3><p data-t="p2p">La synchronisation entre vos appareils passe par votre propre compte iCloud privé, pas par nos serveurs.</p></div>
-      <div><h3 data-t="p3h">La connexion bancaire est optionnelle</h3><p data-t="p3p">Elle passe par un fournisseur canadien, elle s'active seulement si vous le voulez, et l'application reste complète sans elle.</p></div>
+      <div><h3 data-t="p3h">Aucun accès à vos comptes bancaires</h3><p data-t="p3p">La bêta fonctionne sans connexion bancaire. Si une connexion s'ajoute plus tard, elle sera optionnelle et l'application restera complète sans elle.</p></div>
     </div>
   </div>
   <div class="graduation" style="margin-top:56px"></div>
@@ -452,8 +447,8 @@ p{max-width:63ch}
 <section class="section" id="prix">
   <div class="zone">
     <div class="section-entete rev">
-      <h2 data-t="xh">Trois paliers, dont un gratuit pour de vrai</h2>
-      <p data-t="xp">Ce qui ne nous coûte rien chaque mois se paie une seule fois. Ce qui a un coût récurrent — la connexion bancaire, l'IA — se paie par abonnement. Prix en dollars canadiens.</p>
+      <h2 data-t="xh">Deux paliers pour la bêta, dont un gratuit pour de vrai</h2>
+      <p data-t="xp">Ce qui ne nous coûte rien chaque mois se paie une seule fois. Un abonnement viendra plus tard, uniquement pour ce qui a un coût récurrent, comme la connexion bancaire ou l'IA. Prix en dollars canadiens.</p>
     </div>
     <div class="paliers">
       <div class="palier">
@@ -479,10 +474,10 @@ p{max-width:63ch}
           <li data-t="x1e">Numérisation de reçus</li>
         </ul>
       </div>
-      <div class="palier">
+      <div class="palier a-venir">
         <div class="palier-nom">Max</div>
-        <div class="palier-prix" data-t="x2prix">3,99 $ <small>par mois</small></div>
-        <div class="palier-quoi" data-t="x2quoi">Pour ceux qui veulent que les transactions arrivent toutes seules.</div>
+        <div class="palier-prix" data-t="x2prix">À venir</div>
+        <div class="palier-quoi" data-t="x2quoi">Pour que les transactions arrivent toutes seules. Prix annoncé au lancement.</div>
         <ul>
           <li data-t="x2a">Tout le palier Pro</li>
           <li data-t="x2b">Connexion aux banques canadiennes</li>
