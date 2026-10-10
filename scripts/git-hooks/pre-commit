@@ -1,0 +1,52 @@
+#!/bin/bash
+# Garde-fou de commit de Fin:Track (installé par scripts/install-hooks.sh).
+#
+# Refuse le commit si :
+#   1. un fichier interdit est indexé (.DS_Store, état d'interface Xcode,
+#      xcdebugger, schemes partagés régénérés par XcodeGen) ;
+#   2. le commit touche au code de l'app alors que la dernière vérification
+#      complète (scripts/verify.sh) ne correspond plus au code actuel.
+#
+# Contournement exceptionnel, à justifier : git commit --no-verify
+
+set -u
+cd "$(git rev-parse --show-toplevel)" || exit 1
+. scripts/lib-empreinte.sh
+
+refus() {
+    echo
+    echo "✗ Commit refusé par le garde-fou Fin:Track"
+    printf "%s\n" "$@" | sed 's/^/  /'
+    echo
+    echo "  (Voir docs/OUTILS.md. Contournement exceptionnel : git commit --no-verify)"
+    exit 1
+}
+
+# 1. Fichiers interdits (ajouts et modifications ; une suppression reste permise,
+#    pour pouvoir retirer du dépôt un fichier qui n'aurait jamais dû y entrer).
+interdits=$(git diff --cached --name-only --diff-filter=ACMR | grep -E \
+    '(^|/)\.DS_Store$|\.xcuserstate$|/xcdebugger/|(^|/)xcuserdata/|xcshareddata/xcschemes/.*\.xcscheme$')
+if [ -n "$interdits" ]; then
+    refus "Fichiers qui ne doivent pas être committés :" \
+          "$(printf "%s\n" "$interdits" | sed 's/^/  - /')" \
+          "" \
+          "Pour les retirer de l'index : git restore --staged <fichier>"
+fi
+
+# 2. Code de l'app modifié : la vérification complète doit correspondre.
+touche_app=$(git diff --cached --name-only | grep -E \
+    '^(FinTrack|FinTrackWidget|FinTrackUITests)/|^project\.yml$|^FinTrack\.xcodeproj/project\.pbxproj$')
+if [ -n "$touche_app" ]; then
+    if [ ! -f "$TAMPON_VERIFICATION" ]; then
+        refus "Ce commit modifie l'app, mais aucune vérification complète n'a été faite." \
+              "Lancer : scripts/verify.sh"
+    fi
+    read -r empreinte_validee date_validation heure_validation _ < "$TAMPON_VERIFICATION"
+    if [ "$empreinte_validee" != "$(empreinte_build)" ]; then
+        refus "Le code de l'app a changé depuis la dernière vérification complète" \
+              "(réussie le $date_validation à $heure_validation)." \
+              "Lancer : scripts/verify.sh"
+    fi
+fi
+
+exit 0

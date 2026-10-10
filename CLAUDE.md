@@ -27,9 +27,11 @@ En cas de doute, le dire explicitement plutôt que deviner.
 - **Ne jamais committer sans demande explicite de Régis.** Ne jamais pousser sans
   demande explicite non plus.
 - **Avant tout commit** : analyse statique (grep des usages, références mortes,
-  imports manquants), puis build **Debug et Release** à **0 erreur / 0 avertissement**
-  (hors bruit `appintentsmetadataprocessor`). Un avertissement préexistant se corrige
-  aussi.
+  imports manquants), puis **`scripts/verify.sh`** (traductions, App Group, builds
+  **Debug et Release** à **0 erreur / 0 avertissement**). Un avertissement
+  préexistant se corrige aussi. Le garde-fou de commit refuse tout commit touchant
+  l'app sans vérification à jour ; ne jamais le contourner (`--no-verify`) sans
+  l'accord explicite de Régis. Mode d'emploi : `docs/OUTILS.md`.
 - **Staging ciblé** : uniquement les fichiers concernés. Jamais `.DS_Store`,
   `UserInterfaceState.xcuserstate`, `xcuserdata/…/xcdebugger/`, ni les schemes
   partagés (`xcshareddata/xcschemes/*.xcscheme`). `project.pbxproj` et `project.yml`
@@ -48,6 +50,11 @@ En cas de doute, le dire explicitement plutôt que deviner.
 
 ```bash
 cd /Users/regis/Documents/GitHub/FinTrack
+
+# Vérification avant commit (à préférer aux commandes manuelles ci-dessous)
+scripts/verify.sh            # traductions + App Group + Debug + Release, ~2 min
+scripts/verify.sh --quick    # idem en Debug seulement, n'autorise pas le commit
+python3 scripts/check-l10n.py   # traductions seules, ~1 s
 
 # Build Debug (simulateur iPhone 17 Pro Max)
 xcodebuild -project FinTrack.xcodeproj -scheme FinTrack \
@@ -120,6 +127,8 @@ un identifiant StoreKit est immuable. Seuls les noms affichés sont Pro et Max.
 | `FinTrackUITests/` | Harnais de captures d'écran |
 | `_landing/` | Site public : gabarit, textes anglais, Worker d'inscription à la bêta (Cloudflare D1) |
 | `plaid-server/` | Ancien serveur Plaid (NAS Docker), remplacé par un proxy Cloudflare Workers |
+| `scripts/` | Outils de qualité : `verify.sh`, `check-l10n.py`, garde-fou de commit (`git-hooks/`) |
+| `docs/` | Documentation, dont `OUTILS.md` (mode d'emploi des outils de qualité) |
 
 Deux moteurs de catégorisation coexistent : `AI/SmartCategorizer` (saisie manuelle,
 synchro Plaid, détection de récurrences) et `Categorization/` (import de relevés).
