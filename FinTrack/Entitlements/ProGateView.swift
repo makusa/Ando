@@ -45,7 +45,7 @@ enum GatedFeature {
         case .cashFlow:          return lang["cashflow.title"]
         case .exchangeRates:     return lang["fx.title"]
         case .dashboardCustom:   return lang["library.title"]
-        case .csvExport:         return lang["settings.export"]
+        case .csvExport:         return lang["settings.exportCSV"]
         case .unlimitedAccounts: return lang["entitlement.unlimited.accounts"]
         case .registered:        return lang["reg.hub.title"]
         case .fileImport:        return lang["import.ofx.title"]
