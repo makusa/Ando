@@ -38,7 +38,7 @@ struct SettingsView: View {
                 // Sécurité et confidentialité
                 Section {
                     securityRow
-                    bankSyncRow
+                    if bankSyncAvailable { bankSyncRow }
                     cloudSyncRow
                 } header: {
                     Text(lang["settings.section.privacy"])
@@ -210,7 +210,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(entitlements.hasPaidTier
                  ? lang["settings.cloudSync.footer"]
-                 : lang["settings.cloudSync.locked"])
+                 : lang[bankSyncAvailable ? "settings.cloudSync.locked" : "settings.cloudSync.locked.proOnly"])
             if let lastError = UserDefaults.standard.string(forKey: "fintrack.cloudSync.lastError") {
                 Text("\(lang["settings.cloudSync.lastError"]) \(lastError)")
                     .foregroundStyle(.orange)
@@ -257,7 +257,7 @@ struct SettingsView: View {
     @ViewBuilder
     private var developerSection: some View {
         let e = EntitlementManager.shared
-        let tierName = e.hasPlacement ? "Placement" : e.hasPaidTier ? "Épargne" : "Courant"
+        let tierName = e.hasPlacement ? "Max" : e.hasPaidTier ? "Pro" : "Free"
         let tierColor: Color = e.hasPlacement ? .teal : e.hasPaidTier ? .orange : .gray
 
         Section {

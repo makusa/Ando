@@ -24,6 +24,13 @@ enum BankSyncProviderChoice {
 /// Flip this constant to switch providers. No other code needs to change.
 let activeBankSyncProvider: BankSyncProviderChoice = .plaid
 
+/// Master switch for live bank sync AND the Max subscription it powers.
+/// `false` = no production access to Plaid/Flinks yet: the "Bank connection"
+/// row, the Max plan, Max's column in the comparison table and every
+/// "Pro or Max" mention are hidden — the app sells Pro only.
+/// Set to `true` once a provider is live in production; nothing else to change.
+let bankSyncAvailable = false
+
 // MARK: - Unified entry point used by SettingsView
 
 /// Returns the correct connection view for the active provider.

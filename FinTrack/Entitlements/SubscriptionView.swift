@@ -31,7 +31,8 @@ struct SubscriptionView: View {
                 }
             }
 
-            if !entitlements.hasPlacement {
+            // Max is sold only once live bank sync is available (bankSyncAvailable).
+            if bankSyncAvailable && !entitlements.hasPlacement {
                 Section {
                     planRow(product: .placement)
                 } footer: {
@@ -215,6 +216,12 @@ struct SubscriptionView: View {
         ]
     }
 
+    /// Rows shown in the table. Without live bank sync, the bank-sync row
+    /// (the only Max-exclusive feature) is dropped along with the Max column.
+    private var visibleFeatures: [FeatureRow] {
+        bankSyncAvailable ? features : features.filter { $0.pro || $0.free }
+    }
+
     private var tierComparisonTable: some View {
         VStack(spacing: 0) {
             // Header
@@ -225,12 +232,14 @@ struct SubscriptionView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Text("Free").font(.caption.weight(.semibold)).foregroundStyle(.gray).frame(width: 44)
                 Text("Pro").font(.caption.weight(.semibold)).foregroundStyle(.orange).frame(width: 44)
-                Text("Max").font(.caption.weight(.semibold)).foregroundStyle(.teal).frame(width: 44)
+                if bankSyncAvailable {
+                    Text("Max").font(.caption.weight(.semibold)).foregroundStyle(.teal).frame(width: 44)
+                }
             }
             .padding(.horizontal, 2)
             .padding(.vertical, 8)
 
-            ForEach(Array(features.enumerated()), id: \.offset) { _, row in
+            ForEach(Array(visibleFeatures.enumerated()), id: \.offset) { _, row in
                 VStack(spacing: 0) {
                     // Séparateur explicite au-dessus de chaque ligne: rendu garanti.
                     // (Divider() en tuple dans un ForEach sautait pour certaines lignes
@@ -247,7 +256,9 @@ struct SubscriptionView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         checkmark(row.free, color: .gray).frame(width: 44)
                         checkmark(row.pro,  color: .orange).frame(width: 44)
-                        checkmark(row.plaid, color: .teal).frame(width: 44)
+                        if bankSyncAvailable {
+                            checkmark(row.plaid, color: .teal).frame(width: 44)
+                        }
                     }
                     .padding(.vertical, 8)
                     .padding(.horizontal, 2)

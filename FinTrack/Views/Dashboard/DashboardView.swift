@@ -511,7 +511,7 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(id.title)
                     .font(.callout.weight(.semibold))
-                Text(lang["entitlement.pro.teaser"])
+                Text(lang[bankSyncAvailable ? "entitlement.pro.teaser" : "entitlement.pro.teaser.proOnly"])
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
