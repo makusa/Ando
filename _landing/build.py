@@ -16,7 +16,7 @@ sur une seule URL ne rend indexable que la langue par défaut.
     python3 build.py
 """
 
-import json, os, pathlib, re
+import json, os, pathlib, re, subprocess, sys
 import lxml.html
 
 RACINE = pathlib.Path(__file__).parent
@@ -171,6 +171,23 @@ def main():
         + "</urlset>\n", encoding="utf-8")
 
     print("  public/robots.txt, public/sitemap.xml")
+
+    domaines_logos()
+
+
+def domaines_logos():
+    """Régénère la liste blanche des domaines dont le Worker accepte de servir le
+    logo (/api/logo/<domaine>), à chaque construction de la landing : elle ne
+    peut donc pas être oubliée avant un déploiement.
+
+    Délègue à scripts/gen-logo-allowlist.py : un seul générateur, un seul format,
+    celui que scripts/verify.sh contrôle. Le script refuse d'écrire une liste
+    presque vide si l'annuaire était mal lu."""
+    script = RACINE.parent / "scripts/gen-logo-allowlist.py"
+    resultat = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    if resultat.returncode != 0:
+        raise SystemExit(resultat.stdout + resultat.stderr)
+    print("  " + resultat.stdout.strip().lstrip("✓ ").replace("_landing/", ""))
 
 
 if __name__ == "__main__":

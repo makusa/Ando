@@ -31,8 +31,17 @@ def contenu_attendu():
     ), len(domaines)
 
 
+MINIMUM_DOMAINES = 50   # garde-fou : un annuaire mal lu viderait la liste
+
+
 def main():
     attendu, n = contenu_attendu()
+    if n < MINIMUM_DOMAINES:
+        # Sans ce garde-fou, une erreur de lecture rendrait tous les logos
+        # introuvables (404) dès le prochain déploiement.
+        print(f"✗ Seulement {n} domaines lus dans {ANNUAIRE.relative_to(RACINE)} : arrêt, "
+              f"aucun fichier écrit (minimum attendu : {MINIMUM_DOMAINES}).")
+        return 1
     if "--check" in sys.argv:
         actuel = SORTIE.read_text(encoding="utf-8") if SORTIE.exists() else ""
         if actuel != attendu:
