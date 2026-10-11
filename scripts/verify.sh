@@ -41,6 +41,11 @@ for f in FinTrack/FinTrack.entitlements FinTrackWidget/FinTrackWidget.entitlemen
     [ "$n" -eq 1 ] || echec "App Group absent ou en double dans $f (relancer xcodegen et vérifier project.yml)"
 done
 
+# 2 bis. Liste des domaines de logos du Worker alignée sur l'annuaire de l'app
+echo; echo "2 bis. Liste des domaines de logos"
+python3 scripts/gen-logo-allowlist.py --check | sed 's/^/   /'
+[ "${PIPESTATUS[0]}" -eq 0 ] || echec "liste des domaines de logos périmée (python3 scripts/gen-logo-allowlist.py)"
+
 # 3. Builds
 construire() {   # $1 = Debug | Release
     local conf=$1 journal="$JOURNAUX/build-$1.log" t0 statut erreurs avertissements

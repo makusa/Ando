@@ -82,6 +82,9 @@ scripts/verify.sh --help
 1. **Traductions** (`check-l10n.py`).
 2. **App Group** : présent une fois dans chacun des deux fichiers `.entitlements`
    (XcodeGen peut l'effacer).
+   **Puis la liste des domaines de logos** du Worker (`_landing/src/domaines-logos.js`) :
+   elle doit correspondre à l'annuaire de l'app. Si elle est périmée :
+   `python3 scripts/gen-logo-allowlist.py`, puis redéployer le Worker.
 3. **Build Debug**, puis **build Release** : 0 erreur et 0 avertissement exigés.
    Le bruit `appintentsmetadataprocessor` est ignoré ; chaque avertissement n'est
    compté qu'une fois.

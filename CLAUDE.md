@@ -87,6 +87,10 @@ fichier Info.plist de l'app.
 depuis `_landing/` (Worker Cloudflare `fintrack-landing`, domaine `fintrack.bmsk.ca`).
 Un `git push` ne déploie rien.
 
+**Annuaire des banques** : après tout ajout ou retrait d'une institution dans
+`BankDirectory.swift`, lancer `python3 scripts/gen-logo-allowlist.py` puis
+redéployer le Worker ; sinon son logo n'est jamais servi (`verify.sh` le signale).
+
 **Captures d'écran** : cible `FinTrackUITests` (`ScreenshotTests.swift`), qui lance
 l'app avec `-FTDemoMode`. Les captures produites (`_captures/`) sont exclues du dépôt.
 
@@ -239,6 +243,7 @@ Tous dans `FinTrack/BankSync/BankSyncProvider.swift`, sauf mention contraire.
 | 2026-09 | Plaid conservé comme fournisseur actif (déjà testé en sandbox) ; Flinks prêt en réserve |
 | 2026-09 | Landing bilingue sur `fintrack.bmsk.ca`, inscription à la bêta par Worker + D1 |
 | 2026-10 | Faute d'accès production chez Plaid ou Flinks : bêta **sans** synchro bancaire ; Max désactivé (`bankSyncAvailable = false`) jusqu'à nouvel ordre |
+| 2026-10 | Logos des institutions servis par **notre** Worker (`/api/logo/<domaine>`), qui les obtient de Logo.dev (Clearbit a fermé en décembre 2025) : Logo.dev ne voit jamais l'utilisateur. Monogramme en secours (chargement, hors ligne, logo absent). Mention « Logos fournis par Logo.dev » obligatoire (Réglages ▸ À propos). Police de la landing hébergée sur le site (plus de Google Fonts) |
 
 Le détail de chaque décision se trouve dans le message du commit correspondant.
 
@@ -251,6 +256,9 @@ Le détail de chaque décision se trouve dans le message du commit correspondant
 - **Prix provisoires** : Pro 24,99 $ sur la landing, 28,99 $ dans `FinTrack.storekit`.
   À aligner avant le lancement.
 - **Aucun test unitaire dans le dépôt** ; seul le harnais de captures existe.
+- **« Réinitialiser toutes les données » est incomplet** (`SettingsView.resetAll`) :
+  il laisse budgets, prêts, marges, récurrences, projets, profils enregistrés et
+  images des reçus. À corriger avant le lancement (voir `docs/legal/NOTES-REVISION.md`).
 - Le commentaire de `RegisteredType.reer` dit « room calc not implemented here yet »,
   mais le calcul REER est bien implémenté dans `RegisteredRoomCalculator`. Commentaire
   à corriger.
