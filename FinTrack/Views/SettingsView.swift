@@ -251,6 +251,9 @@ struct SettingsView: View {
         LabeledContent(lang["settings.storage"]) {
             Text(storageModeLabel)
         }
+        // Attribution required by Logo.dev's free plan (institution logos).
+        Link(lang["settings.logoAttribution"], destination: URL(string: "https://www.logo.dev")!)
+            .font(.footnote)
     }
 
     #if DEBUG

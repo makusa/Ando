@@ -3,7 +3,8 @@
 //  FinTrack
 //
 //  Curated list of banks across Canada, USA, UK, Europe, and Africa.
-//  Logos are fetched at runtime from logo.clearbit.com/{domain}.
+//  Institutions are shown with a monogram (see `monogram(for:)`): no logo is
+//  downloaded, so no third party learns which institution a user looks up.
 //
 
 import Foundation
@@ -15,7 +16,7 @@ struct BankInfo: Identifiable, Hashable {
     let name: String         // primary name (French or universal)
     let nameEN: String?      // English name when different from `name`; nil = same
     let aliases: [String]    // abbreviations + alternates for search
-    let domain: String?      // logo URL via logo.clearbit.com; nil = no logo
+    let domain: String?      // stable key (lookup, monogram colour); nil = unknown
     let countryCode: String  // ISO 3166-1 alpha-2
 
     /// Returns the name in the app's current language (falls back to `name`).
@@ -43,11 +44,52 @@ struct BankInfo: Identifiable, Hashable {
 
 enum BankDirectory {
 
-    // MARK: Logo URL
+    // MARK: Monogram (no network, no third-party logos)
 
-    static func logoURL(for domain: String?) -> URL? {
-        guard let d = domain, !d.isEmpty else { return nil }
-        return URL(string: "https://logo.clearbit.com/\(d)")
+    /// Every institution, across all regional lists (`all` omits some regions).
+    private static let everyBank: [BankInfo] =
+        all + portugal + netherlands + belgium + switzerland + africa + international
+
+    /// The institution whose domain matches, if any.
+    static func bank(forDomain domain: String?) -> BankInfo? {
+        guard let d = domain?.lowercased(), !d.isEmpty else { return nil }
+        return everyBank.first { $0.domain?.lowercased() == d }
+    }
+
+    /// Short label shown instead of a logo: "RBC", "TD", "HSBC", "WF", "D"…
+    /// 1. the first uppercase acronym in the name — "Banque Royale du Canada (RBC)"
+    ///    → RBC, "TD Bank (US)" → TD, "HSBC Canada" → HSBC, "EQ Bank" → EQ
+    /// 2. a short alias from the directory — "Banque Nationale du Canada" (bnc) → BNC
+    /// 3. initials of the first two significant words — "Wells Fargo" → WF
+    /// Checked against the whole directory: never empty, never over 5 characters.
+    static func monogram(for bank: BankInfo) -> String {
+        let tokens = bank.name
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+            .filter { !$0.isEmpty }
+        if let acronym = tokens.first(where: {
+            (2...5).contains($0.count) && $0 == $0.uppercased() && $0.contains(where: \.isLetter)
+        }) {
+            return acronym
+        }
+        if let alias = bank.aliases.first(where: { (2...4).contains($0.count) && !$0.contains(" ") }) {
+            return alias.uppercased()
+        }
+        let ignored: Set<String> = ["banque", "bank", "de", "du", "des", "la", "le", "les",
+                                    "of", "the", "and", "et"]
+        let initials = tokens
+            .filter { !ignored.contains($0.lowercased()) }
+            .prefix(2)
+            .compactMap { $0.first.map { String($0).uppercased() } }
+            .joined()
+        return initials.isEmpty ? "?" : initials
+    }
+
+    /// Stable hue in 0..<1 derived from a key (djb2 hash). Swift's `hashValue`
+    /// is randomised per launch, so it would change the colours every time.
+    static func monogramHue(for key: String) -> Double {
+        var hash: UInt64 = 5381
+        for byte in key.lowercased().utf8 { hash = (hash &* 33) &+ UInt64(byte) }
+        return Double(hash % 360) / 360.0
     }
 
     /// Find the domain for a given institution name (exact or best match).

@@ -3,83 +3,166 @@
 //  FinTrack
 //
 //  Three composable pieces:
-//    • BankLogoView           — multi-source logo loader with in-memory cache
+//    • BankLogoView           — institution logo, with a monogram fallback
 //    • InstitutionPickerField — drop-in replacement for a plain institution TextField
 //    • BankPickerSheet        — searchable full-screen bank browser
 //
-//  Logo sources tried in order (first success wins):
-//    1. logo.clearbit.com/{domain}          — high quality, unreliable since HubSpot acquisition
-//    2. www.google.com/s2/favicons?domain=  — always returns something, lower resolution
-//    3. SF Symbol fallback (no network)     — always works
+//  Logos come from Fin:Track's own server (fintrack.bmsk.ca/api/logo/<domain>),
+//  which fetches them from Logo.dev. The app never contacts Logo.dev directly,
+//  so the logo provider never sees the user's device or IP address. Logos are
+//  kept on the device; the monogram shows while loading, offline, or when an
+//  institution has no logo. Attribution to Logo.dev is shown in Settings ▸ About.
 //
 
 import SwiftUI
 
-// MARK: - Logo image cache
+// MARK: - Logo store (device cache + Fin:Track server)
 
-/// Shared in-memory cache so logos aren't re-fetched every time a view appears.
-final class BankLogoCache {
-    static let shared = BankLogoCache()
-    private init() {}
+/// Loads institution logos once, keeps them on the device, and deduplicates
+/// concurrent requests for the same institution.
+actor BankLogoStore {
+    static let shared = BankLogoStore()
 
-    private var cache: [String: UIImage] = [:]
-    private let queue = DispatchQueue(label: "BankLogoCache", attributes: .concurrent)
+    private static let baseURL = URL(string: "https://fintrack.bmsk.ca/api/logo/")!
+    private static let logoLifetime: TimeInterval = 30 * 24 * 3600     // refresh monthly
+    private static let missingLifetime: TimeInterval = 7 * 24 * 3600  // retry weekly
 
-    func get(_ key: String) -> UIImage? {
-        queue.sync { cache[key] }
+    /// No cookies, no shared URL cache: the request carries nothing but the domain.
+    private static let session: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.httpCookieStorage = nil
+        configuration.urlCache = nil
+        return URLSession(configuration: configuration)
+    }()
+
+    private let memory = NSCache<NSString, UIImage>()
+    private var missing: Set<String> = []
+    private var inFlight: [String: Task<UIImage?, Never>] = [:]
+    private let folder = FileManager.default
+        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("BankLogos", isDirectory: true)
+
+    /// The logo for a directory domain, or nil (no logo, offline, server error).
+    func logo(for domain: String) async -> UIImage? {
+        let key = domain.lowercased()
+        if let image = memory.object(forKey: key as NSString) { return image }
+        if missing.contains(key) { return nil }
+        if let task = inFlight[key] { return await task.value }
+
+        let task = Task { await load(key) }
+        inFlight[key] = task
+        let image = await task.value
+        inFlight[key] = nil
+        return image
     }
 
-    func set(_ key: String, image: UIImage) {
-        queue.async(flags: .barrier) { self.cache[key] = image }
+    private func load(_ key: String) async -> UIImage? {
+        try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let file = folder.appendingPathComponent("\(key).png")
+        let missingMarker = folder.appendingPathComponent("\(key).missing")
+
+        if let age = age(of: missingMarker), age < Self.missingLifetime {
+            missing.insert(key)
+            return nil
+        }
+
+        // Logo already on the device: use it; refresh it only once it is old.
+        var stored: UIImage?
+        if let age = age(of: file), let data = try? Data(contentsOf: file), let image = UIImage(data: data) {
+            memory.setObject(image, forKey: key as NSString)
+            if age < Self.logoLifetime { return image }
+            stored = image
+        }
+
+        var request = URLRequest(url: Self.baseURL.appendingPathComponent(key), timeoutInterval: 8)
+        request.setValue("image/png", forHTTPHeaderField: "Accept")
+        guard let (data, response) = try? await Self.session.data(for: request),
+              let http = response as? HTTPURLResponse
+        else { return stored }                       // offline: keep what we have
+
+        switch http.statusCode {
+        case 200:
+            guard let image = UIImage(data: data), image.size.width > 10 else { return stored }
+            try? data.write(to: file, options: .atomic)
+            try? FileManager.default.removeItem(at: missingMarker)
+            memory.setObject(image, forKey: key as NSString)
+            return image
+        case 404:                                    // no logo for this institution
+            FileManager.default.createFile(atPath: missingMarker.path, contents: nil)
+            try? FileManager.default.removeItem(at: file)
+            memory.removeObject(forKey: key as NSString)
+            missing.insert(key)
+            return nil
+        default:                                     // server or quota issue: retry later
+            return stored
+        }
+    }
+
+    private func age(of url: URL) -> TimeInterval? {
+        guard let date = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
+        else { return nil }
+        return Date().timeIntervalSince(date)
     }
 }
 
 // MARK: - BankLogoView
 
-/// Loads the official bank logo from multiple sources with graceful fallback.
+/// Logo of a financial institution. Shows its monogram immediately (and keeps
+/// it while loading, offline, or when no logo exists), then the logo once
+/// available. Unknown institutions get a generic building icon.
 struct BankLogoView: View {
     let domain: String?
     var size: CGFloat = 36
     var cornerRadius: CGFloat? = nil
 
-    @State private var logoImage: UIImage? = nil
-    @State private var failed = false
+    @State private var logo: UIImage?
 
     private var radius: CGFloat { cornerRadius ?? size * 0.22 }
 
-    // URLs to try in order
-    private var candidateURLs: [URL] {
-        guard let d = domain, !d.isEmpty else { return [] }
-        return [
-            // 1. Clearbit (best quality when it works)
-            URL(string: "https://logo.clearbit.com/\(d)?size=128"),
-            // 2. Google favicon (reliable, lower res)
-            URL(string: "https://www.google.com/s2/favicons?domain=\(d)&sz=128"),
-        ].compactMap { $0 }
-    }
-
     var body: some View {
-        ZStack {
-            if let img = logoImage {
-                Image(uiImage: img)
-                    .resizable()
-                    .scaledToFit()
-                    .transition(.opacity.animation(.easeIn(duration: 0.2)))
-            } else if failed || domain == nil {
-                fallbackView
+        Group {
+            if let bank = BankDirectory.bank(forDomain: domain) {
+                ZStack {
+                    monogramView(for: bank)
+                    if let logo {
+                        ZStack {
+                            Color.white
+                            Image(uiImage: logo).resizable().scaledToFit()
+                        }
+                        .transition(.opacity)
+                    }
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(bank.localizedName)
+                .task(id: bank.domain) {
+                    logo = nil
+                    guard let d = bank.domain else { return }
+                    let image = await BankLogoStore.shared.logo(for: d)
+                    withAnimation(.easeIn(duration: 0.2)) { logo = image }
+                }
             } else {
-                // Loading placeholder
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .fill(Color(.tertiarySystemBackground))
-                    .overlay(
-                        ProgressView().scaleEffect(0.6)
-                    )
+                fallbackView
             }
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
-        .task(id: domain) {
-            await loadLogo()
+    }
+
+    private func monogramView(for bank: BankInfo) -> some View {
+        let label = BankDirectory.monogram(for: bank)
+        let hue = BankDirectory.monogramHue(for: bank.domain ?? bank.id)
+        return ZStack {
+            // Brightness 0.46 keeps white text at ≥ 4.8:1 contrast for every hue
+            // (WCAG AA), including yellows and light greens.
+            RoundedRectangle(cornerRadius: radius, style: .continuous)
+                .fill(Color(hue: hue, saturation: 0.55, brightness: 0.46))
+            Text(label)
+                .font(.system(size: size * (label.count <= 2 ? 0.40 : 0.30),
+                              weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .padding(.horizontal, size * 0.08)
         }
     }
 
@@ -91,47 +174,7 @@ struct BankLogoView: View {
                 .font(.system(size: size * 0.45))
                 .foregroundStyle(Color(.secondaryLabel))
         }
-    }
-
-    // MARK: Loading logic
-
-    @MainActor
-    private func loadLogo() async {
-        guard let d = domain, !d.isEmpty else { failed = true; return }
-
-        // Check cache first
-        if let cached = BankLogoCache.shared.get(d) {
-            logoImage = cached
-            return
-        }
-
-        // Try each URL in sequence
-        for url in candidateURLs {
-            if let img = await fetchImage(from: url) {
-                BankLogoCache.shared.set(d, image: img)
-                logoImage = img
-                return
-            }
-        }
-
-        // All sources failed
-        failed = true
-    }
-
-    private func fetchImage(from url: URL) async -> UIImage? {
-        var request = URLRequest(url: url, timeoutInterval: 8)
-        // A browser-like User-Agent helps with some CDN policies
-        request.setValue(
-            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
-            forHTTPHeaderField: "User-Agent"
-        )
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
-              let http = response as? HTTPURLResponse,
-              http.statusCode == 200,
-              let img = UIImage(data: data),
-              img.size.width > 10   // ignore 1×1 placeholder pixels
-        else { return nil }
-        return img
+        .accessibilityHidden(true)
     }
 }
 
