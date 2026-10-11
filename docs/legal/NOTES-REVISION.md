@@ -31,13 +31,24 @@ Je ne suis pas juriste : ce qui suit prépare la relecture, il ne la remplace pa
 | Conservation de la liste d'attente | 12 mois après la fin de la bêta |
 | Âge minimum | 18 ans |
 
-## Reste à faire avant publication
+## Publication (11 octobre 2026)
 
-1. **Créer l'adresse `confidentialite@bmsk.ca`** : une politique qui renvoie à une
-   adresse inexistante empêche d'exercer ses droits.
-2. Vérifier dans App Store Connect les renseignements visibles sur les testeurs.
-3. Documenter l'évaluation des communications hors Québec.
-4. Inscrire la date de publication.
+Publiée sur https://fintrack.bmsk.ca/confidentialite/ et
+https://fintrack.bmsk.ca/en/privacy/, générées par `_landing/build.py` à partir
+des fichiers Markdown de ce dossier (source unique ; les lignes « > » ne sont
+pas publiées). Le build refuse de publier un texte contenant encore un
+marqueur [À COMPLÉTER], [À VALIDER] ou [À VÉRIFIER]. Lien « Confidentialité »
+du pied de page réparé dans les deux langues. Adresse `confidentialite@bmsk.ca`
+active.
+
+## Reste à faire
+
+1. **Évaluation des communications hors Québec** (Loi 25), à documenter. En
+   attendant, la politique publiée ne prétend pas qu'elle a été faite.
+2. **Vérifier dans App Store Connect** ce qui est visible des testeurs invités
+   par lien public, et préciser la section TestFlight si nécessaire.
+3. **Relecture juridique**, recommandée.
+4. **Corriger « Réinitialiser toutes les données »** (voir plus bas).
 
 ## Points juridiques à faire valider
 
@@ -70,8 +81,7 @@ Je ne suis pas juriste : ce qui suit prépare la relecture, il ne la remplace pa
   tout effacer. À corriger, puis la politique pourra le mentionner comme moyen
   de suppression.
 
-## Publication (après validation)
+## Fiche App Store
 
-Créer deux pages sur la landing, `/confidentialite` et `/en/privacy`, puis
-faire pointer le lien « Confidentialité » du pied de page vers elles (il pointe
-aujourd'hui vers `#`). La même adresse servira pour la fiche App Store.
+Utiliser https://fintrack.bmsk.ca/confidentialite/ comme URL de politique de
+confidentialité (et la version anglaise pour la localisation anglaise).

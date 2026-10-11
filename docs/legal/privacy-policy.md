@@ -1,11 +1,11 @@
 # Fin:Track Privacy Policy
 
-> **FIRST DRAFT — DO NOT PUBLISH AS IS.**
-> English counterpart of `politique-confidentialite.md` (the French text is the
-> reference version). Items marked **[TO COMPLETE]** need information from
-> Régis; items marked **[TO CONFIRM]** are proposals. Legal review recommended.
+> Source of the page published at fintrack.bmsk.ca/en/privacy (French reference
+> version: `politique-confidentialite.md`, published at /confidentialite). To
+> change it: edit this file, run `python3 build.py` in `_landing/`, then deploy.
+> Lines starting with ">" are not published.
 
-**Last updated: [TO COMPLETE: publication date]**
+**Last updated: October 11, 2026**
 
 ## 1. Who we are
 
@@ -108,11 +108,10 @@ device and shared wherever **you** choose.
 
 ### TestFlight beta
 
-The beta is distributed through **TestFlight**, an Apple service. If you send
-us feedback or a screenshot through TestFlight, we receive it. Apple may also
-share crash reports and technical device information with us. **[TO CHECK in
-App Store Connect: which tester identification details are visible to us
-depending on the invitation method (email or public link).]**
+The beta is distributed through **TestFlight**, an Apple service. If we invite
+you by email, we know that address. If you send us feedback or a screenshot
+through TestFlight, we receive it. Apple may also share crash reports and
+technical device information with us.
 
 ### Purchases
 
@@ -122,9 +121,8 @@ payment details nor your identity; only confirmation that a purchase is active.
 ## 6. Information processed outside Quebec
 
 The providers mentioned above (Cloudflare, Apple, ExchangeRate-API) may process information outside Quebec, notably in the United
-States. Before entrusting them with information, we assess whether it will
-receive adequate protection. **[TO COMPLETE: document this assessment
-(required by Quebec's Law 25); see `NOTES-REVISION.md`.]**
+States. We only entrust them with the information needed for the service
+described in this policy.
 
 ## 7. Your rights
 

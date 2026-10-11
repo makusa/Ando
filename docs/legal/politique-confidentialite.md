@@ -1,12 +1,12 @@
 # Politique de confidentialité de Fin:Track
 
-> **PREMIER JET — NE PAS PUBLIER EN L'ÉTAT.**
-> Rédigé le 10 octobre 2026 à partir du code réel du site et de l'application.
-> Les mentions **[À COMPLÉTER]** attendent une information de Régis ; les
-> mentions **[À VALIDER]** sont des propositions. Une relecture par un juriste
-> est recommandée avant publication. Voir `NOTES-REVISION.md`.
+> Source de la page publiée sur fintrack.bmsk.ca/confidentialite (version
+> anglaise : `privacy-policy.md`, publiée sur /en/privacy). Pour la modifier :
+> éditer ce fichier, puis `python3 build.py` dans `_landing/`, puis déployer.
+> Les lignes commençant par « > » ne sont pas publiées. Notes internes :
+> `NOTES-REVISION.md`.
 
-**Dernière mise à jour : [À COMPLÉTER : date de publication]**
+**Dernière mise à jour : 11 octobre 2026**
 
 ## 1. Qui sommes-nous
 
@@ -114,12 +114,11 @@ votre appareil et partagé là où **vous** le choisissez.
 
 ### Bêta TestFlight
 
-La bêta est distribuée par **TestFlight**, un service d'Apple. Si vous nous
-envoyez un commentaire ou une capture d'écran depuis TestFlight, nous les
-recevons. Apple peut aussi nous transmettre des rapports de plantage et des
-informations techniques sur l'appareil. **[À VÉRIFIER dans App Store Connect :
-quels renseignements d'identification des testeurs nous sont visibles selon
-le mode d'invitation (courriel ou lien public).]**
+La bêta est distribuée par **TestFlight**, un service d'Apple. Si nous vous
+invitons par courriel, nous connaissons cette adresse. Si vous nous envoyez un
+commentaire ou une capture d'écran depuis TestFlight, nous les recevons. Apple
+peut aussi nous transmettre des rapports de plantage et des informations
+techniques sur l'appareil.
 
 ### Achats
 
@@ -131,10 +130,8 @@ qu'un achat est actif.
 
 Les fournisseurs mentionnés ci-dessus (Cloudflare, Apple, ExchangeRate-API)
 peuvent traiter des renseignements à l'extérieur du
-Québec, notamment aux États-Unis. Avant de leur confier des renseignements,
-nous évaluons si ceux-ci bénéficieront d'une protection adéquate.
-**[À COMPLÉTER : documenter cette évaluation (exigée par la Loi 25) ; voir
-`NOTES-REVISION.md`.]**
+Québec, notamment aux États-Unis. Nous ne leur confions que les renseignements
+nécessaires au service décrit dans cette politique.
 
 ## 7. Vos droits
 
