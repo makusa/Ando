@@ -129,6 +129,7 @@ un identifiant StoreKit est immuable. Seuls les noms affichés sont Pro et Max.
 | `plaid-server/` | Ancien serveur Plaid (NAS Docker), remplacé par un proxy Cloudflare Workers |
 | `scripts/` | Outils de qualité : `verify.sh`, `check-l10n.py`, garde-fou de commit (`git-hooks/`) |
 | `docs/` | Documentation, dont `OUTILS.md` (mode d'emploi des outils de qualité) |
+| `marketing/` | Stratégie marketing : `STRATEGIE.md` (source de vérité), `HYPOTHESES.md` (hypothèses et expériences), `GUIDE-BETA.md` (plan de la bêta) |
 
 Deux moteurs de catégorisation coexistent : `AI/SmartCategorizer` (saisie manuelle,
 synchro Plaid, détection de récurrences) et `Categorization/` (import de relevés).
