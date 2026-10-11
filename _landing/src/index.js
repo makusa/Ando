@@ -5,12 +5,16 @@
  * Cloudflare sans passer par ce script. Le Worker ne traite donc que les
  * routes /api/*.
  *
- *   POST /api/inscription   inscription à la bêta
- *   GET  /api/inscriptions  export CSV, protégé par un jeton
+ *   POST /api/inscription      inscription à la bêta
+ *   GET  /api/inscriptions     export CSV, protégé par un jeton
+ *   GET  /api/logo/<domaine>   logo d'une institution de l'annuaire de l'app
  *
- * Le jeton d'export est un secret Wrangler, jamais dans le dépôt :
- *   npx wrangler secret put ADMIN_TOKEN
+ * Secrets Wrangler, jamais dans le dépôt :
+ *   npx wrangler secret put ADMIN_TOKEN      (export des inscriptions)
+ *   npx wrangler secret put LOGO_DEV_TOKEN   (clé publishable Logo.dev)
  */
+
+import { DOMAINES_LOGOS } from "./domaines-logos.js";
 
 /** Version du texte de consentement affiché sur la page, conservée avec
  *  chaque inscription pour pouvoir prouver plus tard ce qui a été promis. */
@@ -19,8 +23,13 @@ const CONSENTEMENT = "beta-testflight-2026-09";
 const MAX_CORPS = 1024; // octets ; une inscription légitime en fait ~60
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    if (url.pathname.startsWith("/api/logo/")) {
+      if (request.method !== "GET") return refus(405, "methode");
+      return logo(url, env, ctx);
+    }
 
     if (url.pathname === "/api/inscription") {
       if (request.method !== "POST") return refus(405, "methode");
@@ -140,4 +149,80 @@ function json(donnees, statut = 200) {
 
 function refus(statut, raison) {
   return json({ ok: false, raison }, statut);
+}
+
+// ── Logos des institutions ─────────────────────────────────────────────────
+//
+// L'app affiche le logo d'une institution en le demandant ici, et non
+// directement à Logo.dev. Ainsi :
+//   - Logo.dev ne voit jamais l'utilisateur : la requête vers lui est neuve et
+//     ne reprend aucun en-tête du visiteur (ni adresse, ni navigateur) ;
+//   - la clé Logo.dev reste sur le serveur ;
+//   - chaque logo n'est demandé à Logo.dev qu'une fois par mois (cache).
+// Aucune trace de ces requêtes n'est conservée (journaux d'invocation désactivés
+// dans wrangler.jsonc) et rien n'est écrit en base.
+
+const LOGO_CACHE_SECONDES = 30 * 24 * 3600;   // logo trouvé
+const LOGO_ABSENT_SECONDES = 7 * 24 * 3600;   // aucun logo pour ce domaine
+
+async function logo(url, env, ctx) {
+  let domaine;
+  try {
+    domaine = decodeURIComponent(url.pathname.slice("/api/logo/".length)).toLowerCase();
+  } catch {
+    return vide(404, LOGO_ABSENT_SECONDES);   // encodage invalide
+  }
+
+  // Uniquement les institutions de l'annuaire de l'app : sinon cette route
+  // servirait de relais gratuit vers Logo.dev et épuiserait le quota.
+  if (!DOMAINES_LOGOS.has(domaine)) return vide(404, LOGO_ABSENT_SECONDES);
+  if (!env.LOGO_DEV_TOKEN) return vide(503, 0);
+
+  // Clé de cache normalisée : sans paramètres, quelle que soit l'URL reçue.
+  const cache = caches.default;
+  const cle = new Request(`https://fintrack.bmsk.ca/api/logo/${domaine}`);
+  const enCache = await cache.match(cle);
+  if (enCache) return enCache;
+
+  const source = new URL(`https://img.logo.dev/${encodeURIComponent(domaine)}`);
+  source.search = new URLSearchParams({
+    token: env.LOGO_DEV_TOKEN,
+    size: "128",
+    retina: "true",
+    format: "png",      // fond transparent
+    fallback: "404",    // pas de monogramme Logo.dev : l'app affiche le sien
+  }).toString();
+
+  let amont;
+  try {
+    amont = await fetch(source.toString(), { headers: { Accept: "image/png" } });
+  } catch {
+    return vide(502, 0);
+  }
+
+  let reponse;
+  if (amont.status === 404) {
+    reponse = vide(404, LOGO_ABSENT_SECONDES);
+  } else if (amont.ok) {
+    reponse = new Response(await amont.arrayBuffer(), {
+      headers: {
+        "Content-Type": amont.headers.get("Content-Type") || "image/png",
+        "Cache-Control": `public, max-age=${LOGO_CACHE_SECONDES}`,
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  } else {
+    // Quota atteint, clé invalide, panne : ne rien mettre en cache.
+    return vide(502, 0);
+  }
+
+  ctx.waitUntil(cache.put(cle, reponse.clone()));
+  return reponse;
+}
+
+function vide(statut, secondes) {
+  return new Response(null, {
+    status: statut,
+    headers: { "Cache-Control": secondes ? `public, max-age=${secondes}` : "no-store" },
+  });
 }

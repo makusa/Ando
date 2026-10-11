@@ -25,8 +25,14 @@
 	// Repasser à true pour retrouver une URL *.workers.dev de secours.
 	"workers_dev": false,
 	"preview_urls": true,
+	// Erreurs conservées, mais pas les journaux d'invocation : ils enregistreraient
+	// chaque requête reçue, dont /api/logo/<domaine> (la banque consultée).
+	// Promesse de la politique de confidentialité : ces requêtes ne sont pas conservées.
 	"observability": {
-		"enabled": true
+		"enabled": true,
+		"logs": {
+			"invocation_logs": false
+		}
 	},
 	// Base créée avec : npx wrangler d1 create fintrack-beta
 	// Le code n'utilise que la liaison DB (env.DB dans src/index.js).
