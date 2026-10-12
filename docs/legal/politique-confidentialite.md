@@ -130,8 +130,9 @@ qu'un achat est actif.
 
 Les fournisseurs mentionnés ci-dessus (Cloudflare, Apple, ExchangeRate-API)
 peuvent traiter des renseignements à l'extérieur du
-Québec, notamment aux États-Unis. Nous ne leur confions que les renseignements
-nécessaires au service décrit dans cette politique.
+Québec : aux États-Unis pour Cloudflare et Apple ; en Afrique du Sud, en Irlande
+et en Allemagne pour ExchangeRate-API. Nous ne leur confions que les
+renseignements nécessaires au service décrit dans cette politique.
 
 ## 7. Vos droits
 

@@ -43,8 +43,10 @@ active.
 
 ## Reste à faire
 
-1. **Évaluation des communications hors Québec** (Loi 25), à documenter. En
-   attendant, la politique publiée ne prétend pas qu'elle a été faite.
+1. **Évaluation des communications hors Québec** (Loi 25) : premier jet dans
+   `EFVP.md` (11 octobre 2026), avec un plan d'action (A1 à A6) et des questions
+   pour le juriste. La politique publiée ne dira qu'elle a été faite qu'après
+   validation.
 2. **Vérifier dans App Store Connect** ce qui est visible des testeurs invités
    par lien public, et préciser la section TestFlight si nécessaire.
 3. **Relecture juridique**, recommandée.

@@ -120,9 +120,9 @@ payment details nor your identity; only confirmation that a purchase is active.
 
 ## 6. Information processed outside Quebec
 
-The providers mentioned above (Cloudflare, Apple, ExchangeRate-API) may process information outside Quebec, notably in the United
-States. We only entrust them with the information needed for the service
-described in this policy.
+The providers mentioned above (Cloudflare, Apple, ExchangeRate-API) may process information outside Quebec: in the United States for Cloudflare and
+Apple; in South Africa, Ireland and Germany for ExchangeRate-API. We only entrust
+them with the information needed for the service described in this policy.
 
 ## 7. Your rights
 
