@@ -98,6 +98,14 @@ actor BankLogoStore {
         }
     }
 
+    /// Forgets every cached logo (Settings ▸ Reset all data): the cache reveals
+    /// which institutions the user had.
+    func clear() {
+        memory.removeAllObjects()
+        missing.removeAll()
+        try? FileManager.default.removeItem(at: folder)
+    }
+
     private func age(of url: URL) -> TimeInterval? {
         guard let date = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
         else { return nil }

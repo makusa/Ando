@@ -173,6 +173,10 @@ struct FinTrackApp: App {
         // Quebec household so captures are never empty.
         #if DEBUG
         if demoMode { DemoData.seed(context: modelContainer.mainContext) }
+        // Proof that "Reset all data" erases everything: -FTDemoMode -FTResetSelfTest
+        if demoMode && ProcessInfo.processInfo.arguments.contains("-FTResetSelfTest") {
+            DataReset.selfTest(context: modelContainer.mainContext)
+        }
         #endif
 
         // One-time: seed the tracked-currency list (CAD+USD + any currency already

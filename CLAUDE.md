@@ -180,7 +180,13 @@ Tous dans `FinTrack/BankSync/BankSyncProvider.swift`, sauf mention contraire.
   `FinTrackSchema.swift` définit un schéma versionné et un plan de migration qui ne
   sont **volontairement pas branchés** (la raison est en commentaire dans
   `FinTrackApp.swift`). Les évolutions de modèle doivent rester additives.
-- **Toute nouvelle classe `@Model` doit être ajoutée à ce schéma.**
+- **Toute nouvelle classe `@Model` doit être ajoutée à ce schéma, et à
+  `DataReset.eraseModels` / `DataReset.report`** (sinon « Réinitialiser toutes les
+  données » redevient silencieusement incomplet). Preuve :
+  lancer l'app avec `-FTDemoMode -FTResetSelfTest` (DEBUG) ; elle affiche
+  `RESET-SELFTEST result: COMPLETE` et `not exercised: none`, sinon elle quitte
+  avec le code 1. Tout nouveau stockage de données personnelles (fichier,
+  préférence) doit aussi y être ajouté.
 - CloudKit (base privée `iCloud.ca.bmsk.fintrack`) n'est utilisé que si l'utilisateur
   l'active ; décidé **au lancement**, donc un redémarrage est nécessaire. En cas
   d'échec, repli sur le stockage local et erreur affichée sous le réglage.
@@ -256,9 +262,6 @@ Le détail de chaque décision se trouve dans le message du commit correspondant
 - **Prix provisoires** : Pro 24,99 $ sur la landing, 28,99 $ dans `FinTrack.storekit`.
   À aligner avant le lancement.
 - **Aucun test unitaire dans le dépôt** ; seul le harnais de captures existe.
-- **« Réinitialiser toutes les données » est incomplet** (`SettingsView.resetAll`) :
-  il laisse budgets, prêts, marges, récurrences, projets, profils enregistrés et
-  images des reçus. À corriger avant le lancement (voir `docs/legal/NOTES-REVISION.md`).
 - Le commentaire de `RegisteredType.reer` dit « room calc not implemented here yet »,
   mais le calcul REER est bien implémenté dans `RegisteredRoomCalculator`. Commentaire
   à corriger.

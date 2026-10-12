@@ -323,22 +323,12 @@ struct SettingsView: View {
     }
 
     private func resetAll() {
-        // Delete all transactions, accounts, and user-created categories.
-        for tx in allTransactions { context.delete(tx) }
-        for acc in allAccounts { context.delete(acc) }
-        let userCategories = (try? context.fetch(
-            FetchDescriptor<Category>(predicate: #Predicate { !$0.isSystem })
-        )) ?? []
-        for cat in userCategories { context.delete(cat) }
-
-        // Optionally also wipe system categories so seed will regenerate clean.
-        let systemCategories = (try? context.fetch(
-            FetchDescriptor<Category>(predicate: #Predicate { $0.isSystem })
-        )) ?? []
-        for cat in systemCategories { context.delete(cat) }
-
-        try? context.save()
-        SeedData.seedIfNeeded(context: context)
+        // Erases every piece of financial data (inventory in DataReset.swift),
+        // not only accounts and transactions as before.
+        let report = DataReset.eraseAll(context: context)
+        if !report.isComplete {
+            AppLogger.persistence.error("Reset incomplete: \(report.leftovers.joined(separator: ", "), privacy: .public)")
+        }
     }
 }
 
