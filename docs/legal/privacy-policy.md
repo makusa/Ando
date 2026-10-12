@@ -139,9 +139,11 @@ To exercise a right, write to the person in charge of the protection of
 personal information (section 1). We reply within **30 days**.
 
 Data stored in the app stays on your device: we do not hold it. You can export
-your transactions (CSV) from the app, and delete everything by deleting the
-app. If you turned on iCloud sync, a copy remains in your iCloud account; you
-can delete it from your device's iCloud settings.
+your transactions (CSV) from the app, and delete everything from **Settings ▸
+Reset All Data**; if iCloud sync is on, the deletion also applies to your
+iCloud account and your other devices. Deleting the app erases the data on the
+device but not its iCloud copy, which you can delete from your device's iCloud
+settings.
 
 ## 8. Security
 

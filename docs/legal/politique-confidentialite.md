@@ -150,9 +150,11 @@ renseignements personnels (section 1). Nous répondons dans un délai de
 
 Les données enregistrées dans l'application restent sur votre appareil : nous
 ne les détenons pas. Vous pouvez exporter vos transactions (CSV) depuis
-l'application, et tout supprimer en supprimant l'application. Si vous avez
-activé la synchronisation iCloud, une copie demeure dans votre compte iCloud ;
-vous pouvez la supprimer depuis les réglages iCloud de votre appareil.
+l'application, et tout supprimer depuis **Réglages ▸ Réinitialiser toutes les
+données** ; si la synchronisation iCloud est active, la suppression s'applique
+aussi à votre compte iCloud et à vos autres appareils. Supprimer l'application
+efface les données de l'appareil, mais pas leur copie iCloud : vous pouvez la
+supprimer depuis les réglages iCloud de votre appareil.
 
 ## 8. Sécurité
 

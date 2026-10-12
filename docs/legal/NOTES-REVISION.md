@@ -48,7 +48,6 @@ active.
 2. **Vérifier dans App Store Connect** ce qui est visible des testeurs invités
    par lien public, et préciser la section TestFlight si nécessaire.
 3. **Relecture juridique**, recommandée.
-4. **Corriger « Réinitialiser toutes les données »** (voir plus bas).
 
 ## Points juridiques à faire valider
 
@@ -73,13 +72,12 @@ active.
 
 ## Correctifs avant lancement
 
-- **« Réinitialiser toutes les données » est incomplet** (constaté le 10 octobre
-  2026). `SettingsView.resetAll()` supprime comptes, transactions et catégories,
-  mais laisse budgets, prêts, marges, règles de récurrence, projets d'épargne,
-  profils de comptes enregistrés, notifications, et **les images des reçus
-  scannés** (`Documents/Receipts/`). Un bouton qui promet de tout effacer doit
-  tout effacer. À corriger, puis la politique pourra le mentionner comme moyen
-  de suppression.
+- ~~« Réinitialiser toutes les données » est incomplet~~ **Corrigé le 11 octobre
+  2026** (`FinTrack/Utilities/DataReset.swift`) : efface les 16 types de données,
+  les reçus, le cache des logos, les préférences contenant des données
+  personnelles, les données du widget, les connexions bancaires et les rappels.
+  Prouvé par l'auto-test `-FTDemoMode -FTResetSelfTest` (tous les types présents
+  avant, aucun après). La politique mentionne désormais ce bouton.
 
 ## Fiche App Store
 
