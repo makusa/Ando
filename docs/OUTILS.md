@@ -88,7 +88,9 @@ scripts/verify.sh --help
 3. **Build Debug**, puis **build Release** : 0 erreur et 0 avertissement exigés.
    Le bruit `appintentsmetadataprocessor` est ignoré ; chaque avertissement n'est
    compté qu'une fois.
-4. **Stabilité** : si un fichier a changé pendant la vérification, elle est annulée.
+4. **Tests unitaires** (`FinTrackTests`) : 43 tests sur les moteurs financiers
+   purs. Un calcul faux compile sans erreur — seuls les tests l'attrapent.
+5. **Stabilité** : si un fichier a changé pendant la vérification, elle est annulée.
 
 Il s'arrête à la première étape en échec et affiche la cause (fichier et ligne pour
 un avertissement ou une erreur de compilation), puis le chemin du journal complet.
@@ -108,6 +110,7 @@ un avertissement ou une erreur de compilation), puis le chemin du journal comple
 | | `--quick` | complet |
 |---|---|---|
 | Builds | Debug | Debug + Release |
+| Tests unitaires | non | oui (~5 s) |
 | Durée indicative | ~30 s | ~2 min |
 | Autorise le commit | **non** | **oui** |
 | Usage | Pendant le travail, pour vérifier vite | Juste avant de committer |

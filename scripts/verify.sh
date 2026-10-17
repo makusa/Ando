@@ -20,6 +20,8 @@ case "${1:-}" in
     *) echo "Option inconnue : $1 (voir --help)"; exit 2 ;;
 esac
 
+# Simulateur utilisé pour les tests unitaires (les builds, eux, sont génériques).
+SIMULATEUR="42645610-A5FC-408B-A0A6-1AF9CA31170D"
 JOURNAUX="${TMPDIR:-/tmp}/fintrack-verify"
 mkdir -p "$JOURNAUX"
 DEBUT=$(date +%s)
@@ -75,7 +77,26 @@ echo; echo "3. Builds (journaux dans $JOURNAUX)"
 construire Debug
 [ "$MODE" = complet ] && construire Release
 
-# 4. Le code ne doit pas avoir changé pendant la vérification
+# 4. Tests unitaires des moteurs financiers (Debug seulement : même code)
+if [ "$MODE" = complet ]; then
+    echo; echo "4. Tests unitaires"
+    journal="$JOURNAUX/tests.log"
+    t0=$(date +%s)
+    printf "   moteurs… "
+    xcodebuild test -project FinTrack.xcodeproj -scheme FinTrack \
+        -destination "platform=iOS Simulator,id=$SIMULATEUR" \
+        -only-testing:FinTrackTests > "$journal" 2>&1
+    statut=$?
+    resume=$(grep -oE "Executed [0-9]+ tests?, with [0-9]+ failures?" "$journal" | tail -1)
+    echo "${resume:-aucun résultat} | $(( $(date +%s) - t0 )) s"
+    if [ "$statut" -ne 0 ]; then
+        grep -E "error:|XCTAssert.*failed|failed -" "$journal" | sort -u | head -12 | sed 's/^/     ✗ /'
+        echo "     Journal complet : $journal"
+        echec "des tests unitaires échouent"
+    fi
+fi
+
+# 5. Le code ne doit pas avoir changé pendant la vérification
 [ "$(empreinte_build)" = "$EMPREINTE_AVANT" ] \
     || echec "des fichiers ont changé pendant la vérification ; relancer scripts/verify.sh"
 

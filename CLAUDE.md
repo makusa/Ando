@@ -265,7 +265,10 @@ Le détail de chaque décision se trouve dans le message du commit correspondant
   encore des valeurs à remplacer).
 - **Prix de Pro : 24,99 $**, aligné entre la landing, le JSON-LD et
   `FinTrack.storekit` (2026-10-17). Décision définitive à la fin de la bêta.
-- **Aucun test unitaire dans le dépôt** ; seul le harnais de captures existe.
+- **Tests unitaires** : cible `FinTrackTests`, 43 tests sur les moteurs purs
+  (droits enregistrés, amortissement, rapprochement). Lancés par `verify.sh`,
+  donc un calcul cassé bloque le commit. Les moteurs liés à SwiftData
+  (catégorisation, récurrences, intérêt des marges) restent non couverts.
 - Le commentaire de `RegisteredType.reer` dit « room calc not implemented here yet »,
   mais le calcul REER est bien implémenté dans `RegisteredRoomCalculator`. Commentaire
   à corriger.
