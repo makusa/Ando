@@ -8,6 +8,8 @@
  *   POST /api/inscription      inscription à la bêta
  *   GET  /api/inscriptions     export CSV, protégé par un jeton
  *   GET  /api/logo/<domaine>   logo d'une institution de l'annuaire de l'app
+ *   GET  /desabonnement       page de retrait de la liste (lien du courriel)
+ *   POST /api/desabonnement   effectue le retrait
  *
  * Secrets Wrangler, jamais dans le dépôt :
  *   npx wrangler secret put ADMIN_TOKEN      (export des inscriptions)
@@ -29,6 +31,16 @@ export default {
     if (url.pathname.startsWith("/api/logo/")) {
       if (request.method !== "GET") return refus(405, "methode");
       return logo(url, env, ctx);
+    }
+
+    if (url.pathname === "/desabonnement") {
+      if (request.method !== "GET") return refus(405, "methode");
+      return pageDesabonnement(url);
+    }
+
+    if (url.pathname === "/api/desabonnement") {
+      if (request.method !== "POST") return refus(405, "methode");
+      return desabonner(request, env);
     }
 
     if (url.pathname === "/api/inscription") {
@@ -73,12 +85,19 @@ async function inscrire(request, env) {
   const maintenant = new Date().toISOString();
 
   try {
+    // Si l'adresse s'était désabonnée puis revient, elle re-consent : on efface
+    // le retrait et on enregistre le nouveau consentement (date et version).
     const resultat = await env.DB.prepare(
-      `INSERT INTO inscriptions (courriel, langue, pays, consentement, cree_le)
-       VALUES (?, ?, ?, ?, ?)
-       ON CONFLICT (courriel) DO NOTHING`
+      `INSERT INTO inscriptions (courriel, langue, pays, consentement, cree_le, jeton)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT (courriel) DO UPDATE SET
+         desabonne_le = NULL,
+         langue       = excluded.langue,
+         consentement = excluded.consentement,
+         cree_le      = excluded.cree_le
+       WHERE inscriptions.desabonne_le IS NOT NULL`
     )
-      .bind(courriel, langue, pays, CONSENTEMENT, maintenant)
+      .bind(courriel, langue, pays, CONSENTEMENT, maintenant, crypto.randomUUID())
       .run();
 
     const nouvelle = (resultat.meta?.changes ?? 0) > 0;
@@ -224,5 +243,149 @@ function vide(statut, secondes) {
   return new Response(null, {
     status: statut,
     headers: { "Cache-Control": secondes ? `public, max-age=${secondes}` : "no-store" },
+  });
+}
+
+// ── Désabonnement ──────────────────────────────────────────────────────────
+//
+// La LCAP exige un retrait simple, sans compte ni connexion. Le lien du
+// courriel porte un jeton propre à l'inscription : il identifie la personne
+// sans exposer son adresse dans l'URL, et personne ne peut désabonner autrui.
+//
+// Le retrait se fait en deux temps — une page, puis un bouton qui envoie un
+// POST — parce que certains clients de messagerie et antivirus visitent les
+// liens d'un courriel à l'avance : un simple GET désabonnerait des personnes
+// qui n'ont jamais cliqué.
+
+async function desabonner(request, env) {
+  let jeton;
+  try {
+    jeton = (await request.json()).jeton;
+  } catch {
+    return refus(400, "format");
+  }
+  if (typeof jeton !== "string" || jeton.length < 8 || jeton.length > 64) {
+    return refus(422, "jeton");
+  }
+
+  try {
+    // Le retrait est idempotent : recliquer n'écrase pas la date initiale.
+    const r = await env.DB.prepare(
+      `UPDATE inscriptions
+          SET desabonne_le = ?
+        WHERE jeton = ? AND desabonne_le IS NULL`
+    )
+      .bind(new Date().toISOString(), jeton)
+      .run();
+
+    if ((r.meta?.changes ?? 0) > 0) return json({ ok: true, deja: false });
+
+    // Aucune ligne touchée : soit déjà désabonnée, soit jeton inconnu. On ne
+    // distingue pas les deux dans la réponse, pour ne pas confirmer l'existence
+    // d'une adresse à qui essaierait des jetons au hasard.
+    const existe = await env.DB.prepare(`SELECT 1 FROM inscriptions WHERE jeton = ?`)
+      .bind(jeton)
+      .first();
+    return existe ? json({ ok: true, deja: true }) : refus(404, "introuvable");
+  } catch (erreur) {
+    console.error("desabonnement", erreur);
+    return refus(500, "serveur");
+  }
+}
+
+/** Page de confirmation du retrait. Langue : ?l=en, sinon français. */
+function pageDesabonnement(url) {
+  const jeton = (url.searchParams.get("j") || "").slice(0, 64);
+  const en = url.searchParams.get("l") === "en";
+
+  const t = en
+    ? {
+        lang: "en-CA", titre: "Leave the beta list — Fin:Track",
+        h1: "Leave the beta list",
+        p: "You will no longer receive the Fin:Track TestFlight invitation. Nothing else changes.",
+        bouton: "Confirm", occupe: "Removing…",
+        fait: "Done — your address has been removed from the list.",
+        deja: "Your address was already removed from the list.",
+        erreur: "This link is no longer valid. Write to bonjour@bmsk.ca and we will remove you.",
+        sansJeton: "This link is incomplete. Use the link from the invitation email, or write to bonjour@bmsk.ca.",
+        retour: "Back to the site",
+      }
+    : {
+        lang: "fr-CA", titre: "Quitter la liste de la bêta — Fin:Track",
+        h1: "Quitter la liste de la bêta",
+        p: "Vous ne recevrez plus l'invitation TestFlight de Fin:Track. Rien d'autre ne change.",
+        bouton: "Confirmer", occupe: "Retrait en cours…",
+        fait: "C'est fait — votre adresse a été retirée de la liste.",
+        deja: "Votre adresse avait déjà été retirée de la liste.",
+        erreur: "Ce lien n'est plus valide. Écrivez à bonjour@bmsk.ca et nous vous retirerons.",
+        sansJeton: "Ce lien est incomplet. Utilisez le lien du courriel d'invitation, ou écrivez à bonjour@bmsk.ca.",
+        retour: "Retour au site",
+      };
+
+  const page = `<!DOCTYPE html>
+<html lang="${t.lang}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>${t.titre}</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="preload" href="/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Archivo';font-style:normal;font-weight:100 900;font-stretch:62% 125%;font-display:swap;
+  src:url(/fonts/archivo-latin.woff2) format('woff2')}
+:root{--papier:#EEF1EF;--surface:#F9FBFA;--encre:#0E241E;--verdigris:#2E7D6C;--sourdine:#5C6E68;--ligne:#D2DAD6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--papier);color:var(--encre);font-family:'Archivo',-apple-system,sans-serif;
+  line-height:1.6;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.carte{background:var(--surface);border:1px solid var(--ligne);border-radius:14px;
+  padding:32px;max-width:520px;width:100%}
+h1{font-size:1.5rem;line-height:1.25;margin-bottom:12px}
+p{margin-bottom:20px}
+button{font:inherit;font-weight:600;color:#fff;background:var(--encre);border:0;border-radius:9px;
+  padding:12px 22px;cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+.etat{margin-top:18px;font-size:.95rem}
+.ok{color:var(--verdigris)}
+.ko{color:#A32D2D}
+a{color:var(--verdigris);font-size:.9rem}
+.pied{margin-top:24px;font-size:.85rem;color:var(--sourdine)}
+</style>
+</head>
+<body>
+<main class="carte">
+  <h1>${t.h1}</h1>
+  <p>${jeton ? t.p : t.sansJeton}</p>
+  ${jeton ? `<button id="b">${t.bouton}</button><div class="etat" id="e" role="status" aria-live="polite"></div>` : ""}
+  <div class="pied"><a href="${en ? "/en/" : "/"}">${t.retour}</a></div>
+</main>
+<script>
+var b = document.getElementById("b");
+if (b) b.addEventListener("click", async function () {
+  var e = document.getElementById("e");
+  b.disabled = true; e.className = "etat"; e.textContent = ${JSON.stringify(t.occupe)};
+  try {
+    var r = await fetch("/api/desabonnement", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jeton: ${JSON.stringify(jeton)} })
+    });
+    var d = await r.json().catch(function () { return {}; });
+    if (r.ok && d.ok) {
+      e.className = "etat ok";
+      e.textContent = d.deja ? ${JSON.stringify(t.deja)} : ${JSON.stringify(t.fait)};
+      b.remove();
+    } else {
+      e.className = "etat ko"; e.textContent = ${JSON.stringify(t.erreur)}; b.disabled = false;
+    }
+  } catch (x) {
+    e.className = "etat ko"; e.textContent = ${JSON.stringify(t.erreur)}; b.disabled = false;
+  }
+});
+</script>
+</body>
+</html>`;
+
+  return new Response(page, {
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
   });
 }

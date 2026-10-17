@@ -14,7 +14,13 @@ CREATE TABLE IF NOT EXISTS inscriptions (
   pays           TEXT,                          -- code pays fourni par Cloudflare
   consentement   TEXT    NOT NULL,              -- version du texte affiché
   cree_le        TEXT    NOT NULL,              -- ISO 8601 UTC
-  desabonne_le   TEXT                           -- rempli si retrait demandé
+  desabonne_le   TEXT,                          -- rempli si retrait demandé
+  jeton          TEXT    NOT NULL UNIQUE        -- identifie le lien de désabonnement
 );
 
 CREATE INDEX IF NOT EXISTS idx_inscriptions_cree_le ON inscriptions (cree_le);
+
+-- Le désabonnement se fait par un lien signé d'un jeton propre à chaque
+-- inscription : la personne n'a pas à se connecter (exigence LCAP), et
+-- personne ne peut désabonner une adresse sans détenir son jeton.
+CREATE INDEX IF NOT EXISTS idx_inscriptions_jeton ON inscriptions (jeton);
