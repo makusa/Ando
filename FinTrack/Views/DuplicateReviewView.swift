@@ -151,7 +151,7 @@ struct DuplicateReviewView: View {
         manual.status = .reconciled
         manual.needsReview = false
         let acc = synced.account ?? manual.account
-        context.delete(synced)
+        context.deleteTransaction(synced)
         acc?.recalculateBalance()
         save()
     }

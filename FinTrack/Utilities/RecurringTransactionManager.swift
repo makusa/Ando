@@ -209,7 +209,7 @@ extension RecurringTransactionManager {
         // Capturer les transactions AVANT de supprimer la règle.
         let txs = rule.generatedTransactions ?? []
         for tx in txs where scope == .allTransactions || tx.date > now {
-            context.delete(tx)
+            context.deleteTransaction(tx)
         }
         context.delete(rule)
         try? context.save()           // purge les suppressions, relations cohérentes

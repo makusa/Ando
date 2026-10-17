@@ -83,7 +83,7 @@ enum SavingsTransferService {
             let now = Date()
             let toDelete = (project.generatedTransactions ?? []).filter { $0.date <= now }
             let touched  = Set(toDelete.compactMap { $0.account })
-            for tx in toDelete { context.delete(tx) }
+            for tx in toDelete { context.deleteTransaction(tx) }
             for acc in touched { acc.recalculateBalance() }
             project.account?.recalculateBalance()
         }

@@ -617,8 +617,7 @@ struct AddEditTransactionView: View {
         guard case .edit(let tx) = mode else { return }
         let acct = tx.account
         // Remove the attached receipt image, if any, so it doesn't orphan.
-        if let name = tx.receiptFileName { ReceiptStore.delete(name) }
-        context.delete(tx)
+        context.deleteTransaction(tx)
         acct?.recalculateBalance()
         try? context.save()
         let ctx = context

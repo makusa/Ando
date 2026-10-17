@@ -325,7 +325,7 @@ struct CreditLineDetailView: View {
             guard entry.type != .interestAccrual else { continue }
             if let tx = entry.transaction {
                 let acc = tx.account
-                context.delete(tx)          // cascade supprime l'entrée liée
+                context.deleteTransaction(tx)   // cascade supprime l'entrée liée
                 acc?.recalculateBalance()
             } else {
                 context.delete(entry)

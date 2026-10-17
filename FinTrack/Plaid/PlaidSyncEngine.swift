@@ -100,7 +100,7 @@ final class PlaidSyncEngine {
             // ── Process removed transactions ──────────────────────────────
             for removed in response.removed {
                 if let existing = existingTransaction(plaidId: removed.transaction_id, context: context) {
-                    context.delete(existing)
+                    context.deleteTransaction(existing)
                     removedCount += 1
                 }
             }

@@ -336,14 +336,14 @@ struct AccountDetailView: View {
         )
         let legs = (try? context.fetch(descriptor)) ?? []
         let affected = Set(legs.compactMap { $0.account })
-        for leg in legs { context.delete(leg) }
+        for leg in legs { context.deleteTransaction(leg) }
         for acc in affected { acc.recalculateBalance() }
     }
 
     private func deleteTransactions(at offsets: IndexSet) {
         let toDelete = offsets.map { sortedTransactions[$0] }
         for tx in toDelete {
-            context.delete(tx)
+            context.deleteTransaction(tx)
         }
         account.recalculateBalance()
         try? context.save()

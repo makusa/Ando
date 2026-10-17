@@ -367,7 +367,7 @@ struct TransactionsView: View {
         var affected: Set<Account.ID> = []
         for index in offsets {
             if let a = items[index].account { affected.insert(a.id) }
-            context.delete(items[index])
+            context.deleteTransaction(items[index])
         }
         // Recalculate after deletes
         for acc in accounts where affected.contains(acc.id) {

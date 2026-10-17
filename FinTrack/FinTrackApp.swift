@@ -173,6 +173,11 @@ struct FinTrackApp: App {
         // Quebec household so captures are never empty.
         #if DEBUG
         if demoMode { DemoData.seed(context: modelContainer.mainContext) }
+        // Proof that the receipt sweep keeps live images: -FTDemoMode -FTReceiptSweepSelfTest
+        if demoMode && ProcessInfo.processInfo.arguments.contains("-FTReceiptSweepSelfTest") {
+            ReceiptStore.sweepSelfTest(context: modelContainer.mainContext)
+        }
+
         // Proof that "Reset all data" erases everything: -FTDemoMode -FTResetSelfTest
         if demoMode && ProcessInfo.processInfo.arguments.contains("-FTResetSelfTest") {
             DataReset.selfTest(context: modelContainer.mainContext)
@@ -209,6 +214,19 @@ struct FinTrackApp: App {
         RecurringTransactionManager.applyPending(context: modelContainer.mainContext)
         LoanPrepaymentManager.applyPending(context: modelContainer.mainContext)
         CreditLineInterestManager.applyPending(context: modelContainer.mainContext)
+
+        // Safety net: remove receipt images no transaction references any more.
+        // Deleting an ACCOUNT cascades to its transactions without running any
+        // per-transaction code, so their photos would otherwise stay on disk.
+        //
+        // Skipped in demo mode: that store is in-memory and empty, so every real
+        // receipt on the device would look orphaned.
+        if !demoMode {
+            Task.detached(priority: .utility) { @MainActor in
+                let removed = ReceiptStore.deleteOrphans(in: modelContainer.mainContext)
+                if removed > 0 { AppLogger.persistence.info("Receipts: \(removed) orphan(s) removed") }
+            }
+        }
 
         // Continuous on-device recurrence detection (paid tiers): surface any new
         // suggestions in the in-app notification center. Deferred so it doesn't slow

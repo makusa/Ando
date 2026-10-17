@@ -233,6 +233,10 @@ Tous dans `FinTrack/BankSync/BankSyncProvider.swift`, sauf mention contraire.
 - **Une constante littérale `false` en Release** produit « will never be executed » :
   placer la garde `#if DEBUG` à l'intérieur de la propriété (motif `DemoMode.isActive`).
 - **Xcode 27** signale l'usage de `ModelContext` sans `import SwiftData` explicite.
+- **Supprimer une transaction doit effacer son reçu** : l'image vit sur disque,
+  pas dans SwiftData. Utiliser `context.deleteTransaction(tx)`, jamais
+  `context.delete(tx)`. Un nettoyage au lancement (`ReceiptStore.deleteOrphans`)
+  rattrape les suppressions en cascade, où aucun code par transaction ne tourne.
 - **XcodeGen régénère les entitlements** : vérifier l'App Group après chaque génération.
 - **XCUITest et listes SwiftUI** : `app.cells` ne trouve pas les rangées
   personnalisées ; chercher par `app.buttons` avec un prédicat sur le libellé.
@@ -259,8 +263,8 @@ Le détail de chaque décision se trouve dans le message du commit correspondant
 - **Synchro bancaire** : en attente d'un accès production (Plaid ou Flinks). Côté
   Flinks, il manque le compte, la clé d'API et le proxy (`FlinksManager` contient
   encore des valeurs à remplacer).
-- **Prix provisoires** : Pro 24,99 $ sur la landing, 28,99 $ dans `FinTrack.storekit`.
-  À aligner avant le lancement.
+- **Prix de Pro : 24,99 $**, aligné entre la landing, le JSON-LD et
+  `FinTrack.storekit` (2026-10-17). Décision définitive à la fin de la bêta.
 - **Aucun test unitaire dans le dépôt** ; seul le harnais de captures existe.
 - Le commentaire de `RegisteredType.reer` dit « room calc not implemented here yet »,
   mais le calcul REER est bien implémenté dans `RegisteredRoomCalculator`. Commentaire
