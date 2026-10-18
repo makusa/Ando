@@ -11,6 +11,8 @@ struct SecuritySettingsView: View {
     @State private var lockManager = AppLockManager.shared
 
     @State private var showChangePIN     = false
+    @State private var showCreatePIN     = false
+    @State private var confirmDisableLock = false
     @State private var showChangeName    = false
     @State private var confirmReset      = false
     @State private var newName: String   = ""
@@ -42,17 +44,42 @@ struct SecuritySettingsView: View {
                 .padding(.vertical, 4)
             }
 
-            // MARK: PIN
-            Section(lang["security.pin"]) {
-                Button {
-                    showChangePIN = true
-                } label: {
-                    Label(lang["security.pin.change"], systemImage: "lock.rotation")
-                        .foregroundStyle(.primary)
+            // MARK: Verrou — facultatif depuis le 18 octobre 2026 (R3)
+            if !lockManager.hasPIN {
+                // Aucun code : tout le reste de cet écran n'aurait aucun sens.
+                Section {
+                    Button {
+                        showCreatePIN = true
+                    } label: {
+                        Label(lang["security.enableLock"], systemImage: "lock.open.fill")
+                            .foregroundStyle(.primary)
+                    }
+                } header: {
+                    Text(lang["security.pin"])
+                } footer: {
+                    Text(lang["security.enableLock.footer"])
+                }
+            } else {
+                // MARK: PIN
+                Section(lang["security.pin"]) {
+                    Button {
+                        showChangePIN = true
+                    } label: {
+                        Label(lang["security.pin.change"], systemImage: "lock.rotation")
+                            .foregroundStyle(.primary)
+                    }
+                    // La porte de sortie : sans elle, oublier son code
+                    // signifiait perdre l'accès à ses données pour de bon.
+                    Button(role: .destructive) {
+                        confirmDisableLock = true
+                    } label: {
+                        Label(lang["security.disableLock"], systemImage: "lock.open")
+                    }
                 }
             }
 
             // MARK: Biometrics
+            if lockManager.hasPIN {
             Section {
                 if lockManager.biometricType != .none {
                     Toggle(
@@ -113,6 +140,7 @@ struct SecuritySettingsView: View {
                         .foregroundStyle(.orange)
                 }
             }
+            }   // fin du bloc « si un code existe »
 
             // MARK: Reset
             Section {
@@ -131,6 +159,23 @@ struct SecuritySettingsView: View {
         // MARK: Change PIN sheet
         .sheet(isPresented: $showChangePIN) {
             ChangePINView()
+        }
+
+        // MARK: Create PIN sheet (aucun code n'existe encore)
+        .sheet(isPresented: $showCreatePIN) {
+            ChangePINView(isCreating: true)
+        }
+
+        // MARK: Disable lock
+        .confirmationDialog(lang["security.disableLock"],
+                            isPresented: $confirmDisableLock,
+                            titleVisibility: .visible) {
+            Button(lang["security.disableLock"], role: .destructive) {
+                lockManager.disableLock()
+            }
+            Button(lang["action.cancel"], role: .cancel) {}
+        } message: {
+            Text(lang["security.disableLock.confirm"])
         }
 
         // MARK: Change name alert
@@ -175,6 +220,10 @@ struct ChangePINView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(LanguageManager.self) private var lang
     @State private var lockManager = AppLockManager.shared
+
+    /// `true` quand aucun NIP n'existe encore : on saute la vérification de
+    /// l'ancien code et on va droit à la création.
+    var isCreating: Bool = false
 
     @State private var step: Step = .current
     @State private var currentPIN: String = ""
@@ -234,12 +283,16 @@ struct ChangePINView: View {
 
                 Spacer()
             }
-            .navigationTitle(lang["security.pin.change"])
+            .navigationTitle(isCreating ? lang["security.enableLock"] : lang["security.pin.change"])
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(lang["action.cancel"]) { dismiss() }
                 }
+            }
+            .onAppear {
+                // Pas de NIP existant à vérifier : on commence à la création.
+                if isCreating && step == .current { step = .newPIN }
             }
         }
     }

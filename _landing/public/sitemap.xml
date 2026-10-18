@@ -23,4 +23,24 @@
     <xhtml:link rel="alternate" hreflang="fr-CA" href="https://ando.bmsk.ca/confidentialite/"/>
     <xhtml:link rel="alternate" hreflang="en-CA" href="https://ando.bmsk.ca/en/privacy/"/>
   </url>
+  <url>
+    <loc>https://ando.bmsk.ca/conditions/</loc>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://ando.bmsk.ca/conditions/"/>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://ando.bmsk.ca/en/terms/"/>
+  </url>
+  <url>
+    <loc>https://ando.bmsk.ca/en/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://ando.bmsk.ca/conditions/"/>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://ando.bmsk.ca/en/terms/"/>
+  </url>
+  <url>
+    <loc>https://ando.bmsk.ca/assistance/</loc>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://ando.bmsk.ca/assistance/"/>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://ando.bmsk.ca/en/support/"/>
+  </url>
+  <url>
+    <loc>https://ando.bmsk.ca/en/support/</loc>
+    <xhtml:link rel="alternate" hreflang="fr-CA" href="https://ando.bmsk.ca/assistance/"/>
+    <xhtml:link rel="alternate" hreflang="en-CA" href="https://ando.bmsk.ca/en/support/"/>
+  </url>
 </urlset>

@@ -45,6 +45,20 @@ final class AppLockManager {
     /// Whether the user has completed the initial account setup.
     private(set) var isSetup: Bool = false
 
+    /// Whether a PIN is configured — autrement dit, si le verrou existe.
+    ///
+    /// Le verrou est **facultatif** depuis le 18 octobre 2026. Il était
+    /// imposé au tout premier écran, sans aucun moyen de revenir en arrière :
+    /// pas de « NIP oublié », et le hachage vivant dans le trousseau, même
+    /// réinstaller l'app ne rendait pas l'accès. Un relecteur d'Apple bloqué
+    /// rejette (directive 2.1), et un utilisateur qui oubliait son NIP
+    /// perdait toutes ses données financières sans recours.
+    ///
+    /// Les données d'Ando ne quittent pas l'appareil : le verrou de l'iPhone
+    /// les protège déjà. Ce NIP est une couche supplémentaire, proposée et
+    /// non imposée, activable à tout moment dans Réglages ▸ Sécurité.
+    private(set) var hasPIN: Bool = false
+
     /// The user's display name.
     private(set) var userName: String = ""
 
@@ -86,7 +100,8 @@ final class AppLockManager {
         // Lock on launch unless the user explicitly chose "never lock".
         // A forced kill + relaunch is treated as a security event for all
         // other delay settings (immediately / 1 min / 5 min).
-        if isSetup && autoLockDelay != .never {
+        // Sans NIP configuré, il n'y a pas de verrou du tout.
+        if isSetup && hasPIN && autoLockDelay != .never {
             isLocked = true
         }
     }
@@ -108,8 +123,43 @@ final class AppLockManager {
         self.useBiometrics  = useBiometrics
         self.autoLockDelay  = autoLockDelay
         self.isSetup        = true
+        self.hasPIN         = true
         self.isLocked       = false
         self.failedAttempts = 0
+    }
+
+    /// Termine la configuration **sans verrou**. L'utilisateur entre
+    /// directement dans l'app ; il pourra activer le NIP plus tard depuis
+    /// Réglages ▸ Sécurité. `userName` peut être vide.
+    func completeSetupWithoutPIN(userName: String) {
+        KeychainHelper.set(userName, forKey: KeychainHelper.Key.userName)
+        KeychainHelper.set("1",      forKey: KeychainHelper.Key.isSetup)
+        // Aucune trace de NIP : ni hachage, ni sel.
+        KeychainHelper.delete(forKey: KeychainHelper.Key.pinHash)
+        KeychainHelper.delete(forKey: KeychainHelper.Key.pinSalt)
+
+        self.userName       = userName
+        self.isSetup        = true
+        self.hasPIN         = false
+        self.isLocked       = false
+        self.failedAttempts = 0
+    }
+
+    /// Retire le verrou en conservant le compte et les données.
+    /// C'est la sortie de secours qui manquait : un utilisateur connecté
+    /// peut toujours désactiver le NIP depuis les réglages.
+    func disableLock() {
+        KeychainHelper.delete(forKey: KeychainHelper.Key.pinHash)
+        KeychainHelper.delete(forKey: KeychainHelper.Key.pinSalt)
+        KeychainHelper.delete(forKey: KeychainHelper.Key.failedAttempts)
+        KeychainHelper.delete(forKey: KeychainHelper.Key.blockUntil)
+        updateBiometrics(false)
+
+        hasPIN         = false
+        isLocked       = false
+        failedAttempts = 0
+        isBlocked      = false
+        blockUntil     = nil
     }
 
     // MARK: - PIN update
@@ -119,6 +169,7 @@ final class AppLockManager {
         let hash = hashPIN(newPIN, salt: salt)
         KeychainHelper.set(hash, forKey: KeychainHelper.Key.pinHash)
         KeychainHelper.set(salt, forKey: KeychainHelper.Key.pinSalt)
+        hasPIN = true
     }
 
     func updateUserName(_ name: String) {
@@ -139,6 +190,11 @@ final class AppLockManager {
     // MARK: - Lock / Unlock
 
     func lock() {
+        // Sans NIP, verrouiller enfermerait pour de bon : l'écran de
+        // déverrouillage n'accepterait aucun code. Ce garde-fou rend la
+        // situation impossible, quelle que soit la façon dont lock() est
+        // appelé.
+        guard hasPIN else { return }
         isLocked = true
         failedAttempts = 0
         isBlocked = false
@@ -227,12 +283,12 @@ final class AppLockManager {
     // MARK: - App lifecycle
 
     func handleBackground() {
-        guard isSetup else { return }
+        guard isSetup, hasPIN else { return }
         backgroundDate = Date()
     }
 
     func handleForeground() {
-        guard isSetup else { return }
+        guard isSetup, hasPIN else { return }
         checkBiometricCapability()  // refresh in case user enrolled biometrics since last launch
         guard autoLockDelay != .never else { return }
         // If backgroundDate is nil (e.g. app was killed without going to background first),
@@ -262,6 +318,7 @@ final class AppLockManager {
         userName       = ""
         useBiometrics  = false
         isSetup        = false
+        hasPIN         = false
         isLocked       = false
         failedAttempts = 0
         isBlocked      = false
@@ -280,6 +337,8 @@ final class AppLockManager {
 
     private func loadFromKeychain() {
         isSetup       = KeychainHelper.string(forKey: KeychainHelper.Key.isSetup) == "1"
+        // Le verrou existe si et seulement si un hachage de NIP est stocké.
+        hasPIN        = KeychainHelper.string(forKey: KeychainHelper.Key.pinHash) != nil
         userName      = KeychainHelper.string(forKey: KeychainHelper.Key.userName) ?? ""
         useBiometrics = KeychainHelper.string(forKey: KeychainHelper.Key.useFaceID) == "1"
         let rawDelay  = Int(KeychainHelper.string(forKey: KeychainHelper.Key.autoLockSecs) ?? "0") ?? 0

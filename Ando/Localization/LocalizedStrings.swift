@@ -640,6 +640,8 @@ enum LocalizedStrings {
         "settings.about":        ["fr": "À propos",               "en": "About",               "es": "Acerca de",          "pt": "Sobre"],
         "settings.logoAttribution": ["fr": "Logos fournis par Logo.dev", "en": "Logos provided by Logo.dev", "es": "Logotipos proporcionados por Logo.dev", "pt": "Logotipos fornecidos por Logo.dev"],
         "settings.privacyPolicy":["fr": "Politique de confidentialité", "en": "Privacy Policy",        "es": "Política de privacidad", "pt": "Política de privacidade"],
+        "settings.termsOfUse":   ["fr": "Conditions d'utilisation",     "en": "Terms of Use",          "es": "Condiciones de uso",     "pt": "Condições de utilização"],
+        "settings.support":      ["fr": "Assistance",                   "en": "Support",               "es": "Soporte",                "pt": "Assistência"],
         // Totaux multidevises incomplets : un poste dont la devise n'a pas pu
         // être convertie est EXCLU du total, jamais additionné tel quel.
         "fx.partial.one": ["fr": "1 poste exclu : taux de change indisponible", "en": "1 item excluded: exchange rate unavailable", "es": "1 elemento excluido: tipo de cambio no disponible", "pt": "1 item excluído: taxa de câmbio indisponível"],
@@ -647,6 +649,14 @@ enum LocalizedStrings {
         // « fx.unavailable » existe déjà plus bas — ne pas le redéfinir ici :
         // un doublon dans un littéral de dictionnaire Swift fait planter l'app
         // au lancement, pas à la compilation.
+        // Verrou facultatif (R3). Imposer un NIP sans récupération possible
+        // enfermait l'utilisateur hors de ses propres données.
+        "setup.skipLock": ["fr": "Continuer sans code", "en": "Continue without a passcode", "es": "Continuar sin código", "pt": "Continuar sem código"],
+        "setup.pin.optional":["fr": "Facultatif. Vos données restent sur votre appareil, déjà protégé par son propre verrouillage. Vous pourrez activer un code à tout moment dans Réglages.", "en": "Optional. Your data stays on your device, which is already protected by its own lock. You can turn a passcode on at any time in Settings.", "es": "Opcional. Sus datos permanecen en su dispositivo, ya protegido por su propio bloqueo. Puede activar un código en cualquier momento en Ajustes.", "pt": "Opcional. Os seus dados ficam no seu dispositivo, já protegido pelo próprio bloqueio. Pode ativar um código a qualquer momento nas Definições."],
+        "security.enableLock":["fr": "Activer le verrouillage", "en": "Turn on app lock", "es": "Activar el bloqueo", "pt": "Ativar o bloqueio"],
+        "security.enableLock.footer":["fr": "Un code à 4 chiffres sera demandé à l'ouverture d'Ando. Vos données restent sur cet appareil dans tous les cas.", "en": "A 4-digit passcode will be required to open Ando. Your data stays on this device either way.", "es": "Se pedirá un código de 4 dígitos al abrir Ando. Sus datos permanecen en este dispositivo en cualquier caso.", "pt": "Será pedido um código de 4 dígitos ao abrir o Ando. Os seus dados ficam neste dispositivo de qualquer forma."],
+        "security.disableLock":["fr": "Désactiver le verrouillage", "en": "Turn off app lock", "es": "Desactivar el bloqueo", "pt": "Desativar o bloqueio"],
+        "security.disableLock.confirm":["fr": "Ando s'ouvrira sans demander de code. Vos données ne sont pas supprimées.", "en": "Ando will open without asking for a passcode. Your data is not deleted.", "es": "Ando se abrirá sin pedir código. Sus datos no se eliminan.", "pt": "O Ando abrirá sem pedir código. Os seus dados não são eliminados."],
         "fx.transfer.blocked":["fr": "Impossible de convertir entre ces deux devises pour l'instant. Réessayez une fois les taux à jour.", "en": "These two currencies can't be converted right now. Try again once rates have refreshed.", "es": "Por ahora no se pueden convertir estas dos monedas. Inténtelo de nuevo cuando se actualicen los tipos.", "pt": "Não é possível converter entre estas duas moedas por agora. Tente novamente quando as taxas forem atualizadas."],
         "settings.version":      ["fr": "Version",                "en": "Version",             "es": "Versión",            "pt": "Versão"],
         "settings.storage":      ["fr": "Stockage",               "en": "Storage",             "es": "Almacenamiento",     "pt": "Armazenamento"],

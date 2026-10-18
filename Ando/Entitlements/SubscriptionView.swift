@@ -58,12 +58,12 @@ struct SubscriptionView: View {
                 }
 
                 // Directive 3.1.2 : un écran d'achat doit renvoyer à la
-                // politique de confidentialité et aux conditions d'utilisation.
-                // La politique est en ligne ; les conditions restent à rédiger
-                // — obligatoires seulement si Max (abonnement) est mis en vente.
-                // Voir docs/REVUE-APP-STORE.md (R2).
+                // politique de confidentialité ET aux conditions d'utilisation,
+                // par des liens fonctionnels dans l'app elle-même.
                 Link(lang["settings.privacyPolicy"],
                      destination: SettingsView.privacyPolicyURL(for: lang.current))
+                Link(lang["settings.termsOfUse"],
+                     destination: SettingsView.termsURL(for: lang.current))
             }
 
             // MARK: What's included

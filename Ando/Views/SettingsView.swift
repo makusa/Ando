@@ -257,6 +257,13 @@ struct SettingsView: View {
         // — et au regard de la Loi 25 — le lien est attendu dans l'app.
         Link(lang["settings.privacyPolicy"], destination: Self.privacyPolicyURL(for: lang.current))
 
+        // Directive 3.1.2 : les conditions doivent être accessibles depuis
+        // l'app, pas seulement depuis la fiche App Store.
+        Link(lang["settings.termsOfUse"], destination: Self.termsURL(for: lang.current))
+
+        // Champ « URL d'assistance » de la fiche App Store : la même page.
+        Link(lang["settings.support"], destination: Self.supportURL(for: lang.current))
+
         // Attribution required by Logo.dev's free plan (institution logos).
         Link(lang["settings.logoAttribution"], destination: URL(string: "https://www.logo.dev")!)
             .font(.footnote)
@@ -268,6 +275,20 @@ struct SettingsView: View {
         language == .french
             ? URL(string: "https://ando.bmsk.ca/confidentialite/")!
             : URL(string: "https://ando.bmsk.ca/en/privacy/")!
+    }
+
+    /// Conditions d'utilisation. Même règle de langue que la politique.
+    static func termsURL(for language: AppLanguage) -> URL {
+        language == .french
+            ? URL(string: "https://ando.bmsk.ca/conditions/")!
+            : URL(string: "https://ando.bmsk.ca/en/terms/")!
+    }
+
+    /// Page d'assistance — celle déclarée comme URL d'assistance sur la fiche.
+    static func supportURL(for language: AppLanguage) -> URL {
+        language == .french
+            ? URL(string: "https://ando.bmsk.ca/assistance/")!
+            : URL(string: "https://ando.bmsk.ca/en/support/")!
     }
 
     #if DEBUG

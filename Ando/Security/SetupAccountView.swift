@@ -56,7 +56,15 @@ struct SetupAccountView: View {
                     }
                     .disabled(!canAdvance)
 
-                    if step == .biometrics || step == .autoLock {
+                    // Le NIP est facultatif : on peut entrer dans l'app sans
+                    // en créer un. Avant le 18 octobre 2026, il était imposé
+                    // ici même, sans aucun moyen de revenir en arrière
+                    // ensuite — voir AppLockManager.hasPIN.
+                    if step == .name || step == .pin {
+                        Button(lang["setup.skipLock"]) { finishWithoutPIN() }
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    } else if step == .biometrics || step == .autoLock {
                         Button(lang["action.skip"]) { advance() }
                             .font(.callout)
                             .foregroundStyle(.secondary)
@@ -125,6 +133,15 @@ struct SetupAccountView: View {
                     Text(lang["setup.pin.mismatch"])
                         .font(.caption)
                         .foregroundStyle(.red)
+                }
+                // Dire que c'est facultatif AVANT que la personne ne se sente
+                // obligée de choisir un code et de l'oublier.
+                if !isConfirm {
+                    Text(lang["setup.pin.optional"])
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 4)
                 }
             }
             PINPadView(
@@ -258,6 +275,16 @@ struct SetupAccountView: View {
                 break
             }
         }
+    }
+
+    /// Entrer dans l'app sans verrou. Le NIP reste activable à tout moment
+    /// dans Réglages ▸ Sécurité ; les données d'Ando ne quittant pas
+    /// l'appareil, le verrou de l'iPhone les protège déjà.
+    private func finishWithoutPIN() {
+        lockManager.completeSetupWithoutPIN(
+            userName: userName.trimmingCharacters(in: .whitespaces)
+        )
+        step = .done
     }
 
     private func finishSetup() {

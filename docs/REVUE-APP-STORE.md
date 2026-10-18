@@ -20,26 +20,38 @@ Deux autres points (R2, R3) sont des motifs de rejet classiques en revue.
 | Rejet probable en revue | R2, R3, R4 | Retour du *Resolution Center*, 24-48 h perdues par aller-retour |
 | Friction | R5 à R9 | Questions du relecteur, délais, mais pas de rejet en soi |
 
-## État au 18 octobre 2026, 9 h
+## État au 18 octobre 2026, 9 h 50
 
-Corrections appliquées le matin même, **vérifiées dans le bundle Release
+Corrections appliquées dans la journée, **vérifiées dans le bundle Release
 réellement produit** et non seulement dans le code source.
+Commits `d824cf0` (conformité) et `aafebdc` (B1), branche `renommage-ando` ;
+R2, R3, R8 et R9 encore à committer.
+Vérification au vert : Debug et Release 0/0, **56 tests**, 0 échec.
 
 | | Point | État |
 |---|---|---|
 | R1 | Manifestes de confidentialité | ✅ les deux présents dans `Ando.app` et `AndoWidget.appex` |
-| R2 | Lien politique de confidentialité | ✅ Réglages ▸ À propos **et** écran d'abonnement |
-| R2 | Conditions d'utilisation | ❌ **le document n'existe pas** — à rédiger |
-| R3 | Verrou sans récupération | ❌ demande une décision de conception |
+| R2 | Lien politique de confidentialité | ✅ Réglages, écran d'abonnement **et** mur Pro |
+| R2 | Conditions d'utilisation | ✅ rédigées, publiées, liées aux trois mêmes endroits — ⚠️ **relecture juridique non faite** |
+| R3 | Verrou sans récupération | ✅ le NIP est devenu **facultatif**, et désactivable |
 | R4 | Notifications distantes | ✅ `UIBackgroundModes` et `aps-environment` absents du bundle signé |
 | R5 | Valeurs de remplacement | ✅ plus aucune chaîne `VOTRE_`/`your-domain` dans le binaire |
 | R6 | Nom personnel dans le binaire | ✅ plus aucune occurrence de `regis-bile` |
 | R7 | Conformité à l'exportation | ✅ `ITSAppUsesNonExemptEncryption = false` dans l'`Info.plist` livré |
-| R8 | Page d'assistance | ❌ reste à créer |
-| R9 | Captures d'écran | ❌ reste à refaire |
+| R8 | Page d'assistance | ✅ `/assistance/` et `/en/support/`, liées depuis l'app |
+| R9 | Captures d'écran | ✅ 19 par langue en 1206 × 2622 ; 22 images du site remplacées — ⚠️ voir R10 |
+| R10 | Drapeaux en glyphes manquants sur les captures | ❌ **nouveau**, trouvé en relisant les captures |
+| B1 | Conversion de devises *(hors guidelines, mais bloquant)* | ✅ `convert()` optionnel, 24 appels tranchés, 13 tests |
+| B6 | Paysage déclaré, interface non vérifiée | ❌ à tester sur simulateur |
 
-Vérification complète au vert après corrections : Debug et Release
-0 erreur / 0 avertissement, 43 tests, 0 échec.
+**Ce qui reste, par nature du blocage :**
+
+- **Une décision de produit** : R10, les drapeaux de la rangée « Langue ».
+- **Un test de dix minutes** : B6, l'orientation paysage.
+- **Une relecture par un juriste** : les conditions d'utilisation, publiées
+  mais non relues. C'est le dernier point qui engage BMSK juridiquement.
+- **Du travail hors code** : images sociales `og-fr.jpg` et `og-en.jpg`,
+  toujours à l'ancienne marque, et la révocation de la clé d'API exposée.
 
 > [!danger] Une clé d'API est à révoquer
 > `PlaidConfig.apiKey` contenait une **vraie** clé partagée, en clair, dans un
@@ -150,7 +162,32 @@ lien dans l'app est une anomalie que le relecteur remarque.
 apps d'abonnement : le paywall doit afficher le titre de l'abonnement, sa
 durée, son prix, **et des liens fonctionnels vers les conditions
 d'utilisation et la politique de confidentialité**. Ni `SubscriptionView`
-ni `ProGateView` n'en contiennent.
+ni `ProGateView` n'en contenaient.
+
+### ✅ Résolu le 18 octobre 2026
+
+- **Conditions d'utilisation rédigées** : `docs/legal/conditions-utilisation.md`
+  (FR) et `terms-of-use.md` (EN), publiées sur `/conditions/` et `/en/terms/`.
+- **Liens dans l'app** aux trois endroits qui comptent : Réglages ▸ À propos,
+  `SubscriptionView`, et `ProGateView` — ce mur est un écran d'achat au même
+  titre que l'autre, ce que la directive ne distingue pas.
+- La section 4, *« Ce qu'Ando n'est pas »*, est la plus importante du texte :
+  aucun conseil financier ou fiscal, les chiffres sont des estimations, et
+  l'avis de cotisation de l'ARC fait foi, pas l'application.
+
+> [!warning] Relecture juridique non faite
+> Ce texte a été rédigé par une IA, pas par un avocat. Deux sections
+> l'exigent : la **limitation de responsabilité**, que la *Loi sur la
+> protection du consommateur* du Québec encadre strictement, et la section
+> **Apple**, qui doit reprendre les clauses minimales imposées aux EULA
+> personnalisés par le contrat du Developer Program — écrites de mémoire,
+> sans vérification mot à mot.
+>
+> **Alternative sans aucun risque de rédaction** : renoncer à ces conditions
+> propres et pointer l'EULA type d'Apple
+> (`apple.com/legal/internet-services/itunes/dev/stdeula/`), ce qui satisfait
+> la directive 3.1.2 sans texte à défendre. Les deux options sont notées en
+> tête du fichier source.
 
 > **Ce point dépend d'une décision que tu n'as pas encore prise.** Tant que
 > `bankSyncAvailable = false`, Max est masqué et tu ne vends qu'un achat
@@ -159,16 +196,45 @@ ni `ProGateView` n'en contiennent.
 > 1.0, 3.1.2 s'applique intégralement. **Ne livrer que Pro évite ce rejet**
 > — c'est l'argument le plus fort en faveur de cette option.
 
-- [ ] Lien politique de confidentialité dans Réglages ▸ À propos :
+- [x] Lien politique de confidentialité dans Réglages ▸ À propos :
       `https://ando.bmsk.ca/confidentialite/` (FR) · `/en/privacy/` (EN)
-- [ ] **Rédiger des conditions d'utilisation** — elles n'existent nulle part,
+- [x] **Rédiger des conditions d'utilisation** — elles n'existent nulle part,
       ni dans l'app ni sur le site. À défaut, Apple fournit une EULA type
       dont il suffit de pointer l'URL
-- [ ] Les deux liens dans les deux paywalls, pas seulement dans Réglages
+- [x] Les deux liens dans les deux paywalls, pas seulement dans Réglages
 - [ ] Si Max est vendu : prix, durée et mention de reconduction tacite sur
       l'écran d'achat lui-même
 
 ## R3 · Le verrou du premier lancement n'a aucune sortie de secours
+
+> **En une phrase** : Ando obligeait à créer un NIP au tout premier écran,
+> sans aucun moyen de rentrer si on l'oubliait — ni « NIP oublié », ni
+> réinstallation, le NIP vivant dans le trousseau et y survivant.
+
+### ✅ Résolu le 18 octobre 2026 — le verrou devient facultatif
+
+Plutôt qu'ajouter un « NIP oublié » destructeur, le verrou lui-même a été
+rendu optionnel. Les données d'Ando ne quittent pas l'appareil : le
+verrouillage de l'iPhone les protège déjà. Le NIP est une couche
+supplémentaire, désormais proposée et non imposée.
+
+- `AppLockManager.hasPIN` : le verrou existe si et seulement si un hachage
+  de NIP est stocké. Le verrouillage au lancement, la mise en arrière-plan
+  et le retour au premier plan y sont tous conditionnés.
+- `completeSetupWithoutPIN(userName:)` : « Continuer sans code » au premier
+  lancement, dès l'écran du nom comme à celui du NIP, avec une phrase qui
+  dit que c'est facultatif **avant** que la personne ne choisisse un code
+  qu'elle oubliera.
+- `disableLock()` : Réglages ▸ Sécurité permet de **retirer** le code en
+  conservant toutes les données. C'est la sortie de secours qui manquait.
+- Réglages ▸ Sécurité propose « Activer le verrouillage » quand aucun code
+  n'existe, et masque biométrie, délai et « verrouiller maintenant », qui
+  n'avaient alors aucun sens.
+- `lock()` refuse d'agir sans NIP : même appelé par erreur, il ne peut plus
+  enfermer quelqu'un devant un écran qui n'accepterait aucun code.
+
+Bénéfice secondaire : le premier lancement montre l'app avant de réclamer un
+effort, au lieu d'ouvrir sur un pavé numérique.
 
 `RootView.swift:36` présente `SetupAccountView` dès qu'aucun compte n'est
 configuré. Le parcours est **nom → NIP → confirmation → biométrie → verrouillage
@@ -261,18 +327,65 @@ chiffrement sera posée **à chaque téléversement**. L'app n'utilise que HTTPS
 standard, donc la réponse est « non » — mais c'est une déclaration légale qui
 t'engage, à valider toi-même.
 
-## R8 · Aucune page d'assistance
+## R8 · Aucune page d'assistance — ✅ résolu le 18 octobre 2026
 
-L'URL d'assistance est **obligatoire** sur la fiche. Rien n'existe
-aujourd'hui sur `ando.bmsk.ca`. Une page avec `bonjour@bmsk.ca` et quelques
-questions fréquentes suffit.
+L'URL d'assistance est **obligatoire** sur la fiche, et rien n'existait.
 
-## R9 · Captures d'écran — article 2.3.3
+Publiée sur **`https://ando.bmsk.ca/assistance/`** (FR) et
+**`/en/support/`** (EN) : contact, délai de réponse annoncé, et dix
+questions fréquentes tirées du comportement réel de l'app — dont « pourquoi
+un total affiche-t-il ≈ » et « faut-il un code pour ouvrir Ando », les deux
+changements du jour. Liée aussi depuis Réglages ▸ À propos.
 
-Les captures doivent montrer l'app telle qu'elle est. Celles du site portent
-encore « Fin:Track » et l'ancienne icône : onze fichiers dans
-`_landing/public/img/`, autant dans `img-en/`, plus `og-fr.jpg` et
-`og-en.jpg`. Les captures de la fiche sont à régénérer avec le harnais.
+Source : `docs/legal/assistance.md` et `support.md`. C'est **cette URL** à
+inscrire dans le champ d'assistance d'App Store Connect.
+
+## R9 · Captures d'écran — ✅ régénérées le 18 octobre 2026
+
+Article 2.3.3 : les captures doivent montrer l'app telle qu'elle est. Celles
+du site portaient encore « Fin:Track » et l'ancienne icône.
+
+Le harnais `AndoUITests/ScreenshotTests` citait un simulateur « iPhone
+16 Pro Max » qui n'existe plus sur cette machine. Relancé sur un
+**iPhone 17 Pro**, puis la résolution produite a été **mesurée, pas
+supposée** : `1206 × 2622`, soit exactement l'une des deux tailles
+obligatoires d'Apple (« iPhone à Dynamic Island, écran moyen »).
+
+- 19 captures par langue, dans `_captures/ando-fr/` et `_captures/ando-en/`.
+  **Ce sont ces PNG pleine résolution qu'il faut téléverser** dans App Store
+  Connect, pas les images du site.
+- Les 22 `.webp` du site (`public/img/` et `img-en/`) ont été remplacés par
+  `scripts/captures-vers-site.py`, qui respecte les noms déjà référencés par
+  la landing — un nom qui change casserait un `<img>` et son texte alternatif.
+
+Restent à refaire, hors harnais : **`og-fr.jpg` et `og-en.jpg`**, les images
+de partage social, toujours à l'ancienne marque et non générées par le build.
+
+> ⚠️ Les captures ne sont pas livrables telles quelles : voir R10.
+
+## R10 · Les drapeaux ne s'affichent pas sur les captures
+
+Trouvé le 18 octobre en **regardant** les captures régénérées, pas en
+relisant du code.
+
+La rangée « Langue de l'application » affiche `lang.current.flag`, c'est-à-dire
+🇫🇷 ou 🇬🇧 (`Localization/LanguageManager.swift:31`). Sur les captures prises
+au simulateur, ces drapeaux sortent en **deux carrés « ? »** : la fonte
+d'émojis du simulateur ne contient pas les indicateurs régionaux.
+
+Sur un vrai iPhone le drapeau s'affiche — **je ne l'ai pas vérifié**, faute
+d'appareil. Mais le défaut est réel là où ça compte : l'image
+`19-reglages.webp` du site, et la capture destinée à App Store Connect,
+montrent des glyphes cassés.
+
+Deux raisons de retirer ces drapeaux plutôt que de contourner :
+
+1. Toute capture prise au simulateur restera cassée, à chaque version.
+2. **Un drapeau français pour une app canadienne** est discutable auprès du
+   marché visé. « Français » et « English » sans drapeau évitent la question
+   — le Québec n'est pas la France, et le Canada n'est pas le Royaume-Uni.
+
+Laissé en l'état : c'est un choix de produit, pas une correction technique.
 
 ## Vérifié conforme
 

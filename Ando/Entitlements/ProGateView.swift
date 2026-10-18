@@ -146,6 +146,18 @@ struct ProGateView: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+
+                // Directive 3.1.2 : ce mur est un écran d'achat au même titre
+                // que l'écran d'abonnement, et doit donc porter les deux liens.
+                HStack(spacing: 16) {
+                    Link(lang["settings.privacyPolicy"],
+                         destination: SettingsView.privacyPolicyURL(for: lang.current))
+                    Link(lang["settings.termsOfUse"],
+                         destination: SettingsView.termsURL(for: lang.current))
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 10)
                 .padding(.bottom, 32)
             }
         }
