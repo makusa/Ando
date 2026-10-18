@@ -18,6 +18,11 @@ private struct MonthSummary {
     let displayCurrency: String
     let hasConversion: Bool
     let byCurrency: [(currency: String, income: Decimal, expense: Decimal)]
+
+    /// Devises exclues des totaux faute de taux. Les montants ci-dessus ne
+    /// les comptent pas ; ils ne sont jamais additionnés non convertis.
+    let missingConversions: Int
+    var isPartial: Bool { missingConversions > 0 }
 }
 
 struct DashboardView: View {
@@ -264,19 +269,32 @@ struct DashboardView: View {
             return (currency: cur, income: inc, expense: exp)
         }.sorted { $0.currency < $1.currency }
 
-        let income  = rows.reduce(Decimal(0)) { $0 + rates.convert($1.income,  from: $1.currency, to: display) }
-        let expense = rows.reduce(Decimal(0)) { $0 + rates.convert($1.expense, from: $1.currency, to: display) }
+        var income  = MultiCurrencyTotal()
+        var expense = MultiCurrencyTotal()
+        for row in rows {
+            income.add(rates.convert(row.income,   from: row.currency, to: display))
+            expense.add(rates.convert(row.expense, from: row.currency, to: display))
+        }
         let hasConversion = rows.contains { $0.currency != display }
-        return MonthSummary(convertedIncome: income, convertedExpense: expense,
+        return MonthSummary(convertedIncome: income.value, convertedExpense: expense.value,
                             displayCurrency: display, hasConversion: hasConversion,
-                            byCurrency: rows)
+                            byCurrency: rows,
+                            // Une devise sans taux manque aux deux totaux : on
+                            // ne la compte qu'une fois pour l'utilisateur.
+                            missingConversions: max(income.missing, expense.missing))
     }
 
-    private var convertedGlobalTotal: Decimal {
-        totalsByCurrency.reduce(Decimal(0)) {
-            $0 + rates.convert($1.total, from: $1.currency, to: rates.displayCurrency)
+    /// Solde global converti. Ne contient que les devises convertibles ;
+    /// `globalTotalMissing` dit combien manquent.
+    private var globalTotal: MultiCurrencyTotal {
+        var total = MultiCurrencyTotal()
+        for row in totalsByCurrency {
+            total.add(rates.convert(row.total, from: row.currency, to: rates.displayCurrency))
         }
+        return total
     }
+
+    private var convertedGlobalTotal: Decimal { globalTotal.value }
 
     // MARK: - Body
 
@@ -544,13 +562,23 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(convertedGlobalTotal.formatted(asCurrency: rates.displayCurrency))
+                        Text((globalTotal.isPartial ? "≈ " : "")
+                             + convertedGlobalTotal.formatted(asCurrency: rates.displayCurrency))
                             .font(.title.weight(.bold))
                             .foregroundStyle(convertedGlobalTotal >= 0 ? Color.primary : Color.red)
                             .minimumScaleFactor(0.7).lineLimit(1)
                         if rates.isLoading {
                             Label(lang["fx.loading"], systemImage: "arrow.triangle.2.circlepath")
                                 .font(.caption2).foregroundStyle(.secondary)
+                        } else if globalTotal.isPartial {
+                            // Prioritaire sur « mis à jour il y a… » : annoncer
+                            // une date de mise à jour devant un total amputé
+                            // rassure à tort. C'était le cœur du bogue B1.
+                            Label(globalTotal.missing == 1
+                                    ? lang["fx.partial.one"]
+                                    : lang.f("fx.partial.many", globalTotal.missing),
+                                  systemImage: "exclamationmark.triangle.fill")
+                                .font(.caption2).foregroundStyle(.orange)
                         } else if let updated = rates.lastUpdated {
                             Text(lang.f("fx.updated",
                                         updated.appFormattedRelative()))

@@ -33,41 +33,62 @@ struct NetWorthWidget: View {
 
     // MARK: Computed
 
-    /// Actifs = somme des comptes à solde positif (chèque, épargne, placement…),
+    // Chaque total ne compte QUE ce qui a pu être converti et retient combien
+    // de postes manquent. Additionner un solde non converti donnerait un
+    // patrimoine net faux sans aucun signal — voir MultiCurrencyTotal.
+
+    /// Actifs = comptes à solde positif (chèque, épargne, placement…),
     /// chacun converti depuis sa propre devise.
-    private var totalAssets: Decimal {
-        accounts.reduce(Decimal(0)) { sum, acc in
-            let bal = acc.balance
-            guard bal > 0 else { return sum }
-            return sum + ExchangeRateManager.shared.convert(bal, from: acc.currency, to: display)
+    private var assets: MultiCurrencyTotal {
+        var total = MultiCurrencyTotal()
+        for acc in accounts where acc.balance > 0 {
+            total.add(ExchangeRateManager.shared.convert(acc.balance, from: acc.currency, to: display))
         }
+        return total
     }
 
     /// Dette portée par les comptes eux-mêmes : cartes de crédit et découverts
     /// (soldes négatifs), comptée en valeur absolue.
-    private var totalAccountDebt: Decimal {
-        accounts.reduce(Decimal(0)) { sum, acc in
-            let bal = acc.balance
-            guard bal < 0 else { return sum }
-            return sum + ExchangeRateManager.shared.convert(-bal, from: acc.currency, to: display)
+    private var accountDebt: MultiCurrencyTotal {
+        var total = MultiCurrencyTotal()
+        for acc in accounts where acc.balance < 0 {
+            total.add(ExchangeRateManager.shared.convert(-acc.balance, from: acc.currency, to: display))
         }
+        return total
     }
 
-    private var totalLoanDebt: Decimal {
-        loans.reduce(Decimal(0)) { sum, loan in
+    private var loanDebt: MultiCurrencyTotal {
+        var total = MultiCurrencyTotal()
+        for loan in loans {
             let bal = Decimal(loan.calculator.currentBalance)
-            return sum + ExchangeRateManager.shared.convert(bal, from: loan.currency, to: display)
+            total.add(ExchangeRateManager.shared.convert(bal, from: loan.currency, to: display))
         }
+        return total
     }
 
-    private var totalCLDebt: Decimal {
-        creditLines.reduce(Decimal(0)) { sum, cl in
-            sum + ExchangeRateManager.shared.convert(cl.currentBalance, from: cl.currency, to: display)
+    private var creditLineDebt: MultiCurrencyTotal {
+        var total = MultiCurrencyTotal()
+        for cl in creditLines {
+            total.add(ExchangeRateManager.shared.convert(cl.currentBalance, from: cl.currency, to: display))
         }
+        return total
     }
 
+    private var totalAssets: Decimal      { assets.value }
+    private var totalAccountDebt: Decimal { accountDebt.value }
+    private var totalLoanDebt: Decimal    { loanDebt.value }
+    private var totalCLDebt: Decimal      { creditLineDebt.value }
     private var totalLiabilities: Decimal { totalAccountDebt + totalLoanDebt + totalCLDebt }
     private var netWorth: Decimal         { totalAssets - totalLiabilities }
+
+    /// Nombre de postes absents du calcul, toutes catégories confondues.
+    private var missingCount: Int {
+        assets.missing + accountDebt.missing + loanDebt.missing + creditLineDebt.missing
+    }
+
+    /// `true` dès qu'un poste manque : le chiffre affiché est alors partiel
+    /// et doit le dire.
+    private var isPartial: Bool { missingCount > 0 }
 
     private var debtRatio: Double {
         guard totalAssets > 0 else { return 0 }
@@ -104,7 +125,7 @@ struct NetWorthWidget: View {
 
                 // Net worth big number
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(netWorth.formatted(asCurrency: display))
+                    Text((isPartial ? "≈ " : "") + netWorth.formatted(asCurrency: display))
                         .font(.title.weight(.bold))
                         .foregroundStyle(netWorth >= 0 ? Color.primary : Color.red)
                         .minimumScaleFactor(0.6)
@@ -121,6 +142,18 @@ struct NetWorthWidget: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                }
+
+                // Le total ne couvre pas tout : le dire plutôt que de laisser
+                // croire à un chiffre complet. Les postes dont la devise n'a
+                // pas pu être convertie sont exclus, pas additionnés bruts.
+                if isPartial {
+                    Label(missingCount == 1
+                            ? lang["fx.partial.one"]
+                            : lang.f("fx.partial.many", missingCount),
+                          systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
                 }
 
                 // Stacked bar: assets vs liabilities

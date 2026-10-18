@@ -158,11 +158,17 @@ struct BalanceProjectionCard: View {
     @State private var selectedBalance: Double? = nil
 
     // MARK: Current balance
+    // Dans toute cette section, un montant dont la devise n'a pas de taux est
+    // EXCLU des graphiques plutôt qu'ajouté tel quel. Une courbe amputée vaut
+    // mieux qu'une courbe fausse — le tableau de bord, lui, affiche
+    // explicitement combien de postes manquent.
     private var currentBalance: Decimal {
         let display = rates.displayCurrency
-        return accounts.reduce(Decimal(0)) {
-            $0 + rates.convert($1.balance, from: $1.currency, to: display)
+        var total = MultiCurrencyTotal()
+        for acc in accounts {
+            total.add(rates.convert(acc.balance, from: acc.currency, to: display))
         }
+        return total.value
     }
 
     // MARK: Historical points
@@ -176,8 +182,10 @@ struct BalanceProjectionCard: View {
             .filter { $0.date >= start && $0.status.countsTowardBalance }
             .sorted { $0.date < $1.date }
 
+        // nil (taux inconnu) → 0 : la transaction est ignorée, jamais comptée
+        // dans sa devise d'origine comme si c'était la devise d'affichage.
         func conv(_ tx: Transaction) -> Decimal {
-            rates.convert(tx.signedAmount, from: tx.account?.currency ?? display, to: display)
+            rates.convert(tx.signedAmount, from: tx.account?.currency ?? display, to: display) ?? 0
         }
         let windowSum = relevant.reduce(Decimal(0)) { $0 + conv($1) }
         var running   = currentBalance - windowSum
@@ -215,7 +223,8 @@ struct BalanceProjectionCard: View {
             while d <= horizon {
                 if let end = rule.endDate, d > cal.startOfDay(for: end) { break }
                 let signed = rule.type == .income ? rule.amount : -rule.amount
-                events[d, default: 0] += rates.convert(signed, from: cur, to: display)
+                // Taux inconnu → l'échéance est ignorée dans la projection.
+                events[d, default: 0] += rates.convert(signed, from: cur, to: display) ?? 0
                 d = cal.startOfDay(for: rule.frequency.nextDate(after: d))
             }
         }
@@ -227,7 +236,7 @@ struct BalanceProjectionCard: View {
             && tx.transferPairId == nil
             && tx.date > today && tx.date <= horizon {
             let cur = tx.account?.currency ?? display
-            events[cal.startOfDay(for: tx.date), default: 0] += rates.convert(tx.signedAmount, from: cur, to: display)
+            events[cal.startOfDay(for: tx.date), default: 0] += rates.convert(tx.signedAmount, from: cur, to: display) ?? 0
         }
 
         var running = currentBalance
@@ -542,7 +551,7 @@ struct IncomeExpenseCard: View {
                 $0.date >= interval.start && $0.date < interval.end
             }
             func conv(_ tx: Transaction) -> Decimal {
-                rates.convert(tx.amount, from: tx.account?.currency ?? display, to: display)
+                rates.convert(tx.amount, from: tx.account?.currency ?? display, to: display) ?? 0
             }
             let income  = monthTx.filter { $0.type == .income  }.reduce(Decimal(0)) { $0 + conv($1) }.chartDouble
             let expense = monthTx.filter { $0.type == .expense }.reduce(Decimal(0)) { $0 + conv($1) }.chartDouble
@@ -711,7 +720,7 @@ struct CategoryBreakdownCard: View {
             $0.date >= interval.start && $0.date < interval.end
         }
         func conv(_ tx: Transaction) -> Decimal {
-            rates.convert(tx.amount, from: tx.account?.currency ?? display, to: display)
+            rates.convert(tx.amount, from: tx.account?.currency ?? display, to: display) ?? 0
         }
         let total = monthExpenses.reduce(Decimal(0)) { $0 + conv($1) }
         guard total > 0 else { return [] }

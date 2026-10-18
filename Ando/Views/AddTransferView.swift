@@ -51,10 +51,19 @@ struct AddTransferView: View {
         return rates.convert(a, from: sourceCurrency, to: destCurrency)
     }
 
+    /// `true` quand le virement traverse deux devises sans taux disponible.
+    /// Enregistrer dans cet état écrirait une transaction au mauvais montant.
+    private var conversionBlocked: Bool {
+        isCrossCurrency && amount != nil && convertedAmount == nil
+    }
+
     private var canSave: Bool {
         guard let a = amount, a > 0 else { return false }
         guard let src = sourceAccount, let dst = destinationAccount else { return false }
-        return src.persistentModelID != dst.persistentModelID
+        guard src.persistentModelID != dst.persistentModelID else { return false }
+        // Mieux vaut refuser l'enregistrement qu'inscrire un montant faux
+        // dans les comptes de l'utilisateur.
+        return !conversionBlocked
     }
 
     var body: some View {
@@ -78,6 +87,15 @@ struct AddTransferView: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 8)
+
+                    // Taux indisponible : le dire et bloquer, plutôt que
+                    // d'enregistrer un montant converti au hasard.
+                    if conversionBlocked {
+                        Label(lang["fx.transfer.blocked"],
+                              systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
 
                     // Cross-currency preview
                     if isCrossCurrency, let converted = convertedAmount {
@@ -262,10 +280,18 @@ struct AddTransferView: View {
         )
         debit.transferPairId = pairId
 
-        // Credit: income to destination (converted if cross-currency)
-        let creditAmount = isCrossCurrency
-            ? rates.convert(a, from: src.currency, to: dst.currency)
-            : a
+        // Credit: income to destination (converted if cross-currency).
+        // Dernier rempart : si le taux a disparu entre l'affichage et
+        // l'enregistrement, on abandonne plutôt que d'écrire un montant faux.
+        // `canSave` bloque déjà le bouton ; ceci couvre la course.
+        let creditAmount: Decimal
+        if isCrossCurrency {
+            guard let converted = rates.convert(a, from: src.currency, to: dst.currency)
+            else { return }
+            creditAmount = converted
+        } else {
+            creditAmount = a
+        }
 
         let credit = Transaction(
             amount: creditAmount,

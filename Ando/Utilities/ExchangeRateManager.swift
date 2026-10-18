@@ -9,7 +9,8 @@
 //  Usage:
 //    let manager = ExchangeRateManager.shared
 //    await manager.refreshIfNeeded()
-//    let converted = manager.convert(1000, from: "XAF", to: "CAD")
+//    guard let converted = manager.convert(1000, from: "XAF", to: "CAD")
+//    else { /* taux indisponible — ne JAMAIS retomber sur le montant brut */ }
 //
 
 import Foundation
@@ -98,32 +99,55 @@ final class ExchangeRateManager {
 
     // MARK: - Public API
 
-    /// Convert `amount` from `sourceCurrency` to `targetCurrency`.
-    /// Returns `amount` unchanged if rates are unavailable or currencies are the same.
-    func convert(_ amount: Decimal, from source: String, to target: String) -> Decimal {
-        guard source != target else { return amount }
-        guard !rates.isEmpty else { return amount }
+    /// Convertit `amount` de `source` vers `target`.
+    ///
+    /// Retourne **nil** quand la conversion est impossible : table de taux
+    /// vide, devise absente de la table, ou taux nul.
+    ///
+    /// L'optionnel est délibéré. Jusqu'au 18 octobre 2026, cette fonction
+    /// retournait le montant **inchangé** dans ces trois cas : un patrimoine
+    /// net mêlant dollars américains et canadiens s'affichait comme si
+    /// 1 $ US valait 1 $ CA — environ 40 % d'erreur — sans le moindre
+    /// signal, et un virement s'enregistrait au mauvais montant. Ce n'était
+    /// pas un oubli : la signature non optionnelle ne permettait rien
+    /// d'autre. Le type oblige désormais chaque appelant à trancher.
+    func convert(_ amount: Decimal, from source: String, to target: String) -> Decimal? {
+        Self.convert(amount, from: source, to: target, rates: rates, base: baseCurrency)
+    }
 
-        // Both rates are relative to baseCurrency
-        if source == baseCurrency {
-            guard let targetRate = rates[target] else { return amount }
+    /// Cœur du calcul, sans état : ni réseau, ni singleton, ni cache.
+    /// Isolé pour être testable — c'est l'absence de test sur cette fonction
+    /// qui a laissé passer le repli silencieux.
+    ///
+    /// - Parameters:
+    ///   - rates: taux relatifs à `base` (1 unité de `base` = X unités de la clé).
+    /// - Returns: le montant converti, ou `nil` si la conversion est impossible.
+    static func convert(_ amount: Decimal, from source: String, to target: String,
+                        rates: [String: Decimal], base: String) -> Decimal? {
+        guard source != target else { return amount }
+        guard !rates.isEmpty else { return nil }
+
+        if source == base {
+            guard let targetRate = rates[target] else { return nil }
             return amount * targetRate
-        } else if target == baseCurrency {
-            guard let sourceRate = rates[source], sourceRate != 0 else { return amount }
+        } else if target == base {
+            guard let sourceRate = rates[source], sourceRate != 0 else { return nil }
             return amount / sourceRate
         } else {
             guard let sourceRate = rates[source], sourceRate != 0,
-                  let targetRate = rates[target] else { return amount }
+                  let targetRate = rates[target] else { return nil }
             // source → base → target
             let inBase = amount / sourceRate
             return inBase * targetRate
         }
     }
 
-    /// Formatted conversion string, e.g. "≈ 1 234,56 $ CA"
+    /// Montant converti, mis en forme — p. ex. « ≈ 1 234,56 $ CA ».
+    /// `nil` si la devise est la même ou si la conversion est impossible.
     func convertedLabel(_ amount: Decimal, from source: String, to target: String) -> String? {
-        guard source != target, !rates.isEmpty else { return nil }
-        let converted = convert(amount, from: source, to: target)
+        guard source != target,
+              let converted = convert(amount, from: source, to: target)
+        else { return nil }
         return "≈ \(converted.formatted(asCurrency: target))"
     }
 
@@ -246,11 +270,37 @@ final class ExchangeRateManager {
     }
 }
 
-// MARK: - Decimal extension
+// MARK: - Somme portant sur plusieurs devises
 
-extension Decimal {
-    /// Convert this amount from `sourceCurrency` to `targetCurrency` using live rates.
-    func converted(from source: String, to target: String) -> Decimal {
-        ExchangeRateManager.shared.convert(self, from: source, to: target)
+/// Total d'un ensemble de montants libellés dans des devises différentes.
+///
+/// `value` ne contient **que** ce qui a pu être converti ; `missing` compte
+/// les montants laissés de côté faute de taux. Un total partiel annoncé
+/// comme tel est honnête ; un total complet obtenu en additionnant des
+/// devises non converties ne l'est pas.
+///
+/// L'ancien comportement produisait le second : il additionnait les montants
+/// bruts, et le tableau de bord affichait même « mis à jour il y a… » —
+/// rassurant, et faux.
+struct MultiCurrencyTotal {
+
+    private(set) var value: Decimal = 0
+
+    /// Nombre de montants qui n'ont pas pu être convertis.
+    private(set) var missing: Int = 0
+
+    /// `true` si au moins un montant manque au total.
+    var isPartial: Bool { missing > 0 }
+
+    init() {}
+
+    /// Ajoute le résultat d'une conversion. `nil` incrémente `missing`
+    /// au lieu de fausser `value`.
+    mutating func add(_ converted: Decimal?) {
+        if let converted {
+            value += converted
+        } else {
+            missing += 1
+        }
     }
 }

@@ -40,8 +40,16 @@ enum WidgetDataWriter {
         // True net worth: active accounts (signed) − loans − credit lines, all
         // converted to the primary currency (mirrors NetWorthWidget in the app).
         let fx = ExchangeRateManager.shared
+        // Le widget d'écran d'accueil n'a aucun moyen d'expliquer quoi que ce
+        // soit : un montant non convertible en est EXCLU, et `netWorthIsPartial`
+        // permet d'afficher « ≈ » plutôt qu'un chiffre faussement exact.
+        var fxManquants = 0
         func toPrimary(_ amount: Decimal, from cur: String) -> Double {
-            NSDecimalNumber(decimal: fx.convert(amount, from: cur, to: primaryCurrency)).doubleValue
+            guard let converted = fx.convert(amount, from: cur, to: primaryCurrency) else {
+                fxManquants += 1
+                return 0
+            }
+            return NSDecimalNumber(decimal: converted).doubleValue
         }
         let accountsNet = active.reduce(0.0) { $0 + toPrimary($1.balance, from: $1.currency) }
         let loans = (try? context.fetch(FetchDescriptor<Loan>(
@@ -205,6 +213,7 @@ enum WidgetDataWriter {
             balances:           balances,
             netWorth:           netWorth,
             netWorthMonthChange: netWorthMonthChange,
+            netWorthIsPartial:  fxManquants > 0,
             monthIncome:        monthIncome,
             monthExpense:       monthExpense,
             recentTransactions: Array(recent),

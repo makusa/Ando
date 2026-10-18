@@ -91,14 +91,17 @@ struct ExchangeRateWidget: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                if rates.rates.isEmpty {
-                    Text(lang["fx.unavailable"])
-                        .font(.caption).foregroundStyle(.secondary)
-                } else {
+                // Afficher un taux exige d'en avoir un. Auparavant,
+                // convert(1, …) retournait 1 en l'absence de taux et l'app
+                // annonçait « 1 $ CA = 1 $ US » comme un fait.
+                if let rate, let rateInv {
                     Text("1 \(fromInfo.symbol) = \(rate.formatted(asCurrency: to))")
                         .font(.callout.weight(.semibold))
                     Text("1 \(toInfo.symbol) = \(rateInv.formatted(asCurrency: from))")
                         .font(.caption2).foregroundStyle(.secondary)
+                } else {
+                    Text(lang["fx.unavailable"])
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
         }

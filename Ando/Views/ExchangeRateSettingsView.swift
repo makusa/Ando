@@ -132,9 +132,17 @@ struct ExchangeRateSettingsView: View {
                             Text("1 \(rates.baseCurrency)")
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text("= \(rate.formatted(asCurrency: currency.code))")
-                                .font(.body.weight(currency.code == display ? .semibold : .regular))
-                                .foregroundStyle(currency.code == display ? Color.accentColor : Color.primary)
+                            // Pas de taux, pas de chiffre : « = 1,00 » serait
+                            // une affirmation fausse, pas une approximation.
+                            if let rate {
+                                Text("= \(rate.formatted(asCurrency: currency.code))")
+                                    .font(.body.weight(currency.code == display ? .semibold : .regular))
+                                    .foregroundStyle(currency.code == display ? Color.accentColor : Color.primary)
+                            } else {
+                                Text(lang["fx.unavailable"])
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }

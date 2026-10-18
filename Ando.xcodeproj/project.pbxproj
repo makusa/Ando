@@ -144,6 +144,7 @@
 		E109CB1A42C1D17CD7B984A5 /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB04358EA982CE7F74428FD5 /* DemoData.swift */; };
 		E504E62698175D5441274BCC /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83F8161B027229213C8FCA7 /* WidgetData.swift */; };
 		E6D63E221FB94CE0B14972BF /* ProGateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF4C1C9864EA26CD422EB6D /* ProGateView.swift */; };
+		E853B4992F286A607476D54B /* ExchangeRateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9BBB13D43F3749280935BEA /* ExchangeRateTests.swift */; };
 		E8CA33E3664CC06F3C700318 /* AndoWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE45B91A8BEF322DB8D19179 /* AndoWidgetBundle.swift */; };
 		EE124CD561123FE42E398B70 /* TransactionsCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1F4DF9C7379A215F6FC9E4 /* TransactionsCalendarView.swift */; };
 		EEBA33E09003376E1FF0CAC9 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92D0230EE1EDB058B4FBAE14 /* Account.swift */; };
@@ -311,6 +312,7 @@
 		C51987DE56AC8312543F184A /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C6FCF92C936B4610996FF28A /* RegisteredRoomWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisteredRoomWidget.swift; sourceTree = "<group>"; };
 		C7D22F513F98BF734866212F /* RecurringTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringTransaction.swift; sourceTree = "<group>"; };
+		C9BBB13D43F3749280935BEA /* ExchangeRateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateTests.swift; sourceTree = "<group>"; };
 		CA1CFAAA67FFE71611B5ACA2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CBE276DCD37E28D1EDABA236 /* RESPModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESPModels.swift; sourceTree = "<group>"; };
 		CE45B91A8BEF322DB8D19179 /* AndoWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AndoWidgetBundle.swift; sourceTree = "<group>"; };
@@ -648,6 +650,7 @@
 		CE3DD96A443748C2CE7EAF35 /* AndoTests */ = {
 			isa = PBXGroup;
 			children = (
+				C9BBB13D43F3749280935BEA /* ExchangeRateTests.swift */,
 				C209D12C21CBB83B5861B631 /* LoanCalculatorTests.swift */,
 				94393228A9745034E2A23FC3 /* RegisteredRoomTests.swift */,
 				4E65C44DEB7BC54FD8A6A622 /* TransactionMatcherTests.swift */,
@@ -849,6 +852,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E853B4992F286A607476D54B /* ExchangeRateTests.swift in Sources */,
 				4B0FE7D092616DE2C21777EE /* LoanCalculatorTests.swift in Sources */,
 				D1963C19AF228A92760A52CF /* RegisteredRoomTests.swift in Sources */,
 				70183F35B340E71C1AD94B71 /* TransactionMatcherTests.swift in Sources */,

@@ -7,6 +7,23 @@ Classement par **ce que ça coûte si on ne le corrige pas**, pas par difficult�
 
 ## Bloquants — à corriger avant de soumettre
 
+### B1 · ✅ Corrigé le 18 octobre 2026
+
+`convert()` retourne désormais `Decimal?` et le repli silencieux a disparu.
+Le compilateur a imposé de trancher les 24 appels. Les virements et les
+cotisations REEE **refusent l'enregistrement** plutôt qu'écrire un montant
+faux ; les totaux n'additionnent que le convertible et affichent combien de
+postes manquent ; l'affichage d'un taux absent montre « indisponible » au
+lieu de 1,00. 13 tests verrouillent le contrat, dont un test de non-régression
+nommé d'après ce bogue.
+
+Deux conséquences débusquées en chemin, et absentes du diagnostic initial :
+`AddTransferView` écrivait une **transaction au mauvais montant** (plus grave
+qu'un affichage), et `ExchangeRateWidget` annonçait « 1 $ CA = 1 $ US »
+comme un fait.
+
+Diagnostic d'origine, conservé :
+
 ### B1 · Les totaux multidevises sont faux quand un taux manque
 
 `ExchangeRateManager.convert()` retourne le montant **inchangé** quand le taux

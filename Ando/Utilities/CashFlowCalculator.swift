@@ -32,6 +32,13 @@ struct CashFlowSummary {
     /// Native per-currency breakdown (shown when a conversion occurs).
     let byCurrency: [CashFlowCurrencyRow]
 
+    /// Nombre de montants exclus des totaux faute de taux de change.
+    /// Les totaux ci-dessus ne les comptent pas : ils sont donc partiels.
+    let missingConversions: Int
+
+    /// `true` quand au moins un montant manque aux totaux.
+    var isPartial: Bool { missingConversions > 0 }
+
     var realizedNet: Decimal { realizedIncome - realizedExpense }
     var upcomingNet:  Decimal { upcomingIncome - upcomingExpense }
 }
@@ -56,7 +63,11 @@ struct CashFlowCurrencyRow: Identifiable {
 enum CashFlowCalculator {
 
     /// Build an end-of-month projection for the given display currency.
-    /// `convert` maps (amount, from, to) → amount; pass `rates.convert`.
+    ///
+    /// `convert` maps (montant, depuis, vers) → montant converti, ou **nil**
+    /// quand le taux est inconnu. Passer `rates.convert`. Un nil exclut le
+    /// montant des totaux et incrémente `missingConversions` ; il n'est
+    /// jamais additionné tel quel.
     static func summary(
         displayCurrency: String,
         monthTransactions: [Transaction],
@@ -64,7 +75,7 @@ enum CashFlowCalculator {
         treasuryAccounts: [Account],
         monthStart: Date,
         monthEnd: Date,            // exclusive: start of next month
-        convert: (Decimal, String, String) -> Decimal
+        convert: (Decimal, String, String) -> Decimal?
     ) -> CashFlowSummary {
 
         var realIncome:  [String: Decimal] = [:]
@@ -122,8 +133,17 @@ enum CashFlowCalculator {
             )
         }
 
+        // Un montant dont la devise n'a pas de taux est EXCLU du total et
+        // compté à part. L'additionner brut donnerait un flux de trésorerie
+        // faux sans aucun signal.
+        var manquants = 0
         func total(_ dict: [String: Decimal]) -> Decimal {
-            dict.reduce(Decimal(0)) { $0 + convert($1.value, $1.key, displayCurrency) }
+            var somme = MultiCurrencyTotal()
+            for (devise, montant) in dict {
+                somme.add(convert(montant, devise, displayCurrency))
+            }
+            manquants += somme.missing
+            return somme.value
         }
         let cRealInc  = total(realIncome)
         let cRealExp  = total(realExpense)
@@ -140,7 +160,8 @@ enum CashFlowCalculator {
             upcomingExpense: cUpExp,
             currentTreasury: cTreasury,
             projectedEndBalance: cTreasury + cUpInc - cUpExp,
-            byCurrency: rows
+            byCurrency: rows,
+            missingConversions: manquants
         )
     }
 

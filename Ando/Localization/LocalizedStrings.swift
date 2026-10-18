@@ -640,6 +640,14 @@ enum LocalizedStrings {
         "settings.about":        ["fr": "À propos",               "en": "About",               "es": "Acerca de",          "pt": "Sobre"],
         "settings.logoAttribution": ["fr": "Logos fournis par Logo.dev", "en": "Logos provided by Logo.dev", "es": "Logotipos proporcionados por Logo.dev", "pt": "Logotipos fornecidos por Logo.dev"],
         "settings.privacyPolicy":["fr": "Politique de confidentialité", "en": "Privacy Policy",        "es": "Política de privacidad", "pt": "Política de privacidade"],
+        // Totaux multidevises incomplets : un poste dont la devise n'a pas pu
+        // être convertie est EXCLU du total, jamais additionné tel quel.
+        "fx.partial.one": ["fr": "1 poste exclu : taux de change indisponible", "en": "1 item excluded: exchange rate unavailable", "es": "1 elemento excluido: tipo de cambio no disponible", "pt": "1 item excluído: taxa de câmbio indisponível"],
+        "fx.partial.many":["fr": "%d postes exclus : taux de change indisponibles", "en": "%d items excluded: exchange rates unavailable", "es": "%d elementos excluidos: tipos de cambio no disponibles", "pt": "%d itens excluídos: taxas de câmbio indisponíveis"],
+        // « fx.unavailable » existe déjà plus bas — ne pas le redéfinir ici :
+        // un doublon dans un littéral de dictionnaire Swift fait planter l'app
+        // au lancement, pas à la compilation.
+        "fx.transfer.blocked":["fr": "Impossible de convertir entre ces deux devises pour l'instant. Réessayez une fois les taux à jour.", "en": "These two currencies can't be converted right now. Try again once rates have refreshed.", "es": "Por ahora no se pueden convertir estas dos monedas. Inténtelo de nuevo cuando se actualicen los tipos.", "pt": "Não é possível converter entre estas duas moedas por agora. Tente novamente quando as taxas forem atualizadas."],
         "settings.version":      ["fr": "Version",                "en": "Version",             "es": "Versión",            "pt": "Versão"],
         "settings.storage":      ["fr": "Stockage",               "en": "Storage",             "es": "Almacenamiento",     "pt": "Armazenamento"],
         "settings.storage.local":["fr": "Local (sur cet appareil)","en": "Local (on this device)","es": "Local (en este dispositivo)","pt": "Local (neste dispositivo)"],

@@ -17,6 +17,13 @@ struct AndoWidgetData: Codable {
     let balances: [BalanceEntry]
     let netWorth: Double                       // true net worth, converted to primaryCurrency
     let netWorthMonthChange: Double            // Δ net worth since the start of the month
+
+    /// `true` quand au moins un montant a été exclu de `netWorth` faute de
+    /// taux de change. Le widget affiche alors « ≈ » : il n'a aucun autre
+    /// moyen de dire que le chiffre est partiel.
+    /// Valeur par défaut pour rester compatible avec les données déjà
+    /// écrites par une version antérieure.
+    var netWorthIsPartial: Bool = false
     let monthIncome: Double
     let monthExpense: Double
     let recentTransactions: [WidgetTx]

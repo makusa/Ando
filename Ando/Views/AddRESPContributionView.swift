@@ -51,7 +51,15 @@ struct AddRESPContributionView: View {
 
     private var canSave: Bool {
         guard amount > 0 else { return false }
-        return movesCash ? counterparty != nil : true
+        guard movesCash else { return true }
+        guard let other = counterparty else { return false }
+        // Déplacer de l'argent entre deux devises exige un taux ; sans lui,
+        // on refuse plutôt que d'écrire un montant faux.
+        if other.currency != account.currency,
+           rates.convert(amount, from: account.currency, to: other.currency) == nil {
+            return false
+        }
+        return true
     }
 
     /// Marginal effect of this contribution: grant earned (CESG/IQEE) and whether
@@ -184,13 +192,22 @@ struct AddRESPContributionView: View {
 
     /// Debit + credit pair (linked by transferPairId): cash flows other -> RESP
     /// account (a contribution always moves money into the plan).
-    private func makeTransfer(with other: Account) -> UUID {
+    ///
+    /// Retourne `nil` si les deux comptes sont dans des devises différentes et
+    /// qu'aucun taux n'est disponible : la cotisation est alors enregistrée
+    /// sans mouvement d'argent, plutôt qu'avec un montant inventé.
+    private func makeTransfer(with other: Account) -> UUID? {
         let pairId = UUID()
         let trimmedNote = note.trimmingCharacters(in: .whitespaces)
         let accountLeg = amount
-        let otherLeg = (account.currency == other.currency)
-            ? amount
-            : rates.convert(amount, from: account.currency, to: other.currency)
+        let otherLeg: Decimal
+        if account.currency == other.currency {
+            otherLeg = amount
+        } else {
+            guard let converted = rates.convert(amount, from: account.currency, to: other.currency)
+            else { return nil }
+            otherLeg = converted
+        }
 
         let debitNote  = trimmedNote.isEmpty ? "\(lang["transfer.to.label"]) \(account.name)" : trimmedNote
         let creditNote = trimmedNote.isEmpty ? "\(lang["transfer.from.label"]) \(other.name)" : trimmedNote
