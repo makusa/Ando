@@ -46,10 +46,14 @@
   src:url(/fonts/archivo-latin.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root{
-  --papier:#EEF1EF; --surface:#F9FBFA;
-  --encre:#0E241E; --encre-2:#2A413A;
-  --verdigris:#2E7D6C; --cuivre:#A55A2E;
-  --sourdine:#5C6E68; --ligne:#D2DAD6; --ligne-forte:#B9C5C0;
+  /* Palette relevée dans l'icône de l'app, pixel par pixel : aucune couleur
+     de cette page n'est inventée. Le dégradé du fond donne --nuit et
+     --profond, l'anneau donne --brume, la marque donne --jade. */
+  --nuit:#0D3738; --profond:#165659;
+  --brume:#F3F6F2; --papier:#E6ECE8; --surface:#FBFCFB;
+  --encre:#0B2220; --encre-2:#30443F;
+  --jade:#4CC38A; --verdigris:#2E7D6C;
+  --alerte:#B4473C; --sourdine:#5E726D; --ligne:#D6DFDA; --ligne-forte:#BCC9C3;
   --sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
   --gouttiere:clamp(20px,5vw,40px);
 }
@@ -62,32 +66,42 @@ img{display:block;max-width:100%}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
 
 .zone{max-width:1180px;margin:0 auto;padding-left:var(--gouttiere);padding-right:var(--gouttiere)}
-h1,h2,h3{font-variation-settings:"wdth" 118;line-height:1.05;letter-spacing:-.015em}
-h1{font-size:clamp(2.4rem,5.8vw,4.2rem);font-weight:700}
-h2{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:650}
+/* Archivo est variable en graisse (100–900) ET en largeur (62–125 %).
+   La page n'en utilisait qu'un seul réglage, gras et élargi, qui sonnait
+   comme n'importe quelle page de produit. Ici l'inverse : léger, à peine
+   resserré, grand. L'emphase vient de la taille et du vide, jamais d'un
+   mot coloré. */
+h1,h2,h3{line-height:1.1;letter-spacing:-.015em}
+h1{font-size:clamp(2.3rem,5.4vw,4rem);font-weight:300;font-variation-settings:"wdth" 96}
+h2{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:350;font-variation-settings:"wdth" 98}
 h3{font-size:1.0625rem;font-weight:650;line-height:1.3;font-variation-settings:"wdth" 108}
 p{max-width:63ch}
 .graduation{height:9px;background-image:repeating-linear-gradient(to right,var(--ligne-forte) 0 1px,transparent 1px 12px);border-top:1px solid var(--ligne)}
 
-.rev{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,.8,.3,1)}
-.rev.vu{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.rev{opacity:1;transform:none}}
+/* Les sections n'entrent plus en fondu-glissé au défilement. Le calme, ce
+   n'est pas du mouvement adouci : c'est l'absence de mouvement. Un seul
+   geste animé subsiste sur cette page, la ligne d'horizon. */
+.rev{opacity:1;transform:none}
 
-.barre{position:sticky;top:0;z-index:60;background:rgba(238,241,239,.88);backdrop-filter:saturate(150%) blur(12px);-webkit-backdrop-filter:saturate(150%) blur(12px);border-bottom:1px solid var(--ligne)}
-.barre-in{display:flex;align-items:center;justify-content:space-between;height:62px;gap:20px}
-.marque{font-size:1.15rem;font-weight:700;font-variation-settings:"wdth" 112;letter-spacing:-.01em}
-.marque i{font-style:normal;color:var(--verdigris)}
-.barre nav{display:flex;gap:26px;font-size:.9375rem;color:var(--sourdine);margin-left:auto}
-.barre nav a:hover{color:var(--encre)}
+/* La barre reprend le fond de l'icône et le garde sur toute la page :
+   aucun basculement clair/sombre à piloter en JavaScript au défilement. */
+.barre{position:sticky;top:0;z-index:60;background:rgba(13,55,56,.92);backdrop-filter:saturate(150%) blur(12px);-webkit-backdrop-filter:saturate(150%) blur(12px);border-bottom:1px solid rgba(243,246,242,.12);color:var(--brume)}
+.barre-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
+.marque{display:flex;align-items:center;gap:9px;font-size:1.0625rem;font-weight:500;font-variation-settings:"wdth" 104;letter-spacing:.01em;color:var(--brume)}
+.marque svg{width:22px;height:22px;flex:none}
+.marque .anneau{fill:none;stroke:var(--brume);stroke-width:2.1}
+.marque .trait{fill:var(--jade);stroke:none}
+.barre nav{display:flex;gap:26px;font-size:.9375rem;color:rgba(243,246,242,.68);margin-left:auto}
+.barre nav a:hover{color:var(--brume)}
 @media(max-width:900px){.barre nav{display:none}}
-.progres{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--verdigris)}
+.progres{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--jade)}
 .barre-fin{display:flex;align-items:center;gap:14px}
 
 /* sélecteur de langue */
-.langue{display:flex;border:1px solid var(--ligne-forte);border-radius:6px;overflow:hidden}
-.langue a{border:0;background:transparent;font-family:var(--sans);font-size:.8125rem;font-weight:650;color:var(--sourdine);padding:6px 10px;cursor:pointer;transition:background .16s ease,color .16s ease}
+.langue{display:flex;border:1px solid rgba(243,246,242,.28);border-radius:6px;overflow:hidden}
+.langue a{border:0;background:transparent;font-family:var(--sans);font-size:.8125rem;font-weight:650;color:rgba(243,246,242,.7);padding:6px 10px;cursor:pointer;transition:background .16s ease,color .16s ease}
 .langue a{text-decoration:none;display:block}
-.langue a[aria-current="page"]{background:var(--encre);color:var(--surface)}
+.langue a[aria-current="page"]{background:var(--brume);color:var(--nuit)}
 
 .bouton{display:inline-block;padding:11px 20px;border-radius:6px;background:var(--encre);color:var(--surface);font-size:.9375rem;font-weight:600;border:1px solid var(--encre);transition:background .18s ease,border-color .18s ease;cursor:pointer;font-family:var(--sans)}
 .bouton:hover{background:var(--verdigris);border-color:var(--verdigris)}
@@ -101,17 +115,53 @@ p{max-width:63ch}
 .tel.pile img{opacity:0;transition:opacity .5s ease}
 .tel.pile img.actif{opacity:1}
 
-.heros{padding:clamp(46px,7vw,84px) 0 clamp(40px,6vw,68px);overflow:hidden}
-.heros-grille{display:grid;grid-template-columns:1.06fr .94fr;gap:clamp(28px,5vw,72px);align-items:center}
-@media(max-width:940px){.heros-grille{grid-template-columns:1fr;gap:40px}}
-.heros h1{margin-bottom:22px;max-width:15ch}
-.heros-texte>p{font-size:clamp(1.0625rem,1.6vw,1.1875rem);color:var(--encre-2);margin-bottom:28px}
+/* L'affiche est un champ sombre repris du dégradé de l'icône, volontairement
+   plus vide que rempli — le « ma » japonais, l'espace laissé libre, plutôt
+   qu'une grille remplie bord à bord. Le téléphone chevauche la limite entre
+   le champ sombre et la page claire : c'est le seul geste de composition,
+   et il met le produit à cheval sur la ligne de flottaison. */
+.heros{position:relative;background:linear-gradient(152deg,var(--profond) 0%,var(--nuit) 72%);color:var(--brume);padding:clamp(64px,10vw,132px) 0 0}
+.heros-grille{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,5vw,72px);align-items:end;padding-bottom:clamp(56px,7vw,92px)}
+@media(max-width:940px){.heros-grille{grid-template-columns:1fr;gap:36px;padding-bottom:0}}
+.heros h1{margin-bottom:24px;max-width:16ch;color:var(--brume)}
+.heros-texte>p{font-size:clamp(1.0625rem,1.6vw,1.1875rem);color:rgba(243,246,242,.78);margin-bottom:32px;max-width:54ch}
+
+/* Le sens du nom, pas un ornement : 安堵 est l'étymologie d'Ando. */
+.sens{display:flex;align-items:baseline;gap:12px;margin-bottom:clamp(28px,4vw,44px);color:rgba(243,246,242,.62);font-size:.9375rem}
+/* flex:none + nowrap : sans quoi les deux caractères se séparent sur une
+   largeur étroite, et 安 / 堵 sur deux lignes ne veut plus rien dire. */
+.sens b{font-size:1.5rem;font-weight:400;color:var(--jade);line-height:1;flex:none;white-space:nowrap}
+
+.heros .note-cta{color:rgba(243,246,242,.5)}
+.heros .bouton{background:var(--brume);color:var(--nuit);border-color:var(--brume)}
+.heros .bouton:hover{background:#fff;border-color:#fff}
+.heros .bouton.creux{background:transparent;color:var(--brume);border-color:rgba(243,246,242,.34)}
+.heros .bouton.creux:hover{border-color:var(--brume)}
+
+/* La ligne d'horizon. Un seul mouvement sur toute la page : elle se trace
+   depuis le centre au chargement, puis plus rien ne bouge. */
+.horizon{position:absolute;left:0;right:0;bottom:-1px;height:2px;transform:scaleX(1);transform-origin:center;
+  background:linear-gradient(to right,transparent,var(--jade) 20%,var(--jade) 80%,transparent);
+  box-shadow:0 0 18px 1px rgba(76,195,138,.38)}
+/* La ligne existe par défaut ; l'animation ne fait que la tracer. L'inverse
+   — un élément à scaleX(0) que seule l'animation révèle — la fait
+   disparaître dès que les animations ne tournent pas. */
+@media (prefers-reduced-motion:no-preference){
+  .horizon{animation:tracer 1200ms cubic-bezier(.16,.8,.3,1) both}
+}
+@keyframes tracer{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .heros-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .note-cta{font-size:.8125rem;color:var(--sourdine);margin-top:14px}
 .heros-visuel{display:flex;justify-content:center;will-change:transform}
-.heros-visuel .tel{max-width:312px}
+/* Le téléphone descend sous la ligne d'horizon et empiète sur la bande
+   claire qui suit. D'où le z-index, et la marge négative compensée par
+   .faits plus bas. */
+.heros-visuel .tel{max-width:300px;margin-bottom:clamp(-96px,-7vw,-56px);position:relative;z-index:2}
+@media(max-width:940px){.heros-visuel .tel{margin-bottom:-48px;max-width:252px}}
 
-.faits{border-top:1px solid var(--ligne);border-bottom:1px solid var(--ligne);background:var(--surface)}
+/* padding-top : la place que laisse le téléphone qui déborde de l'affiche. */
+.faits{border-bottom:1px solid var(--ligne);background:var(--surface);padding-top:clamp(64px,8vw,104px)}
+@media(max-width:940px){.faits{padding-top:72px}}
 .faits-grille{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ligne)}
 @media(max-width:760px){.faits-grille{grid-template-columns:repeat(2,1fr)}}
 .fait{background:var(--surface);padding:22px var(--gouttiere)}
@@ -160,7 +210,7 @@ p{max-width:63ch}
 @media(max-width:560px){.inventaire{columns:1}}
 .inventaire li{break-inside:avoid;list-style:none;padding:9px 0 9px 18px;border-bottom:1px solid var(--ligne);position:relative;color:var(--encre-2)}
 .inventaire li::before{content:"";position:absolute;left:0;top:1.05em;width:8px;height:1px;background:var(--verdigris)}
-.inventaire li em{font-style:normal;color:var(--cuivre);font-size:.8125rem;font-weight:600}
+.inventaire li em{font-style:normal;color:var(--sourdine);font-size:.8125rem;font-weight:600}
 
 .compar-enveloppe{overflow-x:auto}
 .compar{width:100%;border-collapse:collapse;font-size:.9375rem;background:var(--surface);border:1px solid var(--ligne);min-width:580px}
@@ -169,8 +219,8 @@ p{max-width:63ch}
 .compar thead th.nous{color:var(--encre);border-bottom:2px solid var(--encre)}
 .compar tbody th{font-weight:500;color:var(--encre-2)}
 .compar td{color:var(--sourdine);font-size:.875rem}
-.compar td.nous{color:var(--encre);font-weight:600;background:rgba(46,125,108,.055)}
-.compar td.attente{color:var(--cuivre);font-weight:600}
+.compar td.nous{color:var(--encre);font-weight:600;background:rgba(76,195,138,.08)}
+.compar td.attente{color:var(--sourdine);font-weight:600}
 .compar-note{font-size:.75rem;color:var(--sourdine);margin-top:14px;max-width:70ch}
 
 .paliers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
@@ -186,7 +236,7 @@ p{max-width:63ch}
 .palier ul{list-style:none;font-size:.875rem;border-top:1px solid var(--ligne);padding-top:14px}
 .palier li{padding:6px 0 6px 16px;position:relative;color:var(--encre-2)}
 .palier li::before{content:"";position:absolute;left:0;top:.95em;width:7px;height:1px;background:var(--verdigris)}
-.palier li em{font-style:normal;color:var(--cuivre);font-size:.75rem;font-weight:600}
+.palier li em{font-style:normal;color:var(--sourdine);font-size:.75rem;font-weight:600}
 
 .privee{background:var(--encre);color:var(--papier)}
 .privee h2{color:#fff}
@@ -209,7 +259,7 @@ p{max-width:63ch}
 .piege{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 .msg-beta{margin:16px auto 0;font-size:.9375rem;font-weight:600;min-height:1.5em;max-width:48ch}
 .msg-beta.ok{color:var(--verdigris)}
-.msg-beta.ko{color:var(--cuivre)}
+.msg-beta.ko{color:var(--alerte)}
 
 .pied{border-top:1px solid var(--ligne);padding:34px 0 44px;font-size:.8125rem;color:var(--sourdine)}
 .pied-haut{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
@@ -258,7 +308,14 @@ p{max-width:63ch}
 
 <header class="barre">
   <div class="zone barre-in">
-    <a href="#" class="marque">Ando</a>
+    <a href="#" class="marque">
+      <svg viewbox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle class="anneau" cx="12" cy="12" r="9.3"></circle>
+        <circle class="trait" cx="12" cy="10.5" r="1.25"></circle>
+        <rect class="trait" x="8.3" y="13.1" width="7.4" height="1.5" rx=".75"></rect>
+      </svg>
+      Ando
+    </a>
     <nav>
       <a href="#justesse" data-t="n1">Precision</a>
       <a href="#app" data-t="n2">The app</a>
@@ -281,6 +338,7 @@ p{max-width:63ch}
 <section class="heros">
   <div class="zone heros-grille">
     <div class="heros-texte">
+      <p class="sens"><b lang="ja">安堵</b><span data-t="hsens">ando — the relief of knowing where you stand</span></p>
       <h1 data-t="h1">How much TFSA room do you have left?</h1>
       <p data-t="hsub">Your budgeting app knows your spending. It doesn't know your contribution room, it amortizes your mortgage the American way, and it has never heard of an FHSA. Ando is built here, for the rules that apply here — in English and in French.</p>
       <div class="heros-actions">
@@ -295,12 +353,13 @@ p{max-width:63ch}
       </div>
     </div>
   </div>
+  <div class="horizon"></div>
 </section>
 
 <div class="faits">
   <div class="faits-grille">
     <div class="fait"><b data-t="f1b">On your device</b><span data-t="f1s">No account needed to get started</span></div>
-    <div class="fait"><b data-t="f2b">Face ID or PIN</b><span data-t="f2s">Configurable auto-lock</span></div>
+    <div class="fait"><b data-t="f2b">Optional lock</b><span data-t="f2s">Face ID or a passcode, if you want one</span></div>
     <div class="fait"><b data-t="f3b">English and French</b><span data-t="f3s">Both complete, plus Spanish and Portuguese</span></div>
     <div class="fait"><b data-t="f4b">Built in Montréal</b><span data-t="f4s">For the rules that apply here</span></div>
   </div>
