@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Ando ne piste personne : aucun identifiant publicitaire, aucun SDK
+	     d'analyse, aucune donnée revendue. Les seuls appels réseau sont les
+	     taux de change et les logos d'institutions, servis par notre Worker. -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+
+	<!-- Aucune donnée n'est collectée au sens d'Apple : rien ne quitte
+	     l'appareil vers nos serveurs. Les données financières saisies restent
+	     locales, ou dans l'iCloud privé de l'utilisateur s'il active la
+	     synchronisation — un stockage auquel nous n'avons pas accès. -->
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+
+	<!-- API à raison obligatoire. Sans ces déclarations, App Store Connect
+	     refuse le téléversement depuis le 1er mai 2024 (ITMS-91053). -->
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<!-- UserDefaults : préférences de l'app (langue, tableau de bord,
+			     réglages) et partage avec le widget via le groupe d'app. -->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>CA92.1</string>
+				<string>1C8F.1</string>
+			</array>
+		</dict>
+		<dict>
+			<!-- Horodatage de fichiers : BankPicker lit la date de modification
+			     du cache de logos, dans le conteneur de l'app, pour savoir s'il
+			     doit le rafraîchir. -->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>C617.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Contrôle des traductions de Fin:Track.
+Contrôle des traductions de Ando.
 
     python3 scripts/check-l10n.py            # rapport, code de sortie 1 si erreur
     python3 scripts/check-l10n.py --verbose  # liste aussi les clés inutilisées
@@ -22,8 +22,8 @@ import re
 import sys
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
-DICO = RACINE / "FinTrack/Localization/LocalizedStrings.swift"
-SOURCES = [RACINE / "FinTrack", RACINE / "FinTrackWidget"]
+DICO = RACINE / "Ando/Localization/LocalizedStrings.swift"
+SOURCES = [RACINE / "Ando", RACINE / "AndoWidget"]
 LANGUES = ("fr", "en", "es", "pt")
 
 LIGNE_CLE = re.compile(r'^\s*"([^"]+)"\s*:\s*\[(.*)\]\s*,?\s*(//.*)?$')
@@ -101,7 +101,7 @@ def analyser_code():
 
 def cles_widgets(erreurs):
     jeux = {}
-    for f in sorted((RACINE / "FinTrackWidget").glob("*.lproj/Localizable.strings")):
+    for f in sorted((RACINE / "AndoWidget").glob("*.lproj/Localizable.strings")):
         jeux[f.parent.name] = set(re.findall(r'^\s*"([^"]+)"\s*=', f.read_text(encoding="utf-8"), re.M))
     if jeux:
         reference = set.union(*jeux.values())

@@ -17,7 +17,7 @@ Je ne suis pas juriste : ce qui suit prépare la relecture, il ne la remplace pa
 | Taux de change : seule la devise de référence est envoyée | `ExchangeRateManager.swift` (`/v4/latest/{base}`) |
 | Logos via notre serveur, jamais directement chez Logo.dev ; monogramme en secours | `BankLogoStore` et `BankLogoView` (`BankPicker.swift`) ; route `/api/logo/` de `_landing/src/index.js` : requête neuve sans en-tête du visiteur, domaines de l'annuaire seulement ; journaux d'invocation désactivés (`wrangler.jsonc`) |
 | Reçus, catégories, récurrences calculés sur l'appareil | Vision (OCR) ; `SmartCategorizer`, `RecurrenceDetector` locaux |
-| iCloud facultatif, réservé aux paliers payants, base privée | `FinTrackApp.swift` (`.private(...)`), contrôle `hasPaidTier` |
+| iCloud facultatif, réservé aux paliers payants, base privée | `AndoApp.swift` (`.private(...)`), contrôle `hasPaidTier` |
 | Pas de connexion bancaire dans la bêta | `bankSyncAvailable = false` |
 | Supprimer l'app efface ses données ; la politique ne promet pas davantage | **Correction du 10 octobre** : il existe un bouton « Réinitialiser toutes les données » (`SettingsView.resetAll`), mais il n'efface que comptes, transactions et catégories — voir « Correctifs avant lancement » |
 
@@ -33,8 +33,8 @@ Je ne suis pas juriste : ce qui suit prépare la relecture, il ne la remplace pa
 
 ## Publication (11 octobre 2026)
 
-Publiée sur https://fintrack.bmsk.ca/confidentialite/ et
-https://fintrack.bmsk.ca/en/privacy/, générées par `_landing/build.py` à partir
+Publiée sur https://ando.bmsk.ca/confidentialite/ et
+https://ando.bmsk.ca/en/privacy/, générées par `_landing/build.py` à partir
 des fichiers Markdown de ce dossier (source unique ; les lignes « > » ne sont
 pas publiées). Le build refuse de publier un texte contenant encore un
 marqueur [À COMPLÉTER], [À VALIDER] ou [À VÉRIFIER]. Lien « Confidentialité »
@@ -75,7 +75,7 @@ active.
 ## Correctifs avant lancement
 
 - ~~« Réinitialiser toutes les données » est incomplet~~ **Corrigé le 11 octobre
-  2026** (`FinTrack/Utilities/DataReset.swift`) : efface les 16 types de données,
+  2026** (`Ando/Utilities/DataReset.swift`) : efface les 16 types de données,
   les reçus, le cache des logos, les préférences contenant des données
   personnelles, les données du widget, les connexions bancaires et les rappels.
   Prouvé par l'auto-test `-FTDemoMode -FTResetSelfTest` (tous les types présents
@@ -83,5 +83,5 @@ active.
 
 ## Fiche App Store
 
-Utiliser https://fintrack.bmsk.ca/confidentialite/ comme URL de politique de
+Utiliser https://ando.bmsk.ca/confidentialite/ comme URL de politique de
 confidentialité (et la version anglaise pour la localisation anglaise).

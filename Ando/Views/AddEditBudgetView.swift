@@ -1,0 +1,349 @@
+//
+//  AddEditBudgetView.swift
+//  Ando
+//
+
+import SwiftUI
+import SwiftData
+
+enum BudgetEditorMode {
+    case create
+    case edit(Budget)
+}
+
+struct AddEditBudgetView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss)      private var dismiss
+    @Environment(LanguageManager.self) private var lang
+    @Environment(ExchangeRateManager.self) private var rates
+
+    let mode: BudgetEditorMode
+
+    init(mode: BudgetEditorMode) {
+        self.mode = mode
+        // Charge l'état UNE SEULE FOIS, ici. Auparavant c'était fait dans .onAppear,
+        // qui se re-déclenche au retour du sélecteur de catégorie et réécrasait la
+        // sélection que l'utilisateur venait de faire -> catégorie « non modifiable ».
+        if case .edit(let b) = mode {
+            _name              = State(initialValue: b.name)
+            _limitText         = State(initialValue: b.limitAmount.appFormattedForInput)
+            _currency          = State(initialValue: b.currency)
+            _period            = State(initialValue: b.period)
+            _selectedCategoryIDs = State(initialValue: Set(b.categories.map(\.persistentModelID)))
+            _colorHex          = State(initialValue: b.colorHex)
+            _iconSystemName    = State(initialValue: b.iconSystemName)
+            _notes             = State(initialValue: b.notes ?? "")
+        }
+    }
+
+    /// Currencies offered in the picker: the user's tracked list, plus this
+    /// item's own currency if it's no longer tracked (so it's never lost).
+    private var pickerCurrencies: [CurrencyInfo] {
+        var list = rates.activeCurrencyInfos
+        if !list.contains(where: { $0.code == currency }) {
+            list.append(Currencies.info(for: currency))
+        }
+        return list
+    }
+
+    // MARK: Queries
+
+    @Query(filter: #Predicate<Category> { !$0.isHidden && ($0.applicabilityRaw == "expense" || $0.applicabilityRaw == "both") },
+           sort: \Category.name)
+    private var expenseCategories: [Category]
+
+    @Query(filter: #Predicate<Account> { !$0.isArchived }, sort: \Account.createdAt)
+    private var accounts: [Account]
+
+    // MARK: Form state
+
+    @State private var name: String = ""
+    @State private var limitText: String = ""
+    @State private var currency: String = Currencies.default
+    @State private var period: BudgetPeriod = .monthly
+    @State private var selectedCategoryIDs: Set<PersistentIdentifier> = []   // vide = global (toutes catégories)
+    @State private var colorHex: String = ColorPalette.accountColors.first ?? "#3478F6"
+    @State private var iconSystemName: String = "cart.fill"
+    @State private var notes: String = ""
+    @State private var showDeleteConfirm = false
+    @State private var didInitialFocus = false
+
+    @FocusState private var limitFocused: Bool
+
+    private var isEditing: Bool { if case .edit = mode { return true } ; return false }
+
+    private var selectedCategoryObjects: [Category] {
+        expenseCategories.filter { selectedCategoryIDs.contains($0.persistentModelID) }
+    }
+
+    private var categorySelectionLabel: String {
+        let chosen = selectedCategoryObjects
+        if chosen.isEmpty { return lang["budget.category.all"] }
+        return chosen.map(\.localizedName).sorted().joined(separator: ", ")
+    }
+
+    private var limit: Decimal? {
+        Decimal(string: limitText.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces))
+    }
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespaces).isEmpty && (limit ?? 0) > 0
+    }
+
+    private let iconChoices = [
+        "cart.fill", "fork.knife", "car.fill", "house.fill", "bolt.fill",
+        "cross.case.fill", "film.fill", "tshirt.fill", "book.fill", "airplane",
+        "gift.fill", "building.columns", "doc.text.fill", "globe", "briefcase.fill",
+        "star.fill", "heart.fill", "leaf.fill", "tag.fill", "creditcard.fill",
+        "bag.fill", "wifi", "phone.fill", "gamecontroller.fill", "music.note",
+    ]
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                // MARK: Limit amount (big)
+                Section {
+                    HStack(spacing: 8) {
+                        TextField("0", text: $limitText)
+                            .font(.system(size: 42, weight: .light, design: .rounded))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.center)
+                            .focused($limitFocused)
+                        Text(Currencies.info(for: currency).symbol)
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 8)
+                    Picker(lang["label.currency"], selection: $currency) {
+                        ForEach(pickerCurrencies) { c in
+                            Text("\(c.code) — \(c.name)").tag(c.code)
+                        }
+                    }
+                } header: {
+                    Text(lang["budget.limit"])
+                }
+
+                // MARK: Identification
+                Section(lang["label.information"]) {
+                    TextField(lang["budget.name.placeholder"], text: $name)
+                    Picker(lang["budget.period"], selection: $period) {
+                        ForEach(BudgetPeriod.allCases) { p in
+                            Text(p.label).tag(p)
+                        }
+                    }
+                }
+
+                // MARK: Category — sélection via une liste explicite (NavigationLink).
+                // Un Picker .navigationLink ne permettait pas de changer la catégorie
+                // quand elle était déjà remplie (édition). Des boutons explicites qui
+                // écrivent la sélection puis ferment sont fiables dans tous les cas.
+                Section {
+                    NavigationLink {
+                        BudgetCategoryPickerList(
+                            categories: expenseCategories,
+                            allLabel: lang["budget.category.all"],
+                            selectedIDs: $selectedCategoryIDs
+                        )
+                        .navigationTitle(lang["label.category"])
+                        .navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        HStack {
+                            Text(lang["label.category"])
+                            Spacer()
+                            Text(categorySelectionLabel)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.trailing)
+                                .lineLimit(2)
+                        }
+                    }
+                } header: {
+                    Text(lang["label.category"])
+                } footer: {
+                    Text(lang["budget.category.footer"])
+                }
+
+                // MARK: Appearance
+                Section(lang["label.appearance"]) {
+                    colorPicker
+                    iconPicker
+                }
+
+                // MARK: Notes
+                Section(lang["label.notes"] + " " + lang["label.optional"]) {
+                    TextField(lang["label.note"], text: $notes, axis: .vertical)
+                        .lineLimit(1...3)
+                }
+
+                // MARK: Delete
+                if isEditing {
+                    Section {
+                        Button(role: .destructive) { showDeleteConfirm = true } label: {
+                            Label(lang["budget.delete"], systemImage: "trash")
+                        }
+                    }
+                }
+            }
+            .navigationTitle(isEditing ? lang["budget.edit"] : lang["budget.create"])
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading)  { Button(lang["action.cancel"]) { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(lang["action.save"]) { save() }
+                        .disabled(!canSave)
+                        .fontWeight(.semibold)
+                }
+            }
+            .confirmationDialog(lang["budget.delete"], isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+                Button(lang["action.delete"], role: .destructive) { deleteIfEditing() }
+                Button(lang["action.cancel"], role: .cancel) {}
+            }
+            .onAppear {
+                // L'état est déjà chargé dans init(). On ne fait ici que le focus initial,
+                // une seule fois (onAppear peut se re-déclencher au retour d'un sous-écran).
+                if !isEditing && !didInitialFocus {
+                    didInitialFocus = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { limitFocused = true }
+                }
+            }
+        }
+    }
+
+    // MARK: - Sub-views
+
+    private var colorPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(lang["label.color"]).font(.subheadline)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(ColorPalette.accountColors, id: \.self) { hex in
+                        Circle()
+                            .fill(Color(hex: hex))
+                            .frame(width: 32, height: 32)
+                            .overlay {
+                                if hex == colorHex {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.white)
+                                        .font(.system(size: 14, weight: .bold))
+                                }
+                            }
+                            .onTapGesture { colorHex = hex }
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    private var iconPicker: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(lang["label.icon"]).font(.subheadline)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(iconChoices, id: \.self) { icon in
+                        Image(systemName: icon)
+                            .font(.system(size: 18))
+                            .frame(width: 40, height: 40)
+                            .background(
+                                icon == iconSystemName
+                                    ? Color(hex: colorHex)
+                                    : Color(.tertiarySystemBackground),
+                                in: Circle()
+                            )
+                            .foregroundStyle(icon == iconSystemName ? .white : .primary)
+                            .onTapGesture { iconSystemName = icon }
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+        }
+    }
+
+    // MARK: - Logic
+
+    private func save() {
+        guard let amt = limit, amt > 0 else { return }
+        let trimmedName  = name.trimmingCharacters(in: .whitespaces)
+        let trimmedNotes = notes.trimmingCharacters(in: .whitespaces)
+        let chosenCategories = expenseCategories.filter { selectedCategoryIDs.contains($0.persistentModelID) }
+
+        switch mode {
+        case .create:
+            let b = Budget(
+                name: trimmedName,
+                limitAmount: amt,
+                currency: currency,
+                period: period,
+                colorHex: colorHex,
+                iconSystemName: iconSystemName,
+                categories: chosenCategories,
+                notes: trimmedNotes.isEmpty ? nil : trimmedNotes
+            )
+            context.insert(b)
+        case .edit(let b):
+            b.name           = trimmedName
+            b.limitAmount    = amt
+            b.currency       = currency
+            b.period         = period
+            b.colorHex       = colorHex
+            b.iconSystemName = iconSystemName
+            b.categories     = chosenCategories
+            b.notes          = trimmedNotes.isEmpty ? nil : trimmedNotes
+        }
+        try? context.save()
+        dismiss()
+    }
+
+    private func deleteIfEditing() {
+        guard case .edit(let b) = mode else { return }
+        context.delete(b)
+        try? context.save()
+        dismiss()
+    }
+}
+
+// MARK: - Sélecteur de catégorie (liste explicite, fiable en création comme en édition)
+
+private struct BudgetCategoryPickerList: View {
+    let categories: [Category]
+    let allLabel: String
+    @Binding var selectedIDs: Set<PersistentIdentifier>
+
+    var body: some View {
+        List {
+            // "Toutes les dépenses" = aucune catégorie sélectionnée (budget global).
+            Button {
+                selectedIDs.removeAll()
+            } label: {
+                HStack {
+                    Image(systemName: "square.grid.2x2")
+                        .foregroundStyle(.secondary)
+                    Text(allLabel)
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    if selectedIDs.isEmpty {
+                        Image(systemName: "checkmark").foregroundStyle(.tint)
+                    }
+                }
+            }
+            // Multi-sélection: chaque tap bascule la catégorie (ne ferme pas l'écran).
+            ForEach(categories) { cat in
+                Button {
+                    let id = cat.persistentModelID
+                    if selectedIDs.contains(id) { selectedIDs.remove(id) }
+                    else { selectedIDs.insert(id) }
+                } label: {
+                    HStack {
+                        Image(systemName: cat.iconSystemName)
+                            .foregroundStyle(Color(hex: cat.colorHex))
+                        Text(cat.localizedName)
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        if selectedIDs.contains(cat.persistentModelID) {
+                            Image(systemName: "checkmark").foregroundStyle(.tint)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

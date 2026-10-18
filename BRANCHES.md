@@ -1,4 +1,4 @@
-# Stratégie de branches — FinTrack
+# Stratégie de branches — Ando
 
 ## Vue d'ensemble
 
@@ -127,6 +127,13 @@ docs:     documentation uniquement
 | Export CSV | ❌ | ✅ | ✅ |
 | Sync bancaire Plaid | ❌ | ❌ | ✅ |
 
-StoreKit 2 product IDs:
-- `ca.regis.fintrack.pro` — Non-consumable, $19,99 CAD
-- `ca.regis.fintrack.plaid_monthly` — Auto-renewable, $3,99 CAD/mois
+Identifiants de produits StoreKit 2 — **la seule source fiable est
+`Ando.storekit`**, ce tableau n'est qu'un rappel :
+
+- `ca.bmsk.ando.pro` — Non-consumable, 24,99 $ CA (palier Pro)
+- `ca.bmsk.ando.max` — Auto-renewable, 6,49 $ CA/mois (palier Max)
+
+> Ces quatre valeurs étaient fausses jusqu'au 18 octobre 2026 : le fichier
+> annonçait `ca.regis.…pro` à 19,99 $ et `ca.regis.…plaid_monthly` à 3,99 $.
+> Créer les produits d'après cette page aurait gravé des identifiants
+> erronés dans App Store Connect, où ils ne se renomment jamais.

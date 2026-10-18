@@ -1,7 +1,7 @@
 {
-  "name": "fintrack-plaid-server",
+  "name": "ando-plaid-server",
   "version": "1.0.0",
-  "description": "FinTrack Plaid backend — hébergé sur Synology NAS",
+  "description": "Ando Plaid backend — hébergé sur Synology NAS",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

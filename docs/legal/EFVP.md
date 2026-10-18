@@ -1,6 +1,6 @@
 # Évaluations des facteurs relatifs à la vie privée (EFVP) — communications hors Québec
 
-**BMSK — Fin:Track** · Premier jet du 11 octobre 2026 · Responsable : Régis Bile
+**BMSK — Ando** · Premier jet du 11 octobre 2026 · Responsable : Régis Bile
 Masuke, gérant, responsable de la protection des renseignements personnels.
 
 > Document interne, non publié. Premier jet préparé avec l'aide d'une IA, à
@@ -143,7 +143,7 @@ inconnue.
 **Conclusion.** Risque faible, mais **mesure contractuelle insuffisante**.
 
 **Recommandation (technique, simple) : faire passer les taux de change par le
-serveur de BMSK**, comme les logos. L'app interrogerait `fintrack.bmsk.ca`, qui
+serveur de BMSK**, comme les logos. L'app interrogerait `ando.bmsk.ca`, qui
 obtiendrait les taux une fois par jour pour tous les utilisateurs et les
 mettrait en cache (la mise en cache est permise par les conditions
 d'ExchangeRate-API). ExchangeRate-API ne verrait plus que l'adresse du serveur :
@@ -213,5 +213,5 @@ fois par an.
 - Certifications Cloudflare : https://blog.cloudflare.com/updates-to-cloudflare-security-and-privacy-certifications-and-reports/
 - Apple, TestFlight & Privacy : https://www.apple.com/legal/privacy/data/en/test-flight/
 - ExchangeRate-API, conditions et politique de confidentialité : https://www.exchangerate-api.com/terms
-- Infrastructure : `npx wrangler d1 info fintrack-beta` (région « ENAM », aucune
+- Infrastructure : `npx wrangler d1 info ando-beta` (région « ENAM », aucune
   juridiction imposée)

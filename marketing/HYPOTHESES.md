@@ -1,4 +1,4 @@
-# Fin:Track — registre des hypothèses et des expériences
+# Ando — registre des hypothèses et des expériences
 
 Toute idée marketing entre ici **avant** d'être appliquée. Elle en sort
 confirmée, infirmée ou abandonnée, avec la preuve.
@@ -16,7 +16,7 @@ Statuts : `À tester` · `En cours` · `Confirmée` · `Infirmée` · `Abandonn�
 ## Hypothèses ouvertes
 
 Les seuils ci-dessous sont des **estimations de départ** [Estimé], faute de
-données propres à Fin:Track. On peut les ajuster avant de lancer une expérience,
+données propres à Ando. On peut les ajuster avant de lancer une expérience,
 jamais après en avoir vu le résultat.
 
 | # | Hypothèse | Mesure | Seuil de réussite | Seuil d'abandon | Statut |

@@ -1,0 +1,52 @@
+//
+//  AndoSchema.swift
+//  Ando
+//
+//  Versioned schema + migration plan. Required before enabling CloudKit:
+//  every future model change must go through a new SchemaV(n) and a
+//  migration stage here, so existing stores (local and cloud) migrate
+//  predictably instead of crashing at launch.
+//
+
+import Foundation
+import SwiftData
+
+// MARK: - V1 — current schema (all 15 models)
+
+enum AndoSchemaV1: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [Account.self,
+         Transaction.self,
+         Category.self,
+         RecurringTransaction.self,
+         Loan.self,
+         LoanPrepayment.self,
+         CreditLine.self,
+         CreditLineEntry.self,
+         SavingsProject.self,
+         Budget.self,
+         CreditCardProfile.self,
+         RegisteredAccountProfile.self,
+         RegisteredRoomPlan.self,
+         RESPProfile.self,
+         RESPContribution.self]
+    }
+}
+
+// MARK: - Migration plan
+
+enum AndoMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [AndoSchemaV1.self]
+        // Future versions append here, e.g.:
+        // [AndoSchemaV1.self, AndoSchemaV2.self]
+    }
+
+    static var stages: [MigrationStage] {
+        []
+        // Future migrations append here, e.g.:
+        // [migrateV1toV2]
+    }
+}

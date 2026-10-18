@@ -4,3 +4,7 @@ _captures/
 
 # Réglages personnels d'Xcode (état d'interface, débogueur, gestion des schemes)
 xcuserdata/
+
+# Schémas Xcode : régénérés par `xcodegen generate`, jamais versionnés.
+# Le garde-fou de pre-commit les refuse (voir docs/OUTILS.md).
+xcshareddata/xcschemes/*.xcscheme

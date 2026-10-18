@@ -21,7 +21,7 @@ import json, os, pathlib, re, subprocess, sys
 import lxml.html
 
 RACINE = pathlib.Path(__file__).parent
-SITE = "https://fintrack.bmsk.ca"
+SITE = "https://ando.bmsk.ca"
 
 LANGUES = {
     "fr": {
@@ -62,7 +62,7 @@ def donnees_structurees(code, cfg, titre):
     return json.dumps({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "Fin:Track",
+        "name": "Ando",
         "applicationCategory": "FinanceApplication",
         "operatingSystem": "iOS 17+",
         "inLanguage": ["fr-CA", "en-CA", "es", "pt"],
@@ -121,7 +121,7 @@ def rendre(code, gabarit, en):
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Fin:Track">
+<meta property="og:site_name" content="Ando">
 <meta property="og:title" content="{titre}">
 <meta property="og:description" content="{cfg['og_desc']}">
 <meta property="og:url" content="{cfg['url']}">
@@ -163,15 +163,15 @@ LEGAL = {
     "fr": {"source": "docs/legal/politique-confidentialite.md",
            "sortie": "public/confidentialite/index.html",
            "url": f"{SITE}/confidentialite/", "lang": "fr-CA",
-           "titre": "Politique de confidentialité — Fin:Track",
-           "desc": "Comment Fin:Track et BMSK traitent vos renseignements personnels.",
+           "titre": "Politique de confidentialité — Ando",
+           "desc": "Comment Ando et BMSK traitent vos renseignements personnels.",
            "accueil": "/", "autre": ("English", "/en/privacy/", "en"),
            "retour": "Retour à l'accueil"},
     "en": {"source": "docs/legal/privacy-policy.md",
            "sortie": "public/en/privacy/index.html",
            "url": f"{SITE}/en/privacy/", "lang": "en-CA",
-           "titre": "Privacy Policy — Fin:Track",
-           "desc": "How Fin:Track and BMSK handle your personal information.",
+           "titre": "Privacy Policy — Ando",
+           "desc": "How Ando and BMSK handle your personal information.",
            "accueil": "/en/", "autre": ("Français", "/confidentialite/", "fr"),
            "retour": "Back to home"},
 }
@@ -291,7 +291,7 @@ th{font-weight:650}
 </head>
 <body>
 <header class="entete">
-  <a class="marque" href="{cfg['accueil']}">Fin:Track</a>
+  <a class="marque" href="{cfg['accueil']}">Ando</a>
   <a class="langue" href="{autre_url}" hreflang="{autre_code}" lang="{autre_code}">{autre_nom}</a>
 </header>
 <main class="contenu">
