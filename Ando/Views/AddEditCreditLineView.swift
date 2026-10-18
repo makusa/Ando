@@ -1,0 +1,464 @@
+//
+//  AddEditCreditLineView.swift
+//  Ando
+//
+
+import SwiftUI
+import SwiftData
+
+enum CreditLineEditorMode {
+    case create
+    case edit(CreditLine)
+}
+
+struct AddEditCreditLineView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(LanguageManager.self) private var lang
+    @Environment(ExchangeRateManager.self) private var rates
+    @Environment(\.dismiss)      private var dismiss
+
+    let mode: CreditLineEditorMode
+    @State private var didInitialLoad = false
+
+    /// Currencies offered in the picker: the user's tracked list, plus this
+    /// item's own currency if it's no longer tracked (so it's never lost).
+    private var pickerCurrencies: [CurrencyInfo] {
+        var list = rates.activeCurrencyInfos
+        if !list.contains(where: { $0.code == currency }) {
+            list.append(Currencies.info(for: currency))
+        }
+        return list
+    }
+
+    @Query(filter: #Predicate<Account> { !$0.isArchived },
+           sort: \Account.createdAt, order: .forward)
+    private var accounts: [Account]
+
+    // MARK: Form state
+    @State private var name                 = ""
+    @State private var lenderName           = ""
+    @State private var currency             = Currencies.default
+    @State private var limitText            = ""
+    @State private var rateText             = ""
+    @State private var compounding          = CreditLineCompounding.daily
+    @State private var statementDay          = 1
+    @State private var minPayType           = MinimumPaymentType.interestOnly
+    @State private var minPayValueText      = ""
+    @State private var selectedAccount: Account? = nil
+    @State private var notes                = ""
+    @State private var currentDrawText      = ""   // only for .create: pre-fill initial draw
+    @State private var createRecurring      = false
+    @State private var recurringAmountText  = ""
+    @State private var recurringFrequency   = RecurrenceFrequency.monthly
+    @State private var showDeleteConfirm    = false
+    @State private var showAdvanced         = false
+
+    @State private var notifEnabled: Bool = false
+    @State private var notifDaysBefore: Int = 3
+
+    @FocusState private var limitFocused: Bool
+
+    private var isEditing: Bool { if case .edit = mode { return true }; return false }
+    private var navTitle: String { isEditing ? lang["cl.edit"] : lang["cl.create"] }
+
+    private var limit: Decimal? { parseDecimal(limitText) }
+    private var rate:  Decimal? { parseDecimal(rateText) }
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespaces).isEmpty && limit != nil && rate != nil
+    }
+
+    // MARK: Live estimates
+    private var estimatedMonthlyInterest: Decimal? {
+        guard limit != nil, let r = rate else { return nil }
+        let drawAmt = parseDecimal(currentDrawText) ?? 0
+        let bal = isEditing ? Decimal(0) : drawAmt
+        guard (bal as NSDecimalNumber).doubleValue > 0 else { return nil }
+        return bal * r / 100 / 12
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                identitySection
+                financialSection
+                if showAdvanced { advancedSection }
+                if !isEditing   { initialDrawSection }
+                minPaymentSection
+                accountSection
+                recurringSection
+                notesSection
+                notificationSection
+                if isEditing { deleteSection }
+            }
+            .navigationTitle(navTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading)  { Button(lang["action.cancel"]) { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(lang["action.save"]) { save() }
+                        .disabled(!canSave).fontWeight(.semibold)
+                }
+            }
+            .confirmationDialog(lang["cl.delete"],
+                                isPresented: $showDeleteConfirm, titleVisibility: .visible) {
+                Button(lang["action.delete"], role: .destructive) { deleteIfEditing() }
+                Button(lang["action.cancel"], role: .cancel) {}
+            }
+            .onAppear {
+                guard !didInitialLoad else { return }
+                didInitialLoad = true
+                loadIfEditing()
+            }
+            .onChange(of: currency) { _, newCurrency in
+                // Un compte d'une autre devise ne peut plus être lié (pas de conversion).
+                if let acc = selectedAccount, acc.currency != newCurrency {
+                    selectedAccount = accounts.first(where: { $0.currency == newCurrency })
+                }
+            }
+        }
+    }
+
+    // MARK: - Sections
+
+    private var identitySection: some View {
+        Section(lang["label.information"]) {
+            TextField(lang["cl.namePlaceholder"], text: $name)
+            InstitutionPickerField(text: $lenderName, placeholder: lang["loan.lenderPlaceholder"])
+            Picker(lang["label.currency"], selection: $currency) {
+                ForEach(pickerCurrencies) { c in Text("\(c.code) — \(c.name)").tag(c.code) }
+            }
+        }
+    }
+
+    private var financialSection: some View {
+        Section {
+            HStack {
+                Text(lang["cl.limit"])
+                Spacer()
+                TextField("0", text: $limitText)
+                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
+                    .focused($limitFocused).frame(maxWidth: 150)
+                Text(Currencies.info(for: currency).symbol).foregroundStyle(.secondary)
+            }
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(lang["cl.rate"])
+                    Text(lang["cl.rate.sub"])
+                        .font(.caption2).foregroundStyle(.secondary)
+                }
+                Spacer()
+                TextField("0,00", text: $rateText)
+                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(maxWidth: 70)
+                Text("%").foregroundStyle(.secondary)
+            }
+
+            Button {
+                withAnimation { showAdvanced.toggle() }
+            } label: {
+                HStack {
+                    Text(showAdvanced ? lang["label.hideAdvanced"] : lang["label.advanced"])
+                        .font(.callout)
+                    Spacer()
+                    Image(systemName: showAdvanced ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                }
+                .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+        } header: {
+            Text(lang["cl.amountRate"])
+        }
+    }
+
+    private var advancedSection: some View {
+        Section {
+            Picker(lang["cl.compounding"], selection: $compounding) {
+                ForEach(CreditLineCompounding.allCases) { c in Text(c.label).tag(c) }
+            }
+            Picker(lang["cl.statementDay"], selection: $statementDay) {
+                ForEach(1...28, id: \.self) { d in Text("\(d)").tag(d) }
+            }
+        } header: { Text(lang["loan.compound.section"]) } footer: {
+            Text(lang["cl.statementDay.footer"])
+        }
+    }
+
+    private var initialDrawSection: some View {
+        Section {
+            HStack {
+                Text(lang["cl.initialBalance"])
+                Spacer()
+                TextField("0", text: $currentDrawText)
+                    .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(maxWidth: 150)
+                Text(Currencies.info(for: currency).symbol).foregroundStyle(.secondary)
+            }
+            if let est = estimatedMonthlyInterest, (est as NSDecimalNumber).doubleValue > 0 {
+                HStack {
+                    Text(lang["cl.monthlyInterest"]).foregroundStyle(.secondary)
+                    Spacer()
+                    Text("≈ \(est.formatted(asCurrency: currency))")
+                        .foregroundStyle(.orange).fontWeight(.medium)
+                }
+            }
+        } header: { Text(lang["cl.initialBalance.section"]) } footer: {
+            Text(lang["cl.initialBalance.footer"])
+        }
+    }
+
+    private var minPaymentSection: some View {
+        Section {
+            Picker(lang["cl.minPayment"], selection: $minPayType) {
+                ForEach(MinimumPaymentType.allCases) { t in Text(t.label).tag(t) }
+            }
+            if minPayType == .percentBalance || minPayType == .fixedAmount {
+                HStack {
+                    Text(minPayType == .percentBalance ? "Pourcentage du solde" : "Montant fixe")
+                    Spacer()
+                    TextField("0", text: $minPayValueText)
+                        .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(maxWidth: 100)
+                    Text(minPayType == .percentBalance ? "%" : Currencies.info(for: currency).symbol)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        } header: { Text(lang["cl.minPayment"]) } footer: {
+            Text(lang["cl.minPayment.footer"])
+        }
+    }
+
+    /// Comptes éligibles : uniquement ceux libellés dans la devise du produit,
+    /// pour éviter toute conversion de devise.
+    private var selectableAccounts: [Account] {
+        accounts.filter { $0.currency == currency }
+    }
+
+    private var accountSection: some View {
+        Section {
+            Picker(lang["label.account"], selection: $selectedAccount) {
+                Text(lang["label.none"]).tag(Account?.none)
+                ForEach(selectableAccounts) { acc in
+                    HStack {
+                        Image(systemName: acc.iconSystemName).foregroundStyle(Color(hex: acc.colorHex))
+                        Text(acc.name)
+                    }.tag(Optional(acc))
+                }
+            }
+        } header: {
+            Text(lang["cl.associatedAccount"])
+        } footer: {
+            if accounts.contains(where: { $0.currency != currency }) {
+                Text(lang.f("loan.accountCurrencyNote", currency))
+            }
+        }
+    }
+
+    private var recurringSection: some View {
+        Section {
+            Toggle(isOn: $createRecurring.animation()) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(lang["cl.recurringRepayment"])
+                    Text(lang["cl.recurringRepayment.sub"])
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            if createRecurring {
+                HStack {
+                    Text(lang["label.amount"])
+                    Spacer()
+                    TextField("0", text: $recurringAmountText)
+                        .keyboardType(.decimalPad).multilineTextAlignment(.trailing).frame(maxWidth: 120)
+                    Text(Currencies.info(for: currency).symbol).foregroundStyle(.secondary)
+                }
+                Picker(lang["label.frequency"], selection: $recurringFrequency) {
+                    ForEach(RecurrenceFrequency.allCases) { f in Text(f.label).tag(f) }
+                }
+            }
+        } header: { Text(lang["cl.recurringRepayment"]) }
+    }
+
+    private var notesSection: some View {
+        Section(lang["label.notes"] + " " + lang["label.optional"]) {
+            TextField(lang["label.notes"], text: $notes, axis: .vertical)
+                .lineLimit(2...4)
+        }
+    }
+
+    private var deleteSection: some View {
+        Section {
+            Button(role: .destructive) { showDeleteConfirm = true } label: {
+                Label(lang["cl.delete"], systemImage: "trash")
+            }
+        } footer: {
+            Text(lang["cl.delete.footer"])
+        }
+    }
+
+
+    private var notificationSection: some View {
+        Section {
+            Toggle(lang["notification.enable"], isOn: $notifEnabled)
+            if notifEnabled {
+                Picker(lang["notification.daysBefore"], selection: $notifDaysBefore) {
+                    ForEach(notificationDaysOptions, id: \.self) { d in
+                        Text(d == 1 ? lang["notification.dayBefore.1"] : lang.f("notification.dayBefore.n", d)).tag(d)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        } header: {
+            Label(lang["notification.section"], systemImage: "bell")
+        }
+    }
+
+    // MARK: - Logic
+
+    private func loadIfEditing() {
+        guard case .edit(let cl) = mode else {
+            selectedAccount = accounts.first(where: { $0.currency == currency })
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { limitFocused = true }
+            return
+        }
+        name            = cl.name
+        lenderName      = cl.lenderName
+        currency        = cl.currency
+        limitText       = decimalToText(cl.creditLimit)
+        rateText        = decimalToText(cl.annualInterestRate)
+        compounding     = cl.compounding
+        statementDay    = cl.statementDay
+        minPayType      = cl.minimumPaymentType
+        minPayValueText = (cl.minimumPaymentValue as NSDecimalNumber).doubleValue > 0
+                          ? decimalToText(cl.minimumPaymentValue) : ""
+        selectedAccount = cl.account
+        notes           = cl.notes ?? ""
+        createRecurring = (cl.paymentRule != nil)
+        if let rule = cl.paymentRule {
+            recurringAmountText = decimalToText(rule.amount)
+            recurringFrequency = rule.frequency
+        }
+    }
+
+    private func save() {
+        guard let lim = limit, let r = rate else { return }
+        let minVal = parseDecimal(minPayValueText) ?? 0
+        let trimName   = name.trimmingCharacters(in: .whitespaces)
+        let trimLender = lenderName.trimmingCharacters(in: .whitespaces)
+        let trimNotes  = notes.trimmingCharacters(in: .whitespaces)
+
+        switch mode {
+        case .create:
+            let cl = CreditLine(
+                name: trimName, lenderName: trimLender, currency: currency,
+                creditLimit: lim, annualInterestRate: r,
+                compounding: compounding,
+                minimumPaymentType: minPayType, minimumPaymentValue: minVal,
+                account: selectedAccount,
+                notes: trimNotes.isEmpty ? nil : trimNotes
+            )
+            cl.notificationEnabled = notifEnabled
+            cl.notificationDaysBefore = notifDaysBefore
+            context.insert(cl)
+            cl.statementDay = statementDay
+
+            // Initial draw entry
+            if let drawAmt = parseDecimal(currentDrawText), drawAmt > 0 {
+                let entry = CreditLineEntry(type: .draw, amount: drawAmt,
+                                            date: .now, note: lang["cl.initialDrawNote"])
+                entry.creditLine = cl
+                context.insert(entry)
+            }
+
+            // Recurring repayment
+            if createRecurring, let recAmt = parseDecimal(recurringAmountText), recAmt > 0 {
+                let rule = RecurringTransaction(
+                    title: trimName.isEmpty ? lang["cl.title"] : trimName,
+                    amount: recAmt, type: .expense,
+                    frequency: recurringFrequency,
+                    startDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
+                    account: selectedAccount,
+                    note: "Remboursement \(trimLender.isEmpty ? lang["cl.title"].lowercased() : trimLender)",
+                    payee: trimLender.isEmpty ? nil : trimLender,
+                    isCreditLinePayment: true
+                )
+                context.insert(rule)
+                rule.creditLine = cl
+            }
+
+        case .edit(let cl):
+            cl.name                 = trimName
+            cl.lenderName           = trimLender
+            cl.currency             = currency
+            cl.creditLimit          = lim
+            cl.annualInterestRate   = r
+            cl.compounding          = compounding
+            cl.statementDay         = statementDay
+            cl.minimumPaymentType   = minPayType
+            cl.minimumPaymentValue  = minVal
+            cl.account              = selectedAccount
+            cl.notes                = trimNotes.isEmpty ? nil : trimNotes
+            cl.notificationEnabled  = notifEnabled
+            cl.notificationDaysBefore = notifDaysBefore
+            syncCreditLinePaymentRule(cl)
+        }
+
+        try? context.save()
+        let ctx = context
+        Task { await NotificationManager.shared.scheduleAll(context: ctx) }
+        dismiss()
+    }
+
+    /// Synchronise la règle de remboursement de la marge avec le formulaire à l'édition.
+    private func syncCreditLinePaymentRule(_ cl: CreditLine) {
+        let trimName   = name.trimmingCharacters(in: .whitespaces)
+        let trimLender = lenderName.trimmingCharacters(in: .whitespaces)
+        if createRecurring, let recAmt = parseDecimal(recurringAmountText), recAmt > 0 {
+            let title = trimName.isEmpty ? lang["cl.title"] : trimName
+            let ruleNote = "Remboursement \(trimLender.isEmpty ? lang["cl.title"].lowercased() : trimLender)"
+            let rulePayee = trimLender.isEmpty ? nil : trimLender
+            if let rule = cl.paymentRule {
+                rule.title = title
+                rule.amount = recAmt
+                rule.type = .expense
+                rule.frequency = recurringFrequency
+                rule.account = selectedAccount
+                rule.note = ruleNote
+                rule.payee = rulePayee
+            } else {
+                let rule = RecurringTransaction(
+                    title: title,
+                    amount: recAmt,
+                    type: .expense,
+                    frequency: recurringFrequency,
+                    startDate: Calendar.current.date(byAdding: .month, value: 1, to: .now) ?? .now,
+                    account: selectedAccount,
+                    note: ruleNote,
+                    payee: rulePayee,
+                    isCreditLinePayment: true
+                )
+                rule.creditLine = cl
+                context.insert(rule)
+            }
+        } else if let rule = cl.paymentRule {
+            context.delete(rule)
+        }
+    }
+
+    private func deleteIfEditing() {
+        guard case .edit(let cl) = mode else { return }
+        context.delete(cl)
+        try? context.save()
+        let ctx = context
+        Task { await NotificationManager.shared.scheduleAll(context: ctx) }
+        dismiss()
+    }
+
+    private func parseDecimal(_ s: String) -> Decimal? {
+        let n = s.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .whitespaces)
+        guard !n.isEmpty else { return nil }
+        return Decimal(string: n)
+    }
+
+    private func decimalToText(_ d: Decimal) -> String {
+        return d.appFormattedForInput
+    }
+}

@@ -21,7 +21,7 @@ import json, os, pathlib, re, subprocess, sys
 import lxml.html
 
 RACINE = pathlib.Path(__file__).parent
-SITE = "https://fintrack.bmsk.ca"
+SITE = "https://ando.bmsk.ca"
 
 LANGUES = {
     "fr": {
@@ -62,7 +62,7 @@ def donnees_structurees(code, cfg, titre):
     return json.dumps({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "Fin:Track",
+        "name": "Ando",
         "applicationCategory": "FinanceApplication",
         "operatingSystem": "iOS 17+",
         "inLanguage": ["fr-CA", "en-CA", "es", "pt"],
@@ -121,7 +121,7 @@ def rendre(code, gabarit, en):
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Fin:Track">
+<meta property="og:site_name" content="Ando">
 <meta property="og:title" content="{titre}">
 <meta property="og:description" content="{cfg['og_desc']}">
 <meta property="og:url" content="{cfg['url']}">
@@ -159,22 +159,60 @@ def rendre(code, gabarit, en):
 # publiées en sont générées ; elles ne peuvent donc pas dériver du texte validé.
 # Les lignes commençant par « > » sont des notes internes, non publiées.
 
-LEGAL = {
-    "fr": {"source": "docs/legal/politique-confidentialite.md",
-           "sortie": "public/confidentialite/index.html",
-           "url": f"{SITE}/confidentialite/", "lang": "fr-CA",
-           "titre": "Politique de confidentialité — Fin:Track",
-           "desc": "Comment Fin:Track et BMSK traitent vos renseignements personnels.",
-           "accueil": "/", "autre": ("English", "/en/privacy/", "en"),
-           "retour": "Retour à l'accueil"},
-    "en": {"source": "docs/legal/privacy-policy.md",
-           "sortie": "public/en/privacy/index.html",
-           "url": f"{SITE}/en/privacy/", "lang": "en-CA",
-           "titre": "Privacy Policy — Fin:Track",
-           "desc": "How Fin:Track and BMSK handle your personal information.",
-           "accueil": "/en/", "autre": ("Français", "/confidentialite/", "fr"),
-           "retour": "Back to home"},
-}
+PAGES_LEGALES = [
+    {
+        "fr": {"source": "docs/legal/politique-confidentialite.md",
+               "sortie": "public/confidentialite/index.html",
+               "url": f"{SITE}/confidentialite/", "lang": "fr-CA",
+               "titre": "Politique de confidentialité — Ando",
+               "desc": "Comment Ando et BMSK traitent vos renseignements personnels.",
+               "accueil": "/", "autre": ("English", "/en/privacy/", "en"),
+               "retour": "Retour à l'accueil"},
+        "en": {"source": "docs/legal/privacy-policy.md",
+               "sortie": "public/en/privacy/index.html",
+               "url": f"{SITE}/en/privacy/", "lang": "en-CA",
+               "titre": "Privacy Policy — Ando",
+               "desc": "How Ando and BMSK handle your personal information.",
+               "accueil": "/en/", "autre": ("Français", "/confidentialite/", "fr"),
+               "retour": "Back to home"},
+    },
+    {
+        # Exigées par la directive 3.1.2 d'Apple dès qu'un abonnement est
+        # vendu : l'écran d'achat doit renvoyer aux conditions ET à la
+        # politique de confidentialité.
+        "fr": {"source": "docs/legal/conditions-utilisation.md",
+               "sortie": "public/conditions/index.html",
+               "url": f"{SITE}/conditions/", "lang": "fr-CA",
+               "titre": "Conditions d'utilisation — Ando",
+               "desc": "Les conditions qui encadrent l'utilisation d'Ando.",
+               "accueil": "/", "autre": ("English", "/en/terms/", "en"),
+               "retour": "Retour à l'accueil"},
+        "en": {"source": "docs/legal/terms-of-use.md",
+               "sortie": "public/en/terms/index.html",
+               "url": f"{SITE}/en/terms/", "lang": "en-CA",
+               "titre": "Terms of Use — Ando",
+               "desc": "The terms that govern your use of Ando.",
+               "accueil": "/en/", "autre": ("Français", "/conditions/", "fr"),
+               "retour": "Back to home"},
+    },
+    {
+        # URL d'assistance : champ OBLIGATOIRE de la fiche App Store.
+        "fr": {"source": "docs/legal/assistance.md",
+               "sortie": "public/assistance/index.html",
+               "url": f"{SITE}/assistance/", "lang": "fr-CA",
+               "titre": "Assistance — Ando",
+               "desc": "Nous joindre, et les réponses aux questions fréquentes.",
+               "accueil": "/", "autre": ("English", "/en/support/", "en"),
+               "retour": "Retour à l'accueil"},
+        "en": {"source": "docs/legal/support.md",
+               "sortie": "public/en/support/index.html",
+               "url": f"{SITE}/en/support/", "lang": "en-CA",
+               "titre": "Support — Ando",
+               "desc": "How to reach us, and answers to common questions.",
+               "accueil": "/en/", "autre": ("Français", "/assistance/", "fr"),
+               "retour": "Back to home"},
+    },
+]
 
 # Le build refuse de publier un texte qui contient encore un marqueur de travail.
 MARQUEURS = re.compile(r"\[(À COMPLÉTER|TO COMPLETE|À VALIDER|TO CONFIRM|À VÉRIFIER|TO CHECK)")
@@ -264,7 +302,11 @@ th,td{text-align:left;vertical-align:top;padding:9px 12px;border:1px solid var(-
 th{font-weight:650}
 .pied{padding-top:22px;padding-bottom:40px;border-top:1px solid var(--ligne);font-size:.875rem;color:var(--sourdine)}
 """
-    for code, cfg in LEGAL.items():
+    # Chaque entrée de PAGES_LEGALES est une paire {fr, en} : les balises
+    # hreflang relient les deux versions d'une MÊME page, pas n'importe
+    # quelles deux pages du site.
+    for paire in PAGES_LEGALES:
+      for code, cfg in paire.items():
         source = (RACINE.parent / cfg["source"]).read_text(encoding="utf-8")
         publie = "\n".join(l for l in source.splitlines() if not l.startswith(">"))
         if MARQUEURS.search(publie):
@@ -281,8 +323,8 @@ th{font-weight:650}
 <title>{cfg['titre']}</title>
 <meta name="description" content="{cfg['desc']}">
 <link rel="canonical" href="{cfg['url']}">
-<link rel="alternate" hreflang="fr-CA" href="{LEGAL['fr']['url']}">
-<link rel="alternate" hreflang="en-CA" href="{LEGAL['en']['url']}">
+<link rel="alternate" hreflang="fr-CA" href="{paire['fr']['url']}">
+<link rel="alternate" hreflang="en-CA" href="{paire['en']['url']}">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -291,7 +333,7 @@ th{font-weight:650}
 </head>
 <body>
 <header class="entete">
-  <a class="marque" href="{cfg['accueil']}">Fin:Track</a>
+  <a class="marque" href="{cfg['accueil']}">Ando</a>
   <a class="langue" href="{autre_url}" hreflang="{autre_code}" lang="{autre_code}">{autre_nom}</a>
 </header>
 <main class="contenu">
@@ -333,9 +375,10 @@ def main():
             f'  </url>\n' for c in LANGUES.values())
         + "".join(
             f'  <url>\n    <loc>{c["url"]}</loc>\n'
-            f'    <xhtml:link rel="alternate" hreflang="fr-CA" href="{LEGAL["fr"]["url"]}"/>\n'
-            f'    <xhtml:link rel="alternate" hreflang="en-CA" href="{LEGAL["en"]["url"]}"/>\n'
-            f'  </url>\n' for c in LEGAL.values())
+            f'    <xhtml:link rel="alternate" hreflang="fr-CA" href="{paire["fr"]["url"]}"/>\n'
+            f'    <xhtml:link rel="alternate" hreflang="en-CA" href="{paire["en"]["url"]}"/>\n'
+            f'  </url>\n'
+            for paire in PAGES_LEGALES for c in paire.values())
         + "</urlset>\n", encoding="utf-8")
 
     print("  public/robots.txt, public/sitemap.xml")

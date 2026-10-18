@@ -1,4 +1,4 @@
-# Fin:Track — stratégie marketing (source de vérité)
+# Ando — stratégie marketing (source de vérité)
 
 Ce fichier est au marketing ce que `CLAUDE.md` est au code : l'état actuel des
 décisions. Il se met à jour quand une décision change ou qu'une expérience
@@ -15,7 +15,7 @@ Chaque affirmation porte un statut :
 - Les achats dans TestFlight sont fictifs : la bêta produit des testeurs et des
   signaux, **pas de revenus**. Les premiers acheteurs viendront au lancement sur
   l'App Store. [Vérifié — fonctionnement de TestFlight]
-- Landing bilingue en ligne (`fintrack.bmsk.ca`) avec liste d'attente.
+- Landing bilingue en ligne (`ando.bmsk.ca`) avec liste d'attente.
 - L'app ne contient **aucune analytique** (choix de confidentialité). Les mesures
   disponibles : inscriptions à la liste, statistiques TestFlight (invitations,
   installations, plantages), retours des testeurs.
@@ -30,7 +30,7 @@ Chaque affirmation porte un statut :
 | Cibles | Francophones et anglophones en même temps |
 
 **Règle de prudence** [Jugement] : ne jamais mentionner l'employeur de Régis
-dans la communication de Fin:Track. Son employeur possède Flinks, fournisseur
+dans la communication de Ando. Son employeur possède Flinks, fournisseur
 bancaire envisagé ; toute association apparente créerait un risque de conflit
 d'intérêts et d'image. Vérifier la politique interne sur les activités externes.
 
@@ -94,7 +94,7 @@ automatique des transactions. Elles seront déçues ; mieux vaut le dire.
 
 | Décision | Pourquoi c'est urgent | Échéance |
 |---|---|---|
-| **Le nom de l'app** | « FinTrack » jugé trop proche de FINTRAC en septembre 2026 ; changer après avoir bâti une notoriété coûte cher | Avant l'étape 2 du guide |
+| **Le nom de l'app** | « Ando » jugé trop proche de FINTRAC en septembre 2026 ; changer après avoir bâti une notoriété coûte cher | Avant l'étape 2 du guide |
 | **Tests des moteurs de calcul** | Le message promet des calculs corrects ; aucun test automatisé dans le dépôt ; exigence de preuve (Loi sur la concurrence) | Avant l'étape 3 du guide |
 | **Prix de lancement de Pro** | 24,99 $ (landing) contre 28,99 $ (fichier de test) | À la fin de la bêta, avec le sondage |
 

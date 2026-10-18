@@ -1,5 +1,5 @@
 /**
- * Fin:Track — landing page.
+ * Ando — landing page.
  *
  * Les fichiers statiques de public/ sont servis par la couche d'assets de
  * Cloudflare sans passer par ce script. Le Worker ne traite donc que les
@@ -27,6 +27,16 @@ const MAX_CORPS = 1024; // octets ; une inscription légitime en fait ~60
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    // L'app s'appelait Fin:Track jusqu'au 17 octobre 2026. Les courriels de
+    // la liste d'attente déjà partis portent des liens fintrack.bmsk.ca ;
+    // les casser priverait leurs destinataires du désabonnement exigé par la
+    // LCAP. Redirection permanente, chemin et paramètres conservés.
+    if (url.hostname === "fintrack.bmsk.ca") {
+      const cible = new URL(request.url);
+      cible.hostname = "ando.bmsk.ca";
+      return Response.redirect(cible.toString(), 301);
+    }
 
     if (url.pathname.startsWith("/api/logo/")) {
       if (request.method !== "GET") return refus(405, "methode");
@@ -143,7 +153,7 @@ async function exporter(request, env) {
   return new Response([entetes, ...lignes].join("\n"), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": 'attachment; filename="fintrack-beta.csv"',
+      "Content-Disposition": 'attachment; filename="ando-beta.csv"',
       "Cache-Control": "no-store",
     },
   });
@@ -199,7 +209,7 @@ async function logo(url, env, ctx) {
 
   // Clé de cache normalisée : sans paramètres, quelle que soit l'URL reçue.
   const cache = caches.default;
-  const cle = new Request(`https://fintrack.bmsk.ca/api/logo/${domaine}`);
+  const cle = new Request(`https://ando.bmsk.ca/api/logo/${domaine}`);
   const enCache = await cache.match(cle);
   if (enCache) return enCache;
 
@@ -300,9 +310,9 @@ function pageDesabonnement(url) {
 
   const t = en
     ? {
-        lang: "en-CA", titre: "Leave the beta list — Fin:Track",
+        lang: "en-CA", titre: "Leave the beta list — Ando",
         h1: "Leave the beta list",
-        p: "You will no longer receive the Fin:Track TestFlight invitation. Nothing else changes.",
+        p: "You will no longer receive the Ando TestFlight invitation. Nothing else changes.",
         bouton: "Confirm", occupe: "Removing…",
         fait: "Done — your address has been removed from the list.",
         deja: "Your address was already removed from the list.",
@@ -311,9 +321,9 @@ function pageDesabonnement(url) {
         retour: "Back to the site",
       }
     : {
-        lang: "fr-CA", titre: "Quitter la liste de la bêta — Fin:Track",
+        lang: "fr-CA", titre: "Quitter la liste de la bêta — Ando",
         h1: "Quitter la liste de la bêta",
-        p: "Vous ne recevrez plus l'invitation TestFlight de Fin:Track. Rien d'autre ne change.",
+        p: "Vous ne recevrez plus l'invitation TestFlight de Ando. Rien d'autre ne change.",
         bouton: "Confirmer", occupe: "Retrait en cours…",
         fait: "C'est fait — votre adresse a été retirée de la liste.",
         deja: "Votre adresse avait déjà été retirée de la liste.",

@@ -1,5 +1,8 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
+	// Nom du Worker déjà déployé chez Cloudflare. Volontairement NON renommé :
+	// changer ce nom crée un second Worker au lieu de mettre à jour celui-ci,
+	// et laisse l'ancien servir le trafic. Invisible pour les visiteurs.
 	"name": "fintrack-landing",
 	"main": "src/index.js",
 	"compatibility_date": "2026-09-06",
@@ -16,6 +19,13 @@
 	// Attaché ici plutôt qu'au tableau de bord : `wrangler deploy` crée le
 	// domaine et son enregistrement DNS, puis le réaffirme à chaque déploiement.
 	"routes": [
+		{
+			"pattern": "ando.bmsk.ca",
+			"custom_domain": true
+		},
+		// Ancienne adresse conservée : les courriels de la liste d'attente
+		// déjà envoyés contiennent des liens fintrack.bmsk.ca/desabonnement.
+		// Le Worker les redirige (301) vers ando.bmsk.ca — voir src/index.js.
 		{
 			"pattern": "fintrack.bmsk.ca",
 			"custom_domain": true
@@ -36,6 +46,8 @@
 	},
 	// Base créée avec : npx wrangler d1 create fintrack-beta
 	// Le code n'utilise que la liaison DB (env.DB dans src/index.js).
+	// Nom conservé : c'est celui de la base réelle chez Cloudflare, et D1 ne
+	// se renomme pas. Seul database_id fait foi pour la liaison.
 	"d1_databases": [
 		{
 			"binding": "DB",

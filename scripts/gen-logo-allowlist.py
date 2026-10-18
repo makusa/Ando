@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Génère la liste des domaines dont le Worker accepte de servir le logo, à partir
-de l'annuaire de l'app (FinTrack/Utilities/BankDirectory.swift).
+de l'annuaire de l'app (Ando/Utilities/BankDirectory.swift).
 
     python3 scripts/gen-logo-allowlist.py           # (ré)écrit le fichier
     python3 scripts/gen-logo-allowlist.py --check   # code 1 si le fichier n'est pas à jour
@@ -15,7 +15,7 @@ import re
 import sys
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
-ANNUAIRE = RACINE / "FinTrack/Utilities/BankDirectory.swift"
+ANNUAIRE = RACINE / "Ando/Utilities/BankDirectory.swift"
 SORTIE = RACINE / "_landing/src/domaines-logos.js"
 
 
@@ -25,7 +25,7 @@ def contenu_attendu():
     lignes = ",\n".join(f'  "{d}"' for d in domaines)
     return (
         "// FICHIER GÉNÉRÉ par scripts/gen-logo-allowlist.py à partir de\n"
-        "// FinTrack/Utilities/BankDirectory.swift. Ne pas modifier à la main.\n"
+        "// Ando/Utilities/BankDirectory.swift. Ne pas modifier à la main.\n"
         f"// {len(domaines)} domaines.\n"
         f"export const DOMAINES_LOGOS = new Set([\n{lignes}\n]);\n"
     ), len(domaines)

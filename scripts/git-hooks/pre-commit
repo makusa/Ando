@@ -1,5 +1,5 @@
 #!/bin/bash
-# Garde-fou de commit de Fin:Track (installé par scripts/install-hooks.sh).
+# Garde-fou de commit de Ando (installé par scripts/install-hooks.sh).
 #
 # Refuse le commit si :
 #   1. un fichier interdit est indexé (.DS_Store, état d'interface Xcode,
@@ -15,7 +15,7 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 
 refus() {
     echo
-    echo "✗ Commit refusé par le garde-fou Fin:Track"
+    echo "✗ Commit refusé par le garde-fou Ando"
     printf "%s\n" "$@" | sed 's/^/  /'
     echo
     echo "  (Voir docs/OUTILS.md. Contournement exceptionnel : git commit --no-verify)"
@@ -35,7 +35,7 @@ fi
 
 # 2. Code de l'app modifié : la vérification complète doit correspondre.
 touche_app=$(git diff --cached --name-only | grep -E \
-    '^(FinTrack|FinTrackWidget|FinTrackUITests)/|^project\.yml$|^FinTrack\.xcodeproj/project\.pbxproj$')
+    '^(Ando|AndoWidget|AndoUITests)/|^project\.yml$|^Ando\.xcodeproj/project\.pbxproj$')
 if [ -n "$touche_app" ]; then
     if [ ! -f "$TAMPON_VERIFICATION" ]; then
         refus "Ce commit modifie l'app, mais aucune vérification complète n'a été faite." \

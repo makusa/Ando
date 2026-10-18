@@ -1,4 +1,4 @@
-name: FinTrack
+name: Ando
 
 options:
   bundleIdPrefix: ca.bmsk
@@ -18,33 +18,33 @@ settings:
     ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
 
 targets:
-  FinTrack:
+  Ando:
     type: application
     platform: iOS
     sources:
-      - path: FinTrack
+      - path: Ando
         excludes:
           - "**/*.md"
 
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.fintrack
-        PRODUCT_NAME: FinTrack
+        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.ando
+        PRODUCT_NAME: Ando
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1"           # iPhone only for v1; set "1,2" for iPad too
         SWIFT_VERSION: "5.9"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_FILE: FinTrack/Info.plist
+        INFOPLIST_FILE: Ando/Info.plist
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
-        INFOPLIST_KEY_CFBundleDisplayName: "Fin:Track"
+        INFOPLIST_KEY_CFBundleDisplayName: "Ando"
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
 
-        INFOPLIST_KEY_NSFaceIDUsageDescription: "Fin:Track utilise Face ID pour déverrouiller l'app et protéger vos données financières."
-        INFOPLIST_KEY_NSCameraUsageDescription: "Fin:Track utilise l'appareil photo pour scanner vos reçus et créer des transactions automatiquement."
+        INFOPLIST_KEY_NSFaceIDUsageDescription: "Ando utilise Face ID pour déverrouiller l'app et protéger vos données financières."
+        INFOPLIST_KEY_NSCameraUsageDescription: "Ando utilise l'appareil photo pour scanner vos reçus et créer des transactions automatiquement."
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         ENABLE_PREVIEWS: YES
@@ -52,107 +52,111 @@ targets:
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "iPhone Developer"
     entitlements:
-      path: FinTrack/FinTrack.entitlements
+      path: Ando/Ando.entitlements
       properties:
-        aps-environment: development
+        # Pas d'aps-environment : l'app n'utilise que des notifications
+        # LOCALES (NotificationManager). Déclarer la capacité Push sans
+        # registerForRemoteNotifications est un motif de rejet (2.5.4) et
+        # provoque un « Invalid Code Signing Entitlements » au téléversement.
+        # À rétablir en « production » le jour où du push distant arrive.
         com.apple.developer.icloud-container-identifiers:
-          - iCloud.ca.bmsk.fintrack
+          - iCloud.ca.bmsk.ando
         com.apple.developer.icloud-services:
           - CloudKit
         com.apple.security.application-groups:
-          - group.ca.bmsk.fintrack
+          - group.ca.bmsk.ando
     dependencies:
-      - target: FinTrackWidget
+      - target: AndoWidget
         embed: true
-  FinTrackWidget:
+  AndoWidget:
     type: app-extension
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: FinTrackWidget
-      - path: FinTrack/Models/WidgetData.swift
+      - path: AndoWidget
+      - path: Ando/Models/WidgetData.swift
     entitlements:
-      path: FinTrackWidget/FinTrackWidget.entitlements
+      path: AndoWidget/AndoWidget.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.ca.bmsk.fintrack
+          - group.ca.bmsk.ando
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.fintrack.widget
-        PRODUCT_NAME: FinTrackWidget
+        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.ando.widget
+        PRODUCT_NAME: AndoWidget
         SWIFT_VERSION: "5.9"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: FinTrackWidget/Info.plist
+        INFOPLIST_FILE: AndoWidget/Info.plist
         CODE_SIGN_STYLE: Automatic
         CODE_SIGN_IDENTITY: "iPhone Developer"
         SKIP_INSTALL: YES
 
-  FinTrackTests:
+  AndoTests:
     type: bundle.unit-test
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: FinTrackTests
+      - path: AndoTests
     dependencies:
-      - target: FinTrack
+      - target: Ando
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.fintrack.tests
-        PRODUCT_NAME: FinTrackTests
+        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.ando.tests
+        PRODUCT_NAME: AndoTests
         SWIFT_VERSION: "5.9"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
         GENERATE_INFOPLIST_FILE: YES
-        TEST_TARGET_NAME: FinTrack
+        TEST_TARGET_NAME: Ando
         CODE_SIGN_STYLE: Automatic
 
-  FinTrackUITests:
+  AndoUITests:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: FinTrackUITests
+      - path: AndoUITests
     dependencies:
-      - target: FinTrack
+      - target: Ando
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.fintrack.uitests
-        PRODUCT_NAME: FinTrackUITests
+        PRODUCT_BUNDLE_IDENTIFIER: ca.bmsk.ando.uitests
+        PRODUCT_NAME: AndoUITests
         SWIFT_VERSION: "5.9"
         IPHONEOS_DEPLOYMENT_TARGET: "17.0"
         GENERATE_INFOPLIST_FILE: YES
-        TEST_TARGET_NAME: FinTrack
+        TEST_TARGET_NAME: Ando
         CODE_SIGN_STYLE: Automatic
 
 schemes:
-  FinTrack:
+  Ando:
     build:
       targets:
-        FinTrack: all
-        FinTrackTests: [test]
-        FinTrackUITests: [test]
+        Ando: all
+        AndoTests: [test]
+        AndoUITests: [test]
     test:
       config: Debug
       targets:
-        - FinTrackTests
-        - FinTrackUITests
+        - AndoTests
+        - AndoUITests
     run:
       config: Debug
-      storeKitConfiguration: FinTrack.storekit
+      storeKitConfiguration: Ando.storekit
       commandLineArguments:
         "-com.apple.CoreData.Logging.stderr 1": true
         "-com.apple.CoreData.CloudKitDebug 1": true
     archive:
       config: Release
-  FinTrackWidget:
+  AndoWidget:
     build:
       targets:
-        FinTrackWidget: all
-        FinTrack: [run]
+        AndoWidget: all
+        Ando: [run]
     run:
       config: Debug
       askForAppToLaunch: true
       launchAutomaticallySubstyle: 2
       environmentVariables:
-        _XCWidgetKind: fintrack.balance
+        _XCWidgetKind: ando.balance
         _XCWidgetFamily: medium
