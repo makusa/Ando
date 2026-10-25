@@ -40,9 +40,9 @@ Vérification au vert : Debug et Release 0/0, **56 tests**, 0 échec.
 | R7 | Conformité à l'exportation | ✅ `ITSAppUsesNonExemptEncryption = false` dans l'`Info.plist` livré |
 | R8 | Page d'assistance | ✅ `/assistance/` et `/en/support/`, liées depuis l'app |
 | R9 | Captures d'écran | ✅ 19 par langue en 1206 × 2622 ; 22 images du site remplacées — ⚠️ voir R10 |
-| R10 | Drapeaux en glyphes manquants sur les captures | ❌ **nouveau**, trouvé en relisant les captures |
+| R10 | Drapeaux en glyphes manquants sur les captures | ✅ drapeaux retirés le 25 octobre, captures régénérées |
 | B1 | Conversion de devises *(hors guidelines, mais bloquant)* | ✅ `convert()` optionnel, 24 appels tranchés, 13 tests |
-| B6 | Paysage déclaré, interface non vérifiée | ❌ à tester sur simulateur |
+| B6 | Paysage déclaré, interface non vérifiée | ✅ testé : la liste n'y défile pas — paysage retiré de la déclaration |
 
 **Ce qui reste, par nature du blocage :**
 
@@ -53,6 +53,20 @@ Vérification au vert : Debug et Release 0/0, **56 tests**, 0 échec.
 - **Du travail hors code** : images sociales `og-fr.jpg` et `og-en.jpg`,
   toujours à l'ancienne marque, et la révocation de la clé d'API exposée.
 
+> [!success] Clé d'API — ✅ changée le 25 octobre 2026
+> `APP_API_KEY` a été régénérée côté Worker Cloudflare et l'ancienne clé
+> reçoit désormais un 401. La valeur publiée est morte.
+>
+> **Ce que la rotation ne règle pas** : il s'agit d'un secret partagé destiné
+> à être embarqué dans l'app. Le jour où celle-ci sera sur l'App Store, la
+> clé sera lisible avec `strings` sur le binaire téléchargé. Avant que la
+> connexion bancaire ne parte en production, il faut une authentification
+> réelle entre l'app et le proxy — jeton par appareil, ou App Attest. Ce
+> n'est pas un raffinement, c'est un prérequis à la fonction.
+
+<details>
+<summary>Le constat d'origine, conservé</summary>
+
 > [!danger] Une clé d'API est à révoquer
 > `PlaidConfig.apiKey` contenait une **vraie** clé partagée, en clair, dans un
 > dépôt **public**, juste sous un commentaire disant de ne jamais faire ça.
@@ -61,8 +75,14 @@ Vérification au vert : Debug et Release 0/0, **56 tests**, 0 échec.
 > et à ne pas remettre dans un fichier suivi.
 >
 > Au passage, le renommage automatique du 17 octobre avait modifié cette
-> clé sans que ce soit voulu (`fintrack-2026-bmsk` → `ando-2026-bmsk`) :
-> elle ne correspondait donc déjà plus à celle du proxy déployé.
+> clé sans que ce soit voulu — le motif `fintrack` y figurait — de sorte
+> qu'elle ne correspondait déjà plus à celle du proxy déployé.
+>
+> ⚠️ Cette note elle-même contenait la clé en clair jusqu'au 25 octobre :
+> documenter une fuite en recopiant le secret la prolonge. Décrire, ne pas
+> citer.
+
+</details>
 
 ## R1 · Manifeste de confidentialité absent — refus au téléversement
 
@@ -361,9 +381,37 @@ obligatoires d'Apple (« iPhone à Dynamic Island, écran moyen »).
 Restent à refaire, hors harnais : **`og-fr.jpg` et `og-en.jpg`**, les images
 de partage social, toujours à l'ancienne marque et non générées par le build.
 
-> ⚠️ Les captures ne sont pas livrables telles quelles : voir R10.
+> ✅ Les captures sont livrables depuis le 25 octobre : voir R10.
 
-## R10 · Les drapeaux ne s'affichent pas sur les captures
+## R10 · Les drapeaux ne s'affichent pas sur les captures — ✅ réglé le 25 octobre 2026
+
+**Les drapeaux ont été retirés**, pas contournés. `AppLanguage.flag` n'existe
+plus, et la rangée « Langue de l'application » comme le sélecteur affichent le
+seul nom de la langue, écrit dans cette langue.
+
+Les deux raisons, dont une seule était technique :
+
+1. Toute capture prise au simulateur aurait recassé, à chaque version.
+2. **Un drapeau français pour « Français » est faux pour une app
+   canadienne.** Le Québec n'est pas la France, le Canada n'est pas le
+   Royaume-Uni. Le nom de la langue dit la même chose sans se tromper de pays.
+
+Les 19 captures par langue ont été régénérées et les 22 images du site
+remplacées. Vérifié en **regardant** l'écran des réglages dans les deux
+langues : « Langue de l'application · Français » et « App Language · English »,
+sans carré.
+
+> [!note] Les drapeaux de pays du sélecteur de banque restent
+> `BankPicker` affiche encore `BankDirectory.flag(for:)` à côté du nom du
+> pays. Même défaut d'affichage au simulateur, mais le cas est différent :
+> un drapeau canadien en face de « Canada » est juste, là où un drapeau
+> français en face de « Français » ne l'était pas. Aucune capture livrée ne
+> montre cet écran. À trancher si l'une d'elles devait le montrer un jour.
+
+<details>
+<summary>Le constat d'origine</summary>
+
+### R10 · Les drapeaux ne s'affichent pas sur les captures
 
 Trouvé le 18 octobre en **regardant** les captures régénérées, pas en
 relisant du code.
@@ -386,6 +434,8 @@ Deux raisons de retirer ces drapeaux plutôt que de contourner :
    — le Québec n'est pas la France, et le Canada n'est pas le Royaume-Uni.
 
 Laissé en l'état : c'est un choix de produit, pas une correction technique.
+
+</details>
 
 ## Vérifié conforme
 
