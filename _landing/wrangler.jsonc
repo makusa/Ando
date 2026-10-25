@@ -6,15 +6,26 @@
 	"name": "fintrack-landing",
 	"main": "src/index.js",
 	"compatibility_date": "2026-09-06",
-	// Les fichiers de public/ sont servis directement par la couche d'assets
-	// de Cloudflare : ces requêtes n'invoquent pas le Worker et ne sont pas
-	// facturées. Le Worker ne reçoit que ce qui ne correspond à aucun fichier,
-	// c'est-à-dire /api/*.
+	// run_worker_first : le Worker voit CHAQUE requête, y compris celles qui
+	// correspondent à un fichier de public/.
+	//
+	// Sans ce réglage, la couche d'assets répond avant le Worker, et la
+	// redirection de fintrack.bmsk.ca écrite dans src/index.js ne s'exécutait
+	// jamais pour une vraie page : seuls /desabonnement et /api/* la
+	// déclenchaient. L'ancien domaine servait donc une copie entière du site,
+	// sous l'ancienne marque et en double dans les moteurs de recherche.
+	// Constaté en vérifiant le déploiement du 25 octobre, pas en relisant.
+	//
+	// Prix à payer : une invocation du Worker par requête au lieu de zéro
+	// pour les fichiers statiques. Sur une page de présentation, c'est sans
+	// portée — le handler se termine par env.ASSETS.fetch(request), donc les
+	// fichiers sont servis exactement comme avant.
 	"assets": {
 		"directory": "./public",
 		"binding": "ASSETS",
 		"html_handling": "auto-trailing-slash",
-		"not_found_handling": "404-page"
+		"not_found_handling": "404-page",
+		"run_worker_first": true
 	},
 	// Attaché ici plutôt qu'au tableau de bord : `wrangler deploy` crée le
 	// domaine et son enregistrement DNS, puis le réaffirme à chaque déploiement.
