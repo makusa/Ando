@@ -1,4 +1,4 @@
-# Fin:Track — guide pas à pas pour faire connaître la bêta
+# Ando — guide pas à pas pour faire connaître la bêta
 
 Calibré pour **2 à 5 heures par semaine**, **moins de 500 $**, en **français et en
 anglais**, avec Régis comme visage public. Rédigé en octobre 2026.
@@ -258,7 +258,7 @@ pourquoi. Chaque risque a une parade.
 
 | # | Risque | Gravité | Parade |
 |---|---|---|---|
-| R1 | **Le nom.** En septembre, « FinTrack » a été jugé trop proche de **FINTRAC**, l'organisme fédéral de renseignement financier. Le changement a été reporté. Changer de nom après avoir bâti une notoriété coûte cher et sème la confusion. | Élevée | **Trancher le nom avant l'étape 2.** Les étapes 0 et 1 (cercle proche) peuvent se faire avant. |
+| R1 | **Le nom.** En septembre, « Ando » a été jugé trop proche de **FINTRAC**, l'organisme fédéral de renseignement financier. Le changement a été reporté. Changer de nom après avoir bâti une notoriété coûte cher et sème la confusion. | Élevée | **Trancher le nom avant l'étape 2.** Les étapes 0 et 1 (cercle proche) peuvent se faire avant. |
 | R2 | **Une erreur de calcul découverte en public.** Le message promet des calculs « corrects » ; or il n'existe aucun test automatisé des moteurs de calcul dans le dépôt [Vérifié]. Une erreur relevée par un média ruinerait la crédibilité, et la Loi sur la concurrence exige de pouvoir prouver ses affirmations. | Élevée | Tester les moteurs (CELIAPP d'abord) contre des cas de référence de l'ARC **avant l'étape 3**. |
 | R3 | **L'absence de synchro bancaire décourage.** Les comparatifs 2026 placent la connexion aux banques parmi les premiers critères [Vérifié]. | Moyenne | Viser explicitement ceux qui ne veulent pas connecter leur banque ; le dire dès la première phrase ; mesurer (H2). |
 | R4 | **Le temps.** Deux langues et plusieurs canaux dépassent vite 5 heures. | Moyenne | Deux canaux actifs au maximum ; écrire en français puis adapter ; répartir l'effort selon H6. |

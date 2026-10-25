@@ -1,5 +1,5 @@
 // FICHIER GÉNÉRÉ par scripts/gen-logo-allowlist.py à partir de
-// FinTrack/Utilities/BankDirectory.swift. Ne pas modifier à la main.
+// Ando/Utilities/BankDirectory.swift. Ne pas modifier à la main.
 // 122 domaines.
 export const DOMAINES_LOGOS = new Set([
   "abnamro.com",

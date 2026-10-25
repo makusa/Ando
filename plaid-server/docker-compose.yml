@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  fintrack-plaid:
+  ando-plaid:
     build: .
-    container_name: fintrack-plaid-server
+    container_name: ando-plaid-server
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -13,7 +13,7 @@ services:
       PLAID_CLIENT_ID: "6a14a9bcb256e9000e75d151"
       PLAID_SECRET: "${PLAID_SECRET}"         # lu depuis .env
       PLAID_ENV: "production"
-      API_KEY: "${API_KEY}"                   # clé que tu inventes, ex: fintrack_2026_xxxxx
+      API_KEY: "${API_KEY}"                   # clé que tu inventes, ex: ando_2026_xxxxx
       PORT: "3000"
     env_file:
       - .env

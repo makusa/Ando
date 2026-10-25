@@ -1,5 +1,5 @@
 #!/bin/bash
-# Active le garde-fou de commit de Fin:Track pour ce clone du dépôt.
+# Active le garde-fou de commit de Ando pour ce clone du dépôt.
 # À lancer une fois par clone (la configuration Git locale n'est pas versionnée).
 #
 #   scripts/install-hooks.sh            active

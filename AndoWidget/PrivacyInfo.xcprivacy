@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Manifeste propre à l'extension widget. Une extension est un bundle
+	     distinct : elle ne peut pas s'appuyer sur celui de l'app hôte.
+	     Ando/Models/WidgetData.swift est compilé dans les deux cibles et
+	     appelle UserDefaults(suiteName:), donc l'extension utilise elle aussi
+	     une API à raison obligatoire. -->
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>
+		<dict>
+			<!-- Lecture seule des données du widget, écrites par l'app dans le
+			     groupe d'app group.ca.bmsk.ando. -->
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>
+				<string>1C8F.1</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

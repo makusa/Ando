@@ -1,4 +1,4 @@
-// server.js — FinTrack Plaid Backend
+// server.js — Ando Plaid Backend
 // Hébergé sur Synology NAS via Docker
 //
 // Endpoints:
@@ -108,11 +108,11 @@ app.get('/health', (req, res) => {
 // Returns: { link_token: string, expiration: string }
 app.post('/create_link_token', requireApiKey, async (req, res) => {
   try {
-    const userId = req.body.user_id || 'fintrack_user';
+    const userId = req.body.user_id || 'ando_user';
 
     const response = await plaidClient.linkTokenCreate({
       user:          { client_user_id: userId },
-      client_name:   'FinTrack',
+      client_name:   'Ando',
       products:      [Products.Transactions],
       // Note: Balance is automatically included — do not add it explicitly
       country_codes: [CountryCode.Ca, CountryCode.Us],
@@ -302,7 +302,7 @@ app.delete('/disconnect', requireApiKey, async (req, res) => {
 
 // ── Démarrage ─────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`✅  FinTrack Plaid Server démarré`);
+  console.log(`✅  Ando Plaid Server démarré`);
   console.log(`    Port:        ${PORT}`);
   console.log(`    Plaid env:   ${PLAID_ENV}`);
   console.log(`    Santé:       http://localhost:${PORT}/health`);

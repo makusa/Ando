@@ -1,0 +1,246 @@
+//
+//  FlinksManager.swift
+//  Ando
+//
+//  Communicates with the Ando Flinks proxy backend.
+//  The proxy holds the Flinks customerId + credentials; the app only ever
+//  sees LoginIds. LoginIds are stored in the iOS Keychain — never in SwiftData.
+//
+//  Flinks flow:
+//    1. FlinksConnectWebView shows Flinks Connect → user authenticates with
+//       their bank → REDIRECT event carries a LoginId.
+//    2. POST {proxy}/flinks/authorize { loginId } → { requestId }
+//    3. GET  {proxy}/flinks/accounts/{requestId} → accounts + transactions
+//
+
+import Foundation
+import SwiftUI
+import os
+
+private let flinksLog = Logger(subsystem: "ca.bmsk.ando", category: "flinks")
+
+// MARK: - Configuration
+
+/// Configuration du proxy Flinks. Volontairement VIDE dans le dépôt.
+///
+/// Contenait jusqu'au 18 octobre 2026 les valeurs de remplacement
+/// `VOTRE_PROXY_URL_ICI` et `VOTRE_API_KEY_ICI`, qui partaient telles quelles
+/// dans le binaire livré. Sans effet tant que `bankSyncAvailable = false`,
+/// mais la directive 2.1 refuse les fonctions manifestement inachevées.
+///
+/// Flinks n'a jamais répondu à la demande d'accès : ce fournisseur reste en
+/// réserve derrière `activeBankSyncProvider`.
+/// Voir `docs/REVUE-APP-STORE.md` (R5).
+enum FlinksConfig {
+    /// Base du proxy, p. ex. « https://flinks.bmsk.ca ».
+    static let proxyBaseURL = ""
+
+    /// URL de Flinks Connect pour l'instance.
+    /// Production : « https://{instance}-iframe.private.fin.ag/v2/ »
+    static let connectURL = "https://toolbox-iframe.private.fin.ag/v2/"
+
+    /// Clé partagée correspondant à l'API_KEY du proxy.
+    static let apiKey = ""
+
+    /// `true` quand le proxy est configuré.
+    static var isConfigured: Bool { !proxyBaseURL.isEmpty && !apiKey.isEmpty }
+}
+
+// MARK: - Connected login (Keychain + metadata)
+
+struct FlinksConnectedLogin: Codable, Identifiable {
+    let id:              String   // Flinks LoginId
+    let institutionName: String
+    var accounts:        [FlinksAccountMeta]
+    let connectedAt:     Date
+    var lastSyncDate:    Date?
+}
+
+struct FlinksAccountMeta: Codable, Identifiable {
+    let id:           String   // Flinks Account Id
+    let title:        String
+    let accountNumber: String? // masked
+    let category:     String?  // Operations, Savings, Credits…
+    let currency:     String?
+    /// Linked Ando account ID (UUID string) — nil until user maps it
+    var andoAccountId: String?
+}
+
+// MARK: - API response models (proxy passthrough of Flinks JSON)
+
+struct FlinksAuthorizeResponse: Decodable {
+    let requestId: String
+
+    enum CodingKeys: String, CodingKey {
+        case requestId = "RequestId"
+    }
+}
+
+struct FlinksAccountsResponse: Decodable {
+    let accounts: [FlinksAccount]
+    let login: FlinksLoginInfo?
+
+    enum CodingKeys: String, CodingKey {
+        case accounts = "Accounts"
+        case login    = "Login"
+    }
+}
+
+struct FlinksLoginInfo: Decodable {
+    let id: String?
+    enum CodingKeys: String, CodingKey { case id = "Id" }
+}
+
+struct FlinksAccount: Decodable, Identifiable {
+    let id:            String
+    let title:         String?
+    let accountNumber: String?
+    let category:      String?
+    let currency:      String?
+    let balance:       FlinksBalance?
+    let transactions:  [FlinksTransaction]?
+    let institutionName: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "Id", title = "Title", accountNumber = "AccountNumber"
+        case category = "Category", currency = "Currency", balance = "Balance"
+        case transactions = "Transactions", institutionName = "InstitutionName"
+    }
+}
+
+struct FlinksBalance: Decodable {
+    let current:   Double?
+    let available: Double?
+    enum CodingKeys: String, CodingKey { case current = "Current", available = "Available" }
+}
+
+struct FlinksTransaction: Decodable, Identifiable {
+    let id:          String
+    let date:        String    // "yyyy-MM-dd"
+    let description: String?
+    let debit:       Double?
+    let credit:      Double?
+    let balance:     Double?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "Id", date = "Date", description = "Description"
+        case debit = "Debit", credit = "Credit", balance = "Balance"
+    }
+}
+
+// MARK: - Manager
+
+@Observable
+@MainActor
+final class FlinksManager {
+
+    static let shared = FlinksManager()
+    private init() { loadConnectedLogins() }
+
+    var connectedLogins: [FlinksConnectedLogin] = []
+    var isSyncing = false
+
+    private let keychainKey = "ando.flinks.logins"
+
+    // MARK: Keychain persistence
+
+    private func loadConnectedLogins() {
+        // Prefer the iCloud-synced item (survives reinstall / new device).
+        if let data = KeychainHelper.data(forKey: keychainKey, synchronizable: true),
+           let decoded = try? JSONDecoder().decode([FlinksConnectedLogin].self, from: data) {
+            connectedLogins = decoded
+            return
+        }
+        // Migrate a legacy device-only item so existing connections aren't lost
+        // when upgrading to iCloud Keychain storage.
+        if let legacy = KeychainHelper.data(forKey: keychainKey),
+           let decoded = try? JSONDecoder().decode([FlinksConnectedLogin].self, from: legacy) {
+            connectedLogins = decoded
+            saveConnectedLogins()                          // re-store as synchronizable
+            _ = KeychainHelper.delete(forKey: keychainKey) // drop the device-only copy
+        }
+    }
+
+    func saveConnectedLogins() {
+        guard let data = try? JSONEncoder().encode(connectedLogins) else { return }
+        // Synchronizable: bank LoginIds follow the user's iCloud Keychain across
+        // devices and survive reinstall (requires iCloud Keychain enabled).
+        _ = KeychainHelper.set(data, forKey: keychainKey, synchronizable: true)
+    }
+
+    func addLogin(_ login: FlinksConnectedLogin) {
+        connectedLogins.removeAll { $0.id == login.id }
+        connectedLogins.append(login)
+        saveConnectedLogins()
+    }
+
+    func removeLogin(id: String) {
+        connectedLogins.removeAll { $0.id == id }
+        saveConnectedLogins()
+    }
+
+    /// Link a bank account to a Ando account (UUID). Without a mapping the
+    /// sync engine skips the account entirely, so this is what actually makes
+    /// Flinks import transactions.
+    @MainActor
+    func updateAccountMapping(loginId: String, accountId: String, andoAccountId: String) {
+        guard let loginIdx = connectedLogins.firstIndex(where: { $0.id == loginId }),
+              let accIdx = connectedLogins[loginIdx].accounts.firstIndex(where: { $0.id == accountId })
+        else { return }
+        connectedLogins[loginIdx].accounts[accIdx].andoAccountId = andoAccountId
+        saveConnectedLogins()
+    }
+
+    func clearAccountMapping(loginId: String, accountId: String) {
+        guard let loginIdx = connectedLogins.firstIndex(where: { $0.id == loginId }),
+              let accIdx = connectedLogins[loginIdx].accounts.firstIndex(where: { $0.id == accountId })
+        else { return }
+        connectedLogins[loginIdx].accounts[accIdx].andoAccountId = nil
+        saveConnectedLogins()
+    }
+
+    /// Removes ALL bank connections: clears in-memory logins and deletes the
+    /// Keychain entry. The synced item is removed from iCloud Keychain, so this
+    /// affects every device on the same iCloud account. Also drops any legacy
+    /// device-only copy. Used by the security reset.
+    func disconnectAll() {
+        connectedLogins.removeAll()
+        _ = KeychainHelper.delete(forKey: keychainKey, synchronizable: true)
+        _ = KeychainHelper.delete(forKey: keychainKey) // legacy device-only copy, if any
+    }
+
+    // MARK: API calls (via proxy)
+
+    private func request(_ path: String, method: String = "GET", body: [String: Any]? = nil) async throws -> Data {
+        guard let url = URL(string: FlinksConfig.proxyBaseURL + path) else {
+            throw URLError(.badURL)
+        }
+        var req = URLRequest(url: url)
+        req.httpMethod = method
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue(FlinksConfig.apiKey, forHTTPHeaderField: "X-API-Key")
+        if let body {
+            req.httpBody = try JSONSerialization.data(withJSONObject: body)
+        }
+        let (data, response) = try await URLSession.shared.data(for: req)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            flinksLog.error("Flinks proxy error on \(path, privacy: .public)")
+            throw URLError(.badServerResponse)
+        }
+        return data
+    }
+
+    /// Step 2 — exchange a LoginId for a RequestId.
+    func authorize(loginId: String) async throws -> String {
+        let data = try await request("/flinks/authorize", method: "POST",
+                                     body: ["loginId": loginId, "mostRecentCached": true])
+        let decoded = try JSONDecoder().decode(FlinksAuthorizeResponse.self, from: data)
+        return decoded.requestId
+    }
+
+    /// Step 3 — fetch accounts + transactions for a RequestId.
+    func getAccountsDetail(requestId: String) async throws -> FlinksAccountsResponse {
+        let data = try await request("/flinks/accounts/\(requestId)")
+        return try JSONDecoder().decode(FlinksAccountsResponse.self, from: data)
+    }
+}

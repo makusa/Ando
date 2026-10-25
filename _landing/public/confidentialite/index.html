@@ -5,11 +5,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Politique de confidentialité — Fin:Track</title>
-<meta name="description" content="Comment Fin:Track et BMSK traitent vos renseignements personnels.">
-<link rel="canonical" href="https://fintrack.bmsk.ca/confidentialite/">
-<link rel="alternate" hreflang="fr-CA" href="https://fintrack.bmsk.ca/confidentialite/">
-<link rel="alternate" hreflang="en-CA" href="https://fintrack.bmsk.ca/en/privacy/">
+<title>Politique de confidentialité — Ando</title>
+<meta name="description" content="Comment Ando et BMSK traitent vos renseignements personnels.">
+<link rel="canonical" href="https://ando.bmsk.ca/confidentialite/">
+<link rel="alternate" hreflang="fr-CA" href="https://ando.bmsk.ca/confidentialite/">
+<link rel="alternate" hreflang="en-CA" href="https://ando.bmsk.ca/en/privacy/">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -29,12 +29,25 @@
   src:url(/fonts/archivo-latin.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root{
-  --papier:#EEF1EF; --surface:#F9FBFA;
-  --encre:#0E241E; --encre-2:#2A413A;
-  --verdigris:#2E7D6C; --cuivre:#A55A2E;
-  --sourdine:#5C6E68; --ligne:#D2DAD6; --ligne-forte:#B9C5C0;
+  /* « Verre de nuit ». Les NOMS des jetons sont restés ceux de la version
+     claire, et seules leurs valeurs ont basculé : build.py recopie ce bloc
+     tel quel dans les quatre pages légales, et scripts/og-images.py dans les
+     cartes de partage. Les deux suivent donc la nouvelle direction sans
+     qu'une seule ligne y soit retouchée — et ne peuvent pas diverger.
+     --papier et --encre ont échangé leurs rôles : le fond est l'encre. */
+  --nuit:#061A1B; --profond:#0B2E2F;
+  --brume:#F3F6F2; --papier:#061A1B; --surface:rgba(243,246,242,.055);
+  --encre:#F3F6F2; --encre-2:rgba(243,246,242,.78);
+  --jade:#4CC38A; --verdigris:#4CC38A;
+  --alerte:#F0A55A; --sourdine:rgba(243,246,242,.62);
+  --ligne:rgba(243,246,242,.12); --ligne-forte:rgba(243,246,242,.22);
+  /* propres au verre */
+  --verre:rgba(243,246,242,.055); --verre-2:rgba(243,246,242,.09);
+  --bord:rgba(243,246,242,.13); --lustre:rgba(243,246,242,.22);
+  --lueur:rgba(76,195,138,.22); --bezel:#020B0B; --sur-jade:#04201A;
   --sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
   --gouttiere:clamp(20px,5vw,40px);
+  color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--papier);color:var(--encre);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
@@ -60,20 +73,20 @@ th{font-weight:650}
 </head>
 <body>
 <header class="entete">
-  <a class="marque" href="/">Fin:Track</a>
+  <a class="marque" href="/">Ando</a>
   <a class="langue" href="/en/privacy/" hreflang="en" lang="en">English</a>
 </header>
 <main class="contenu">
-<h1>Politique de confidentialité de Fin:Track</h1>
+<h1>Politique de confidentialité de Ando</h1>
 <p><strong>Dernière mise à jour : 11 octobre 2026</strong></p>
 <h2>1. Qui sommes-nous</h2>
-<p>Fin:Track est une application de finances personnelles conçue et exploitée par <strong>BMSK</strong>, 5025, avenue Westmore, Montréal (Québec) H4V 1Z4, Canada (« nous »).</p>
+<p>Ando est une application de finances personnelles conçue et exploitée par <strong>BMSK</strong>, 5025, avenue Westmore, Montréal (Québec) H4V 1Z4, Canada (« nous »).</p>
 <p><strong>Responsable de la protection des renseignements personnels</strong> : Régis Bile Masuke, gérant. Courriel : <strong><a href="mailto:confidentialite@bmsk.ca">confidentialite@bmsk.ca</a></strong></p>
 <h2>2. Ce que couvre cette politique</h2>
-<ul><li>le site <strong>fintrack.bmsk.ca</strong> (liste d'attente de la bêta) ;</li><li>l'application <strong>Fin:Track</strong> pour iPhone, en version bêta distribuée par TestFlight.</li></ul>
+<ul><li>le site <strong>ando.bmsk.ca</strong> (liste d'attente de la bêta) ;</li><li>l'application <strong>Ando</strong> pour iPhone, en version bêta distribuée par TestFlight.</li></ul>
 <h2>3. Notre principe</h2>
 <p>Vos données financières restent sur votre appareil. Nous n'avons pas de serveur qui reçoit vos comptes, vos transactions ou vos reçus. L'application ne contient ni outil de mesure d'audience, ni publicité, ni traceur.</p>
-<h2>4. Le site fintrack.bmsk.ca</h2>
+<h2>4. Le site ando.bmsk.ca</h2>
 <h3>Ce que nous recueillons</h3>
 <p>Uniquement si vous vous inscrivez à la liste d'attente :</p>
 <div class="tableau"><table><thead><tr><th>Renseignement</th><th>Pourquoi</th></tr></thead><tbody><tr><td>Votre adresse courriel</td><td>Vous envoyer l'invitation à la bêta</td></tr><tr><td>La langue de la page (français ou anglais)</td><td>Vous écrire dans votre langue</td></tr><tr><td>Votre pays, déduit de votre connexion par notre hébergeur</td><td>Connaître la provenance des inscriptions</td></tr><tr><td>La date de l'inscription et la version du texte de consentement affiché</td><td>Pouvoir prouver votre consentement</td></tr></tbody></table></div>
@@ -84,7 +97,7 @@ th{font-weight:650}
 <p>Jusqu'à <strong>12 mois après la fin de la bêta</strong>, ou jusqu'à ce que vous demandiez la suppression, selon la première éventualité.</p>
 <h3>Hébergement et services tiers</h3>
 <p><strong>Cloudflare, Inc.</strong> héberge le site et la liste d'attente. Ces données peuvent être conservées à l'extérieur du Québec, notamment aux États-Unis. Le site ne fait appel à aucun autre service : la police de caractères est hébergée sur notre propre site.</p>
-<h2>5. L'application Fin:Track</h2>
+<h2>5. L'application Ando</h2>
 <h3>Ce qui reste sur votre appareil</h3>
 <p>Vos comptes, transactions, budgets, prêts, droits de cotisation, reçus numérisés et réglages sont enregistrés <strong>sur votre iPhone</strong>. Nous n'y avons pas accès. Le déverrouillage par Face ID ou par NIP se fait sur l'appareil ; nous ne recevons aucune donnée biométrique. Les rappels sont des notifications locales, programmées sur l'appareil.</p>
 <p>La reconnaissance du texte des reçus et les suggestions automatiques (catégories, paiements récurrents) sont calculées <strong>sur l'appareil</strong>, sans envoi à un service externe.</p>
@@ -92,7 +105,7 @@ th{font-weight:650}
 <p>Si vous l'activez, vos données sont synchronisées entre vos appareils par <strong>iCloud</strong>, dans votre espace privé, sous votre compte Apple. Ce service est fourni par Apple Inc. selon sa propre politique de confidentialité ; nous n'avons pas accès à ces données.</p>
 <h3>Services externes contactés par l'application</h3>
 <p>L'application contacte un seul service tiers : <strong>ExchangeRate-API</strong>, pour mettre à jour les taux de change. La requête contient uniquement la devise de référence (par exemple CAD) ; elle ne contient ni vos montants, ni vos transactions, ni votre identité, mais le service reçoit l'adresse IP de votre connexion.</p>
-<p>Pour afficher le logo d'une institution financière, l'application le demande à <strong>notre serveur</strong> (fintrack.bmsk.ca). Comme tout site web, celui-ci reçoit votre adresse IP et le nom de l'institution demandée, mais il <strong>ne conserve pas ces requêtes</strong>. Il obtient le logo du service <strong>Logo.dev</strong> sans lui transmettre votre adresse IP ni aucune information sur vous. Le logo est ensuite gardé sur votre appareil ; en son absence, l'application affiche un monogramme.</p>
+<p>Pour afficher le logo d'une institution financière, l'application le demande à <strong>notre serveur</strong> (ando.bmsk.ca). Comme tout site web, celui-ci reçoit votre adresse IP et le nom de l'institution demandée, mais il <strong>ne conserve pas ces requêtes</strong>. Il obtient le logo du service <strong>Logo.dev</strong> sans lui transmettre votre adresse IP ni aucune information sur vous. Le logo est ensuite gardé sur votre appareil ; en son absence, l'application affiche un monogramme.</p>
 <h3>Connexion bancaire</h3>
 <p>La version bêta <strong>n'offre pas</strong> de connexion à votre banque. Si cette fonction est ajoutée, elle sera facultative, cette politique sera mise à jour et votre consentement sera demandé avant toute connexion.</p>
 <h3>Exportations</h3>
@@ -112,7 +125,7 @@ th{font-weight:650}
 <p>Les données de l'application sont protégées par le chiffrement de l'appareil et, si vous l'activez, par Face ID ou un NIP. Les secrets techniques sont conservés dans le trousseau d'iOS. La liste d'attente n'est accessible qu'au moyen d'une clé d'accès réservée.</p>
 <p>En cas d'incident de confidentialité présentant un risque de préjudice sérieux, nous aviserons les personnes concernées et la Commission d'accès à l'information du Québec.</p>
 <h2>9. Âge</h2>
-<p>Fin:Track s'adresse aux personnes de <strong>18 ans et plus</strong>. Nous ne recueillons pas sciemment de renseignements sur des personnes mineures.</p>
+<p>Ando s'adresse aux personnes de <strong>18 ans et plus</strong>. Nous ne recueillons pas sciemment de renseignements sur des personnes mineures.</p>
 <h2>10. Modifications</h2>
 <p>Nous publierons toute modification sur cette page, avec sa date. Si une modification change la façon dont nous utilisons vos renseignements, nous vous en informerons et, au besoin, vous demanderons votre consentement.</p>
 <h2>11. Questions et plaintes</h2>

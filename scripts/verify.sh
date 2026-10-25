@@ -1,5 +1,5 @@
 #!/bin/bash
-# Vérification complète de Fin:Track avant commit.
+# Vérification complète de Ando avant commit.
 #
 #   scripts/verify.sh           traductions + App Group + builds Debug ET Release
 #   scripts/verify.sh --quick   idem, Debug seulement (rapide, n'autorise pas le commit)
@@ -22,12 +22,12 @@ esac
 
 # Simulateur utilisé pour les tests unitaires (les builds, eux, sont génériques).
 SIMULATEUR="42645610-A5FC-408B-A0A6-1AF9CA31170D"
-JOURNAUX="${TMPDIR:-/tmp}/fintrack-verify"
+JOURNAUX="${TMPDIR:-/tmp}/ando-verify"
 mkdir -p "$JOURNAUX"
 DEBUT=$(date +%s)
 echec() { echo; echo "✗ ÉCHEC : $1"; echo "  Aucun commit n'est autorisé tant que ce n'est pas corrigé."; exit 1; }
 
-echo "== Fin:Track — vérification ($MODE) =="
+echo "== Ando — vérification ($MODE) =="
 EMPREINTE_AVANT=$(empreinte_build)
 
 # 1. Traductions (une seconde)
@@ -37,7 +37,7 @@ python3 scripts/check-l10n.py | sed 's/^/   /'
 
 # 2. App Group présent dans les deux fichiers d'entitlements (XcodeGen peut l'effacer)
 echo; echo "2. App Group"
-for f in FinTrack/FinTrack.entitlements FinTrackWidget/FinTrackWidget.entitlements; do
+for f in Ando/Ando.entitlements AndoWidget/AndoWidget.entitlements; do
     n=$(grep -c 'group.ca.bmsk' "$f")
     echo "   $f : $n"
     [ "$n" -eq 1 ] || echec "App Group absent ou en double dans $f (relancer xcodegen et vérifier project.yml)"
@@ -53,7 +53,7 @@ construire() {   # $1 = Debug | Release
     local conf=$1 journal="$JOURNAUX/build-$1.log" t0 statut erreurs avertissements
     t0=$(date +%s)
     printf "   %-8s… " "$conf"
-    xcodebuild -project FinTrack.xcodeproj -scheme FinTrack \
+    xcodebuild -project Ando.xcodeproj -scheme Ando \
         -destination 'generic/platform=iOS Simulator' \
         -configuration "$conf" build > "$journal" 2>&1
     statut=$?
@@ -83,9 +83,9 @@ if [ "$MODE" = complet ]; then
     journal="$JOURNAUX/tests.log"
     t0=$(date +%s)
     printf "   moteurs… "
-    xcodebuild test -project FinTrack.xcodeproj -scheme FinTrack \
+    xcodebuild test -project Ando.xcodeproj -scheme Ando \
         -destination "platform=iOS Simulator,id=$SIMULATEUR" \
-        -only-testing:FinTrackTests > "$journal" 2>&1
+        -only-testing:AndoTests > "$journal" 2>&1
     statut=$?
     resume=$(grep -oE "Executed [0-9]+ tests?, with [0-9]+ failures?" "$journal" | tail -1)
     echo "${resume:-aucun résultat} | $(( $(date +%s) - t0 )) s"

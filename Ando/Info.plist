@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Conformité à l'exportation : Ando n'utilise que le HTTPS standard du
+         système (taux de change, logos). Aucun chiffrement propriétaire.
+         Déclarer la valeur ici évite qu'App Store Connect repose la question
+         à chaque téléversement. -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+
+    <!-- Ce fichier ne contient volontairement rien d'autre.
+         Retirés le 18 octobre 2026, avant la soumission :
+
+         · UIBackgroundModes = remote-notification
+           L'app n'utilise que des notifications LOCALES
+           (Utilities/NotificationManager.swift). Déclarer un mode
+           d'arrière-plan inutilisé est un motif de rejet (directive 2.5.4).
+
+         · CFBundleURLTypes = ando, plaidlink
+           et LSApplicationQueriesSchemes = plaidlink
+           Aucun onOpenURL n'existe dans l'app : le lien profond du centre de
+           notifications est un simple @Binding interne (ManageHubView), pas
+           un schéma d'URL. Ces schémas n'étaient donc gérés par personne.
+           LSApplicationQueriesSchemes sert de surcroît à détecter les apps
+           installées — un vecteur d'empreinte numérique à ne pas déclarer
+           sans l'utiliser.
+
+         Le flux Plaid redirige vers une URL plaidlink:// à la fin de
+         l'authentification (voir Plaid/PlaidConnectionView.swift).
+         Les deux entrées sont donc à RÉTABLIR en même temps que
+         bankSyncAvailable — rappel laissé dans BankSync/BankSyncProvider.swift. -->
+</dict>
+</plist>

@@ -1,6 +1,6 @@
-# Fin:Track Privacy Policy
+# Ando Privacy Policy
 
-> Source of the page published at fintrack.bmsk.ca/en/privacy (French reference
+> Source of the page published at ando.bmsk.ca/en/privacy (French reference
 > version: `politique-confidentialite.md`, published at /confidentialite). To
 > change it: edit this file, run `python3 build.py` in `_landing/`, then deploy.
 > Lines starting with ">" are not published.
@@ -9,7 +9,7 @@
 
 ## 1. Who we are
 
-Fin:Track is a personal finance app designed and operated by
+Ando is a personal finance app designed and operated by
 **BMSK**, 5025 Westmore Avenue, Montreal, Quebec H4V 1Z4, Canada ("we").
 
 **Person in charge of the protection of personal information**:
@@ -18,8 +18,8 @@ Email: **confidentialite@bmsk.ca**
 
 ## 2. Scope
 
-- the website **fintrack.bmsk.ca** (beta waiting list);
-- the **Fin:Track** iPhone app, in its beta version distributed through
+- the website **ando.bmsk.ca** (beta waiting list);
+- the **Ando** iPhone app, in its beta version distributed through
   TestFlight.
 
 ## 3. Our principle
@@ -28,7 +28,7 @@ Your financial data stays on your device. We have no server that receives
 your accounts, transactions or receipts. The app contains no audience
 measurement, no advertising and no trackers.
 
-## 4. The fintrack.bmsk.ca website
+## 4. The ando.bmsk.ca website
 
 ### What we collect
 
@@ -61,7 +61,7 @@ it, whichever comes first.
 stored outside Quebec, notably in the United States. The website uses no other
 service: the typeface is hosted on our own site.
 
-## 5. The Fin:Track app
+## 5. The Ando app
 
 ### What stays on your device
 
@@ -89,7 +89,7 @@ contains neither your amounts, nor your transactions, nor your identity, but
 the service receives your connection's IP address.
 
 To display a financial institution's logo, the app requests it from **our
-server** (fintrack.bmsk.ca). Like any website, it receives your IP address and
+server** (ando.bmsk.ca). Like any website, it receives your IP address and
 the name of the institution requested, but it **does not keep these requests**.
 It obtains the logo from **Logo.dev** without passing on your IP address or any
 information about you. The logo is then kept on your device; when none exists,
@@ -157,7 +157,7 @@ l'information du Québec.
 
 ## 9. Age
 
-Fin:Track is intended for people **18 and older**. We do not knowingly
+Ando is intended for people **18 and older**. We do not knowingly
 collect information about minors.
 
 ## 10. Changes

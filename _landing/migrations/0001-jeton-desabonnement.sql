@@ -1,6 +1,6 @@
 -- Ajoute le jeton de désabonnement aux inscriptions existantes.
 -- À appliquer une fois :
---   npx wrangler d1 execute fintrack-beta --remote --file migrations/0001-jeton-desabonnement.sql
+--   npx wrangler d1 execute ando-beta --remote --file migrations/0001-jeton-desabonnement.sql
 --
 -- SQLite n'accepte pas NOT NULL UNIQUE dans un ALTER TABLE : la colonne est
 -- ajoutée nullable, remplie pour les lignes existantes, puis l'unicité est

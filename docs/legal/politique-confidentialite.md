@@ -1,6 +1,6 @@
-# Politique de confidentialité de Fin:Track
+# Politique de confidentialité de Ando
 
-> Source de la page publiée sur fintrack.bmsk.ca/confidentialite (version
+> Source de la page publiée sur ando.bmsk.ca/confidentialite (version
 > anglaise : `privacy-policy.md`, publiée sur /en/privacy). Pour la modifier :
 > éditer ce fichier, puis `python3 build.py` dans `_landing/`, puis déployer.
 > Les lignes commençant par « > » ne sont pas publiées. Notes internes :
@@ -10,7 +10,7 @@
 
 ## 1. Qui sommes-nous
 
-Fin:Track est une application de finances personnelles conçue et exploitée par
+Ando est une application de finances personnelles conçue et exploitée par
 **BMSK**, 5025, avenue Westmore, Montréal (Québec) H4V 1Z4, Canada
 (« nous »).
 
@@ -20,8 +20,8 @@ Courriel : **confidentialite@bmsk.ca**
 
 ## 2. Ce que couvre cette politique
 
-- le site **fintrack.bmsk.ca** (liste d'attente de la bêta) ;
-- l'application **Fin:Track** pour iPhone, en version bêta distribuée par
+- le site **ando.bmsk.ca** (liste d'attente de la bêta) ;
+- l'application **Ando** pour iPhone, en version bêta distribuée par
   TestFlight.
 
 ## 3. Notre principe
@@ -30,7 +30,7 @@ Vos données financières restent sur votre appareil. Nous n'avons pas de
 serveur qui reçoit vos comptes, vos transactions ou vos reçus. L'application
 ne contient ni outil de mesure d'audience, ni publicité, ni traceur.
 
-## 4. Le site fintrack.bmsk.ca
+## 4. Le site ando.bmsk.ca
 
 ### Ce que nous recueillons
 
@@ -65,7 +65,7 @@ peuvent être conservées à l'extérieur du Québec, notamment aux États-Unis.
 Le site ne fait appel à aucun autre service : la police de caractères est
 hébergée sur notre propre site.
 
-## 5. L'application Fin:Track
+## 5. L'application Ando
 
 ### Ce qui reste sur votre appareil
 
@@ -95,7 +95,7 @@ transactions, ni votre identité, mais le service reçoit l'adresse IP de votre
 connexion.
 
 Pour afficher le logo d'une institution financière, l'application le demande à
-**notre serveur** (fintrack.bmsk.ca). Comme tout site web, celui-ci reçoit votre
+**notre serveur** (ando.bmsk.ca). Comme tout site web, celui-ci reçoit votre
 adresse IP et le nom de l'institution demandée, mais il **ne conserve pas ces
 requêtes**. Il obtient le logo du service **Logo.dev** sans lui transmettre votre
 adresse IP ni aucune information sur vous. Le logo est ensuite gardé sur votre
@@ -170,7 +170,7 @@ l'information du Québec.
 
 ## 9. Âge
 
-Fin:Track s'adresse aux personnes de **18 ans et plus**. Nous ne recueillons
+Ando s'adresse aux personnes de **18 ans et plus**. Nous ne recueillons
 pas sciemment de renseignements sur des personnes mineures.
 
 ## 10. Modifications

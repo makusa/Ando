@@ -1,0 +1,350 @@
+//
+//  NotificationManager.swift
+//  Ando
+//
+//  Manages local notifications for all upcoming planned expenses:
+//  recurring rules, loan payments, credit line minimums, future one-time
+//  transactions, and loan prepayments.
+//
+//  Notification delivery time is always 9:00 AM local time on the reminder day.
+//  Identifiers: "ando.<type>.<hashValue>[.<dateKey>]"
+//
+
+import UserNotifications
+import SwiftData
+import Foundation
+
+// MARK: - Days-before options
+
+let notificationDaysOptions: [Int] = [1, 2, 3, 5, 7, 14]
+
+// MARK: - Manager
+
+@MainActor
+final class NotificationManager: NSObject {
+
+    static let shared = NotificationManager()
+
+    private let center = UNUserNotificationCenter.current()
+
+    // MARK: - Permission
+
+    func requestPermission() async {
+        do {
+            try await center.requestAuthorization(options: [.alert, .sound, .badge])
+            center.delegate = self
+        } catch {
+            AppLogger.notifications.error("Permission request failed: \(error, privacy: .private)")
+        }
+    }
+
+    func authorizationStatus() async -> UNAuthorizationStatus {
+        await center.notificationSettings().authorizationStatus
+    }
+
+    // MARK: - Schedule all
+
+    /// Cancels all pending Ando notifications and reschedules from current data.
+    func scheduleAll(context: ModelContext) async {
+        let status = await authorizationStatus()
+        guard status == .authorized || status == .provisional else { return }
+
+        // Cancel everything and start fresh
+        let pending = await center.pendingNotificationRequests()
+        let ours = pending
+            .filter { $0.identifier.hasPrefix("ando.") }
+            .map { $0.identifier }
+        center.removePendingNotificationRequests(withIdentifiers: ours)
+
+        // Fetch all models
+        let recurring   = (try? context.fetch(FetchDescriptor<RecurringTransaction>())) ?? []
+        let loans       = (try? context.fetch(FetchDescriptor<Loan>())) ?? []
+        let creditLines = (try? context.fetch(FetchDescriptor<CreditLine>())) ?? []
+        let allTx: [Transaction] = ((try? context.fetch(FetchDescriptor<Transaction>())) ?? [])
+            .sorted { $0.date < $1.date }
+        let prepayments = (try? context.fetch(FetchDescriptor<LoanPrepayment>())) ?? []
+
+        // Only future one-time expense transactions
+        let futureTx = allTx.filter {
+            $0.type == .expense && $0.date > Date() && $0.notificationEnabled
+        }
+
+        for rule in recurring where rule.notificationEnabled && rule.isActive && rule.type == .expense {
+            await scheduleRecurring(rule)
+        }
+        for loan in loans where loan.notificationEnabled && loan.isActive {
+            await scheduleLoan(loan)
+        }
+        for cl in creditLines where cl.notificationEnabled && cl.isActive {
+            await scheduleCreditLine(cl)
+        }
+        for tx in futureTx {
+            await scheduleTransaction(tx)
+        }
+        for prep in prepayments where prep.notificationEnabled {
+            await schedulePrepayment(prep)
+        }
+    }
+
+    // MARK: - Recurring transactions
+
+    private func scheduleRecurring(_ rule: RecurringTransaction) async {
+        let days = rule.notificationDaysBefore
+        let cal  = Calendar.current
+        let now  = Date()
+        let horizon = cal.date(byAdding: .month, value: 3, to: now) ?? now
+        let currency = rule.account?.currency ?? "CAD"
+        var date = rule.nextDueDate
+        var count = 0
+
+        while date <= horizon, count < 6 {
+            if let notifDate = cal.date(byAdding: .day, value: -days, to: date), notifDate > now {
+                let accountName = rule.account?.name ?? ""
+                let content = makeContent(
+                    title: "🔔 " + rule.displayTitle,
+                    subtitle: accountName,
+                    body: notifBody(actionKey: "notif.body.payment",
+                                   amount: rule.amount, currency: currency,
+                                   dueDate: date, daysBefore: days)
+                )
+                let id = "ando.rec.\(abs(rule.persistentModelID.hashValue)).\(dateKey(date))"
+                await scheduleAt(notifDate, id: id, content: content)
+                count += 1
+            }
+            date = rule.frequency.nextDate(after: date)
+        }
+    }
+
+    // MARK: - Loan payments
+
+    private func scheduleLoan(_ loan: Loan) async {
+        let preps   = loan.prepaymentInstances()
+        let calc    = loan.calculator
+        let elapsed = calc.paymentsElapsedWith(preps)
+        guard let entry = calc.scheduleWithPrepayments(preps, from: elapsed + 1, to: elapsed + 1).first
+        else { return }
+
+        let days = loan.notificationDaysBefore
+        let cal  = Calendar.current
+        let now  = Date()
+        guard let notifDate = cal.date(byAdding: .day, value: -days, to: entry.date),
+              notifDate > now else { return }
+
+        let name = loan.label.isEmpty ? loan.type.label : loan.label
+        let subtitle = loan.lenderName.isEmpty ? "" : loan.lenderName
+        let content = makeContent(
+            title: "🏦 " + name,
+            subtitle: subtitle,
+            body: notifBody(actionKey: "notif.body.installment",
+                           amount: Decimal(entry.payment), currency: loan.currency,
+                           dueDate: entry.date, daysBefore: days)
+        )
+        await scheduleAt(notifDate, id: "ando.loan.\(abs(loan.persistentModelID.hashValue))", content: content)
+    }
+
+    // MARK: - Credit line minimum payments
+
+    private func scheduleCreditLine(_ cl: CreditLine) async {
+        guard cl.currentBalance > 0 else { return }
+        let days = cl.notificationDaysBefore
+        let cal  = Calendar.current
+        let now  = Date()
+
+        // Approximate: 1st of next month as minimum payment due date
+        var comps  = cal.dateComponents([.year, .month], from: now)
+        comps.day  = 1
+        var dueDate = cal.date(from: comps) ?? now
+        if dueDate <= now {
+            dueDate = cal.date(byAdding: .month, value: 1, to: dueDate) ?? now
+        }
+
+        guard let notifDate = cal.date(byAdding: .day, value: -days, to: dueDate),
+              notifDate > now else { return }
+
+        let clSubtitle = cl.lenderName.isEmpty ? "" : cl.lenderName
+        let content = makeContent(
+            title: "💳 " + cl.name,
+            subtitle: clSubtitle,
+            body: notifBody(actionKey: "notif.body.minimum",
+                           amount: cl.estimatedMinimumPayment, currency: cl.currency,
+                           dueDate: dueDate, daysBefore: days)
+        )
+        await scheduleAt(notifDate, id: "ando.cl.\(abs(cl.persistentModelID.hashValue))", content: content)
+    }
+
+    // MARK: - Future one-time transactions
+
+    private func scheduleTransaction(_ tx: Transaction) async {
+        let days = tx.notificationDaysBefore
+        let cal  = Calendar.current
+        let now  = Date()
+        guard let notifDate = cal.date(byAdding: .day, value: -days, to: tx.date),
+              notifDate > now else { return }
+
+        let txName    = tx.payee ?? tx.category?.localizedName ?? LanguageManager.shared["tx.type.expense"]
+        let currency  = tx.account?.currency ?? "CAD"
+        var txSubtitle = tx.account?.name ?? ""
+        if let catName = tx.category?.localizedName, tx.payee != nil {
+            txSubtitle = txSubtitle.isEmpty ? catName : txSubtitle + " · " + catName
+        }
+        let content = makeContent(
+            title: "💸 " + txName,
+            subtitle: txSubtitle,
+            body: notifBody(actionKey: "notif.body.expense",
+                           amount: tx.amount, currency: currency,
+                           dueDate: tx.date, daysBefore: days)
+        )
+        await scheduleAt(notifDate, id: "ando.tx.\(abs(tx.persistentModelID.hashValue))", content: content)
+    }
+
+    // MARK: - Loan prepayments
+
+    private func schedulePrepayment(_ prep: LoanPrepayment) async {
+        let days     = prep.notificationDaysBefore
+        let cal      = Calendar.current
+        let now      = Date()
+        let horizon  = cal.date(byAdding: .month, value: 3, to: now) ?? now
+        let currency = prep.loan?.currency ?? "CAD"
+        let loanName = prep.loan?.label ?? ""
+        let lang     = LanguageManager.shared
+
+        let prepTitle    = "⬆️ " + (loanName.isEmpty ? lang["prepayment.title"] : loanName)
+        let prepSubtitle = loanName.isEmpty ? "" : lang["prepayment.title"]
+        func content(for date: Date) -> UNMutableNotificationContent {
+            makeContent(
+                title: prepTitle,
+                subtitle: prepSubtitle,
+                body: notifBody(actionKey: "notif.body.extra",
+                               amount: prep.amount, currency: currency,
+                               dueDate: date, daysBefore: days)
+            )
+        }
+
+        if prep.isRecurring, let freq = prep.frequency {
+            var date  = prep.startDate
+            let end   = prep.endDate ?? horizon
+            var count = 0
+            while date <= min(end, horizon), count < 4 {
+                if let notifDate = cal.date(byAdding: .day, value: -days, to: date), notifDate > now {
+                    let id = "ando.prep.\(abs(prep.persistentModelID.hashValue)).\(dateKey(date))"
+                    await scheduleAt(notifDate, id: id, content: content(for: date))
+                    count += 1
+                }
+                date = freq.nextDate(after: date)
+            }
+        } else {
+            guard let notifDate = cal.date(byAdding: .day, value: -days, to: prep.startDate),
+                  notifDate > now else { return }
+            let id = "ando.prep.\(abs(prep.persistentModelID.hashValue))"
+            await scheduleAt(notifDate, id: id, content: content(for: prep.startDate))
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func scheduleAt(_ date: Date, id: String, content: UNMutableNotificationContent) async {
+        var comps   = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        comps.hour  = 9
+        comps.minute = 0
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        do {
+            try await center.add(request)
+        } catch {
+            AppLogger.notifications.error("Failed to schedule notification \(id, privacy: .private): \(error, privacy: .private)")
+        }
+    }
+
+    private func makeContent(title: String, subtitle: String = "", body: String) -> UNMutableNotificationContent {
+        let c        = UNMutableNotificationContent()
+        c.title      = title
+        if !subtitle.isEmpty { c.subtitle = subtitle }
+        c.body       = body
+        c.sound      = .default
+        return c
+    }
+
+    /// Returns a human-readable "when" string: "aujourd'hui, 9 juin", "demain, 9 juin", "dans 3 jours, 10 juin"
+    private func whenString(dueDate: Date, daysBefore: Int) -> String {
+        let lang    = LanguageManager.shared
+        let cal     = Calendar.current
+        let dateStr = dueDate.appFormattedDayMonth()
+        let today   = cal.startOfDay(for: Date())
+        let due     = cal.startOfDay(for: dueDate)
+        let diff    = cal.dateComponents([.day], from: today, to: due).day ?? daysBefore
+        switch diff {
+        case 0:  return lang["notif.when.today"]   + ", " + dateStr
+        case 1:  return lang["notif.when.tomorrow"] + ", " + dateStr
+        default: return String(format: lang["notif.when.inDays"], diff) + ", " + dateStr
+        }
+    }
+
+    /// Formats a notification body: "Paiement de 150,00 $ CA · demain, 9 juin"
+    private func notifBody(actionKey: String, amount: Decimal, currency: String,
+                           dueDate: Date, daysBefore: Int) -> String {
+        let amtStr = amount.formatted(asCurrency: currency)
+        let action = String(format: LanguageManager.shared[actionKey], amtStr)
+        return action + " · " + whenString(dueDate: dueDate, daysBefore: daysBefore)
+    }
+
+    private func dateKey(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyyMMdd"
+        return f.string(from: date)
+    }
+}
+
+// MARK: - Deep-link destination
+
+extension Notification.Name {
+    /// Posted when the user taps a Ando notification.
+    /// userInfo: ["tab": Int, "section": String]
+    static let andoDeepLink = Notification.Name("andoDeepLink")
+}
+
+// MARK: - Foreground presentation delegate
+
+extension NotificationManager: UNUserNotificationCenterDelegate {
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+
+    /// Called when the user taps a notification — deep-links to the relevant tab/section.
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let id = response.notification.request.identifier
+
+        // Map identifier prefix → (tab index, section key)
+        // Tabs: 0=Dashboard 1=Accounts 2=Transactions 3=Manage 4=Settings
+        let tabIndex: Int
+        let section: String
+
+        if id.hasPrefix("ando.tx.") {
+            tabIndex = 2; section = ""
+        } else if id.hasPrefix("ando.loan.") || id.hasPrefix("ando.prep.") {
+            tabIndex = 3; section = "loans"
+        } else if id.hasPrefix("ando.cl.") {
+            tabIndex = 3; section = "creditlines"
+        } else if id.hasPrefix("ando.rec.") {
+            tabIndex = 3; section = "recurring"
+        } else {
+            tabIndex = 0; section = ""
+        }
+
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(
+                name: .andoDeepLink,
+                object: nil,
+                userInfo: ["tab": tabIndex, "section": section]
+            )
+        }
+        completionHandler()
+    }
+}

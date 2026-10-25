@@ -1,4 +1,4 @@
-# Outils de qualité de Fin:Track — mode d'emploi
+# Outils de qualité de Ando — mode d'emploi
 
 Trois outils automatisent les vérifications qui reposaient jusqu'ici sur la
 discipline (la tienne ou celle de l'IA) :
@@ -12,7 +12,7 @@ discipline (la tienne ou celle de l'IA) :
 Toutes les commandes se lancent depuis la racine du dépôt :
 
 ```bash
-cd /Users/regis/Documents/GitHub/FinTrack
+cd /Users/regis/Documents/GitHub/Ando
 ```
 
 ---
@@ -88,7 +88,7 @@ scripts/verify.sh --help
 3. **Build Debug**, puis **build Release** : 0 erreur et 0 avertissement exigés.
    Le bruit `appintentsmetadataprocessor` est ignoré ; chaque avertissement n'est
    compté qu'une fois.
-4. **Tests unitaires** (`FinTrackTests`) : 43 tests sur les moteurs financiers
+4. **Tests unitaires** (`AndoTests`) : 43 tests sur les moteurs financiers
    purs. Un calcul faux compile sans erreur — seuls les tests l'attrapent.
 5. **Stabilité** : si un fichier a changé pendant la vérification, elle est annulée.
 
@@ -98,7 +98,7 @@ un avertissement ou une erreur de compilation), puis le chemin du journal comple
 ### Exemple d'échec
 
 ```
-3. Builds (journaux dans /tmp/fintrack-verify)
+3. Builds (journaux dans /tmp/ando-verify)
    Debug   … OK | erreurs : 0 | avertissements : 1 | 11 s
      ⚠ …/TransactionsView.swift:415:40: warning: variable 'x' was never mutated…
 
@@ -122,7 +122,7 @@ archive TestFlight.
 ### Ce que « commit autorisé » veut dire
 
 Une vérification complète réussie enregistre une **empreinte** du code (hors
-dépôt, dans `.git/fintrack-verification`). Le garde-fou de commit compare
+dépôt, dans `.git/ando-verification`). Le garde-fou de commit compare
 cette empreinte au code actuel. La moindre modification d'un fichier de l'app
 après la vérification l'invalide : il faut relancer `scripts/verify.sh`.
 
@@ -157,8 +157,8 @@ machine, relancer `scripts/install-hooks.sh` après le `git clone`.
 1. **Les fichiers interdits** indexés : `.DS_Store`, `UserInterfaceState.xcuserstate`,
    `xcuserdata/`, `xcdebugger/`, schemes partagés (`*.xcscheme`). Une
    **suppression** de ces fichiers reste permise (pour les retirer du dépôt).
-2. **Un commit qui touche au code de l'app** (dossiers `FinTrack/`,
-   `FinTrackWidget/`, `FinTrackUITests/`, `project.yml`, `project.pbxproj`) si la
+2. **Un commit qui touche au code de l'app** (dossiers `Ando/`,
+   `AndoWidget/`, `AndoUITests/`, `project.yml`, `project.pbxproj`) si la
    dernière vérification complète ne correspond plus au code actuel.
 
 Les commits qui ne touchent pas l'app (landing, documentation, scripts) ne sont pas
@@ -167,14 +167,14 @@ freinés.
 ### Exemples de refus
 
 ```
-✗ Commit refusé par le garde-fou Fin:Track
+✗ Commit refusé par le garde-fou Ando
   Fichiers qui ne doivent pas être committés :
     - .DS_Store
   Pour les retirer de l'index : git restore --staged <fichier>
 ```
 
 ```
-✗ Commit refusé par le garde-fou Fin:Track
+✗ Commit refusé par le garde-fou Ando
   Le code de l'app a changé depuis la dernière vérification complète
   (réussie le 2026-10-10 à 18:42).
   Lancer : scripts/verify.sh
@@ -256,7 +256,7 @@ supprimer de ton disque, sur demande explicite :
 
 ```bash
 git rm --cached .DS_Store
-git rm --cached FinTrack.xcodeproj/project.xcworkspace/xcuserdata/regis.xcuserdatad/UserInterfaceState.xcuserstate
+git rm --cached Ando.xcodeproj/project.xcworkspace/xcuserdata/regis.xcuserdatad/UserInterfaceState.xcuserstate
 ```
 
 puis ajouter `xcuserdata/` au `.gitignore`. Le garde-fou laisse passer ces
@@ -273,4 +273,4 @@ suppressions.
 | `scripts/lib-empreinte.sh` | Calcul de l'empreinte du code (partagé) |
 | `scripts/git-hooks/pre-commit` | Garde-fou de commit |
 | `scripts/install-hooks.sh` | Activation / désactivation du garde-fou |
-| `.git/fintrack-verification` | Dernière vérification complète réussie (hors dépôt) |
+| `.git/ando-verification` | Dernière vérification complète réussie (hors dépôt) |
