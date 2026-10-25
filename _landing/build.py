@@ -383,7 +383,24 @@ def main():
 
     print("  public/robots.txt, public/sitemap.xml")
 
+    cartes_partage()
     domaines_logos()
+
+
+def cartes_partage():
+    """Les cartes Open Graph sont produites à part, par scripts/og-images.py,
+    pour que la construction du site ne dépende pas de Chrome. Le prix de cette
+    séparation est qu'elles peuvent vieillir sans bruit — c'est ainsi qu'elles
+    ont affiché « Fin:Track » après le renommage. On avertit donc ici."""
+    sources = [RACINE / "page/og.src.html", RACINE / "page/index.src.html",
+               RACINE / "page/en.json"]
+    cartes = [RACINE / "public/og-fr.jpg", RACINE / "public/og-en.jpg"]
+    if not all(c.exists() for c in cartes):
+        print("  ⚠ cartes de partage absentes — python3 scripts/og-images.py")
+        return
+    if max(s.stat().st_mtime for s in sources) > min(c.stat().st_mtime for c in cartes):
+        print("  ⚠ cartes de partage plus vieilles que leur gabarit — "
+              "python3 scripts/og-images.py")
 
 
 def domaines_logos():

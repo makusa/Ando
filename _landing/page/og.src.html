@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!-- Gabarit des cartes de partage social (Open Graph), rendu en 1200 × 630
+     par scripts/og-images.py. Les polices et les jetons de couleur sont
+     injectés depuis page/index.src.html au moment du rendu : il n'existe
+     donc aucune seconde définition de l'identité à maintenir ici.
+
+     Le texte français est en clair, comme dans index.src.html ; les
+     éléments porteurs de data-t sont remplacés par page/en.json pour la
+     version anglaise. -->
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<style>/*POLICES-ET-JETONS*/
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1200px;height:630px;overflow:hidden;font-family:var(--sans);
+  background:linear-gradient(152deg,var(--profond) 0%,var(--nuit) 72%);
+  color:var(--brume);-webkit-font-smoothing:antialiased;position:relative}
+
+.carte{display:grid;grid-template-columns:1fr 420px;height:100%}
+
+.texte{padding:62px 0 58px 72px;display:flex;flex-direction:column}
+
+.marque{display:flex;align-items:center;gap:12px;font-size:1.5rem;font-weight:500;
+  font-variation-settings:"wdth" 104;letter-spacing:.01em}
+.marque svg{width:30px;height:30px;flex:none}
+.marque .anneau{fill:none;stroke:var(--brume);stroke-width:2.1}
+.marque .trait{fill:var(--jade);stroke:none}
+
+.sens{display:flex;align-items:baseline;gap:13px;margin-top:46px;
+  color:rgba(243,246,242,.62);font-size:1.0625rem}
+.sens b{font-size:1.75rem;font-weight:400;color:var(--jade);line-height:1;
+  flex:none;white-space:nowrap}
+
+/* Une seule ligne, grande : ces cartes s'affichent souvent autour de
+   550 px de large, parfois moins. Tout le reste doit céder la place. */
+h1{margin-top:20px;font-size:4rem;line-height:1.08;font-weight:300;
+  font-variation-settings:"wdth" 96;letter-spacing:-.018em;max-width:13ch}
+/* Le mot accentué du titre, comme sur la page : la clé h1 de en.json porte
+   le <b>, il faut donc l'habiller ici aussi, sans quoi la carte anglaise
+   afficherait un mot en gras sans couleur. */
+h1 b{font-weight:650;font-variation-settings:"wdth" 112;color:var(--jade)}
+
+.pied{margin-top:auto;font-size:1.0625rem;color:rgba(243,246,242,.55)}
+
+/* Le téléphone est rogné par le bord bas : il donne à voir le produit sans
+   réclamer la moitié de la carte. */
+.visuel{position:relative;overflow:hidden}
+.tel{position:absolute;top:66px;left:0;width:384px;aspect-ratio:620/1347;
+  background:#0B2220;border-radius:11.5%/5.3%;padding:2.6%;
+  box-shadow:0 30px 60px -26px rgba(0,0,0,.6)}
+.tel img{position:absolute;inset:2.6%;width:94.8%;height:94.8%;
+  border-radius:9.2%/4.2%;object-fit:cover;object-position:top}
+
+.horizon{position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(to right,transparent,var(--jade) 20%,var(--jade) 80%,transparent)}
+</style>
+</head>
+<body>
+<div class="carte">
+  <div class="texte">
+    <div class="marque">
+      <svg viewBox="0 0 24 24">
+        <circle class="anneau" cx="12" cy="12" r="9.3"/>
+        <circle class="trait" cx="12" cy="10.5" r="1.25"/>
+        <rect class="trait" x="8.3" y="13.1" width="7.4" height="1.5" rx=".75"/>
+      </svg>
+      Ando
+    </div>
+    <p class="sens"><b lang="ja">安堵</b><span data-t="hsens">ando — le soulagement de savoir où on en est</span></p>
+    <h1 data-t="h1">Combien vous reste-t-il de droits <b>CELI</b>&nbsp;?</h1>
+    <p class="pied">ando.bmsk.ca</p>
+  </div>
+  <div class="visuel">
+    <div class="tel">
+      <img src="/img/17-comptes-enregistres.webp">
+    </div>
+  </div>
+</div>
+<div class="horizon"></div>
+</body>
+</html>
