@@ -39,7 +39,15 @@ targets:
         INFOPLIST_FILE: Ando/Info.plist
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        # Portrait seulement. Le paysage était déclaré sans avoir jamais été
+        # essayé : mesuré le 25 octobre 2026 au simulateur, la liste des
+        # comptes n'y défile pas, et tout ce qui dépasse la hauteur utile
+        # devient inatteignable (voir AndoUITests/LandscapeChecks.swift).
+        # Annoncer une orientation dont l'interface ne tient pas expose à un
+        # rejet au titre de l'article 2.1. Rétablir les deux valeurs
+        # UIInterfaceOrientationLandscape* le jour où le défilement est
+        # corrigé — le test ci-dessus le vérifie.
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_CFBundleDisplayName: "Ando"
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.finance
 

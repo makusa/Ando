@@ -91,6 +91,7 @@
 		73BA20BBB4455841F51BAF11 /* CashFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F6F64072A3BA6D6EEFD65CA /* CashFlowView.swift */; };
 		748741F5D167726B74B3B65D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BAD4811EDC9E8F22416D4E33 /* Assets.xcassets */; };
 		767F9EDC456B2E9D0BA5F563 /* SmartCategorizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4075D9EB8A32284DBC2725 /* SmartCategorizer.swift */; };
+		77D8DBF83E50A8F3B5C266DF /* LandscapeChecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCDFE254F62B645230596CC /* LandscapeChecks.swift */; };
 		79C4F702CE3AC9755688886E /* BalanceCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372FD684D119B56292B6C01F /* BalanceCard.swift */; };
 		7C056A6C3D1B3F8B41AEB643 /* AddEditRecurringTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7CF83732D7E7118FE3FA14 /* AddEditRecurringTransactionView.swift */; };
 		82049346A2146C0FA1B1093B /* OnboardingCoachMarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3CF644EEEB0A890D68AB6DB /* OnboardingCoachMarks.swift */; };
@@ -247,6 +248,7 @@
 		5DD4CB1213A07A29242C7F57 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DF3AF7105FB2602E60331A0 /* ExchangeRateWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeRateWidget.swift; sourceTree = "<group>"; };
 		5F6F64072A3BA6D6EEFD65CA /* CashFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashFlowView.swift; sourceTree = "<group>"; };
+		5FCDFE254F62B645230596CC /* LandscapeChecks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandscapeChecks.swift; sourceTree = "<group>"; };
 		628624072561CF8F3B088445 /* PDFTextExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTextExtractor.swift; sourceTree = "<group>"; };
 		63BD6326D00368F6ED39721A /* OFXAccountMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OFXAccountMatcher.swift; sourceTree = "<group>"; };
 		6639A7908120ECE2EB388EA4 /* SavingsTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavingsTransferService.swift; sourceTree = "<group>"; };
@@ -674,6 +676,7 @@
 		ED18E6952FFCBF81CF4AD859 /* AndoUITests */ = {
 			isa = PBXGroup;
 			children = (
+				5FCDFE254F62B645230596CC /* LandscapeChecks.swift */,
 				E8D4675D7D578EB2AA703ACD /* ScreenshotTests.swift */,
 			);
 			path = AndoUITests;
@@ -863,6 +866,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77D8DBF83E50A8F3B5C266DF /* LandscapeChecks.swift in Sources */,
 				3DB48AF5FDD7F38FB228CD66 /* ScreenshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1058,7 +1062,7 @@
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Ando utilise Face ID pour déverrouiller l'app et protéger vos données financières.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1331,7 +1335,7 @@
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "Ando utilise Face ID pour déverrouiller l'app et protéger vos données financières.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
