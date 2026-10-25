@@ -46,226 +46,306 @@
   src:url(/fonts/archivo-latin.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root{
-  /* Palette relevée dans l'icône de l'app, pixel par pixel : aucune couleur
-     de cette page n'est inventée. Le dégradé du fond donne --nuit et
-     --profond, l'anneau donne --brume, la marque donne --jade. */
-  --nuit:#0D3738; --profond:#165659;
-  --brume:#F3F6F2; --papier:#E6ECE8; --surface:#FBFCFB;
-  --encre:#0B2220; --encre-2:#30443F;
-  --jade:#4CC38A; --verdigris:#2E7D6C;
-  --alerte:#B4473C; --sourdine:#5E726D; --ligne:#D6DFDA; --ligne-forte:#BCC9C3;
+  /* « Verre de nuit ». Les NOMS des jetons sont restés ceux de la version
+     claire, et seules leurs valeurs ont basculé : build.py recopie ce bloc
+     tel quel dans les quatre pages légales, et scripts/og-images.py dans les
+     cartes de partage. Les deux suivent donc la nouvelle direction sans
+     qu'une seule ligne y soit retouchée — et ne peuvent pas diverger.
+     --papier et --encre ont échangé leurs rôles : le fond est l'encre. */
+  --nuit:#061A1B; --profond:#0B2E2F;
+  --brume:#F3F6F2; --papier:#061A1B; --surface:rgba(243,246,242,.055);
+  --encre:#F3F6F2; --encre-2:rgba(243,246,242,.78);
+  --jade:#4CC38A; --verdigris:#4CC38A;
+  --alerte:#F0A55A; --sourdine:rgba(243,246,242,.62);
+  --ligne:rgba(243,246,242,.12); --ligne-forte:rgba(243,246,242,.22);
+  /* propres au verre */
+  --verre:rgba(243,246,242,.055); --verre-2:rgba(243,246,242,.09);
+  --bord:rgba(243,246,242,.13); --lustre:rgba(243,246,242,.22);
+  --lueur:rgba(76,195,138,.22); --bezel:#020B0B; --sur-jade:#04201A;
   --sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
   --gouttiere:clamp(20px,5vw,40px);
+  color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--sans);font-variation-settings:"wdth" 100;background:var(--papier);color:var(--encre);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--sans);font-variation-settings:"wdth" 100;background:var(--papier);color:var(--encre);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:clip}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
-:focus-visible{outline:2px solid var(--verdigris);outline-offset:3px;border-radius:2px}
+:focus-visible{outline:2px solid var(--jade);outline-offset:3px;border-radius:8px}
+section[id]{scroll-margin-top:104px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
 
-.zone{max-width:1180px;margin:0 auto;padding-left:var(--gouttiere);padding-right:var(--gouttiere)}
-/* Archivo est variable en graisse (100–900) ET en largeur (62–125 %).
-   La page n'en utilisait qu'un seul réglage, gras et élargi, qui sonnait
-   comme n'importe quelle page de produit. Ici l'inverse : léger, à peine
-   resserré, grand. L'emphase vient de la taille et du vide, jamais d'un
-   mot coloré. */
-h1,h2,h3{line-height:1.1;letter-spacing:-.015em}
-h1{font-size:clamp(2.3rem,5.4vw,4rem);font-weight:300;font-variation-settings:"wdth" 96}
-h2{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:350;font-variation-settings:"wdth" 98}
-h3{font-size:1.0625rem;font-weight:650;line-height:1.3;font-variation-settings:"wdth" 108}
+.zone{max-width:1240px;margin:0 auto;padding-left:var(--gouttiere);padding-right:var(--gouttiere)}
+.section{padding-top:clamp(80px,10vw,136px)}
+
+/* Le verre : une seule règle, appliquée partout. Si backdrop-filter n'est pas
+   géré (Firefox sans l'option, vieux Safari), le fond translucide et le filet
+   suffisent — rien ne disparaît, le panneau est juste moins vaporeux. */
+.verre{background:var(--verre);border:1px solid var(--bord);
+  box-shadow:inset 0 1px 0 var(--lustre),0 20px 50px -30px rgba(0,0,0,.55);
+  -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%)}
+
+h1,h2,h3{line-height:1.06;letter-spacing:-.03em}
+h1{font-size:clamp(2.75rem,6.4vw,5.25rem);line-height:1;font-weight:300;font-variation-settings:"wdth" 92;letter-spacing:-.035em;max-width:13ch}
+h1 b{font-weight:650;font-variation-settings:"wdth" 112;color:var(--jade)}
+h2{font-size:clamp(2rem,4.2vw,3.5rem);font-weight:350;font-variation-settings:"wdth" 94}
+h3{font-weight:600;font-variation-settings:"wdth" 108;letter-spacing:-.015em}
 p{max-width:63ch}
-.graduation{height:9px;background-image:repeating-linear-gradient(to right,var(--ligne-forte) 0 1px,transparent 1px 12px);border-top:1px solid var(--ligne)}
+.chapeau{font-size:.8125rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--jade)}
+.entete{display:flex;flex-direction:column;gap:14px;max-width:760px;margin-bottom:44px}
+.entete p{font-size:1.125rem;color:var(--encre-2)}
+.nb{font-variant-numeric:tabular-nums}
 
-/* Les sections n'entrent plus en fondu-glissé au défilement. Le calme, ce
-   n'est pas du mouvement adouci : c'est l'absence de mouvement. Un seul
-   geste animé subsiste sur cette page, la ligne d'horizon. */
-.rev{opacity:1;transform:none}
+/* Lueurs d'ambiance. Décor pur : aria-hidden, pointer-events:none. */
+.lueurs{position:absolute;inset:0 0 auto 0;height:1100px;pointer-events:none;overflow:hidden;z-index:0}
+.lueurs i{position:absolute;border-radius:50%;display:block}
+.lueurs i:first-child{width:900px;height:900px;right:-220px;top:-260px;background:radial-gradient(closest-side,var(--lueur),transparent 70%)}
+.lueurs i:last-child{width:700px;height:700px;left:-280px;top:380px;background:radial-gradient(closest-side,rgba(46,125,108,.22),transparent 70%)}
 
-/* La barre reprend le fond de l'icône et le garde sur toute la page :
-   aucun basculement clair/sombre à piloter en JavaScript au défilement. */
-.barre{position:sticky;top:0;z-index:60;background:rgba(13,55,56,.92);backdrop-filter:saturate(150%) blur(12px);-webkit-backdrop-filter:saturate(150%) blur(12px);border-bottom:1px solid rgba(243,246,242,.12);color:var(--brume)}
-.barre-in{display:flex;align-items:center;justify-content:space-between;height:66px;gap:20px}
-.marque{display:flex;align-items:center;gap:9px;font-size:1.0625rem;font-weight:500;font-variation-settings:"wdth" 104;letter-spacing:.01em;color:var(--brume)}
-.marque svg{width:22px;height:22px;flex:none}
-.marque .anneau{fill:none;stroke:var(--brume);stroke-width:2.1}
+/* ── Barre flottante ─────────────────────────────────────────────────── */
+.barre{position:sticky;top:14px;z-index:60;padding:0 clamp(14px,3vw,28px)}
+.barre-in{max-width:1160px;margin:14px auto 0;border-radius:999px;padding:8px 8px 8px 20px;display:flex;align-items:center;gap:20px}
+.marque{display:flex;align-items:center;gap:9px;font-weight:600;font-size:1.0625rem;font-variation-settings:"wdth" 104;letter-spacing:.01em}
+.marque svg{width:24px;height:24px;flex:none}
+.marque .anneau{fill:none;stroke:currentColor;stroke-width:2.1}
 .marque .trait{fill:var(--jade);stroke:none}
-.barre nav{display:flex;gap:26px;font-size:.9375rem;color:rgba(243,246,242,.68);margin-left:auto}
-.barre nav a:hover{color:var(--brume)}
+.barre nav{display:flex;gap:26px;font-size:.9375rem;margin-left:auto}
+.barre nav a{color:var(--encre-2);transition:color .2s ease}
+.barre nav a:hover{color:var(--encre)}
 @media(max-width:900px){.barre nav{display:none}}
-.progres{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--jade)}
-.barre-fin{display:flex;align-items:center;gap:14px}
+.barre-fin{display:flex;align-items:center;gap:8px;margin-left:auto}
+.langue{display:flex;padding:3px;border-radius:999px;background:var(--verre);border:1px solid var(--bord)}
+.langue a{min-width:40px;height:32px;display:grid;place-items:center;border-radius:999px;font-size:.8125rem;font-weight:650;color:var(--encre-2)}
+.langue a[aria-current="page"]{background:var(--encre);color:var(--papier)}
 
-/* sélecteur de langue */
-.langue{display:flex;border:1px solid rgba(243,246,242,.28);border-radius:6px;overflow:hidden}
-.langue a{border:0;background:transparent;font-family:var(--sans);font-size:.8125rem;font-weight:650;color:rgba(243,246,242,.7);padding:6px 10px;cursor:pointer;transition:background .16s ease,color .16s ease}
-.langue a{text-decoration:none;display:block}
-.langue a[aria-current="page"]{background:var(--brume);color:var(--nuit)}
+/* ── Boutons ─────────────────────────────────────────────────────────── */
+.bouton{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 26px;border-radius:999px;background:var(--jade);color:var(--sur-jade);font-family:var(--sans);font-size:1rem;font-weight:650;border:0;cursor:pointer;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease}
+.bouton:hover{transform:translateY(-1px);box-shadow:0 10px 30px -10px var(--lueur)}
+.bouton.creux{background:var(--verre);color:var(--encre);border:1px solid var(--bord);transition:background .2s ease}
+.bouton.creux:hover{background:var(--verre-2);transform:none;box-shadow:none}
+.bouton.petit{height:44px;padding:0 20px;font-size:.9375rem}
+@media(max-width:560px){.barre .bouton.petit{display:none}}
 
-.bouton{display:inline-block;padding:11px 20px;border-radius:6px;background:var(--encre);color:var(--surface);font-size:.9375rem;font-weight:600;border:1px solid var(--encre);transition:background .18s ease,border-color .18s ease;cursor:pointer;font-family:var(--sans)}
-.bouton:hover{background:var(--verdigris);border-color:var(--verdigris)}
-.bouton.creux{background:transparent;color:var(--encre);border-color:var(--ligne-forte)}
-.bouton.creux:hover{background:transparent;border-color:var(--encre)}
-.bouton.petit{padding:8px 15px;font-size:.875rem}
-@media(max-width:520px){.barre .bouton.petit{display:none}}
+/* ── Téléphone ───────────────────────────────────────────────────────── */
+.tel{position:relative;width:100%;aspect-ratio:620/1347;background:var(--bezel);border-radius:11.5%/5.3%;padding:2.6%;
+  box-shadow:0 40px 80px -30px rgba(0,0,0,.7),0 0 0 1px var(--bord)}
+.tel img{position:absolute;inset:2.6%;width:94.8%;height:94.8%;border-radius:9.2%/4.2%;object-fit:cover;object-position:top}
 
-.tel{position:relative;width:100%;aspect-ratio:620/1347;background:var(--encre);border-radius:11.5%/5.3%;padding:2.6%;box-shadow:0 24px 48px -22px rgba(14,36,30,.5),0 2px 8px rgba(14,36,30,.14)}
-.tel img{position:absolute;inset:2.6%;width:94.8%;height:94.8%;border-radius:9.2%/4.2%;object-fit:cover}
-.tel.pile img{opacity:0;transition:opacity .5s ease}
-.tel.pile img.actif{opacity:1}
+/* ── Héros ───────────────────────────────────────────────────────────── */
+.heros{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr));gap:clamp(40px,6vw,80px);align-items:center;
+  padding-top:clamp(56px,8vw,104px);padding-bottom:clamp(48px,6vw,88px)}
+.heros-texte{display:flex;flex-direction:column;gap:28px}
+.sens{align-self:flex-start;display:flex;align-items:center;gap:12px;padding:7px 16px 7px 8px;border-radius:999px;font-size:.875rem;color:var(--encre-2);max-width:100%}
+.sens b{display:grid;place-items:center;height:30px;padding:0 10px;border-radius:999px;background:rgba(76,195,138,.16);color:var(--jade);font-size:1rem;font-weight:400;white-space:nowrap;flex:none}
+.heros-texte>p{font-size:clamp(1.0625rem,1.5vw,1.25rem);color:var(--encre-2);max-width:52ch}
+.actions{display:flex;flex-wrap:wrap;gap:12px}
+.note{font-size:.875rem;color:var(--sourdine)}
+.heros-visuel{position:relative;display:flex;justify-content:center;padding:20px 0}
+.halo{position:absolute;width:420px;max-width:100%;aspect-ratio:1;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(closest-side,var(--lueur),transparent 72%);pointer-events:none}
+.heros-visuel .tel{width:min(300px,70vw)}
+/* Les puces chevauchent la capture, et la capture est un écran iOS clair.
+   Du verre translucide par-dessus du blanc devient illisible : elles gardent
+   le filet et l'ombre du verre, mais leur fond est opaque. */
+.puce{position:absolute;border-radius:20px;padding:14px 18px;display:flex;gap:12px;
+  background:var(--nuit);box-shadow:inset 0 1px 0 var(--lustre),0 18px 40px -18px rgba(0,0,0,.75)}
+.puce.a{left:0;top:18%;flex-direction:column;gap:2px;min-width:200px}
+.puce.b{right:0;bottom:16%;align-items:center}
+.puce .etiq{font-size:.75rem;color:var(--sourdine);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.puce .val{font-size:1.5rem;font-weight:650;letter-spacing:-.01em}
+.puce .ap{font-size:.8125rem;color:var(--jade)}
+.puce .icone{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(76,195,138,.16);color:var(--jade);flex:none}
+@media(max-width:560px){.puce{display:none}}
 
-/* L'affiche est un champ sombre repris du dégradé de l'icône, volontairement
-   plus vide que rempli — le « ma » japonais, l'espace laissé libre, plutôt
-   qu'une grille remplie bord à bord. Le téléphone chevauche la limite entre
-   le champ sombre et la page claire : c'est le seul geste de composition,
-   et il met le produit à cheval sur la ligne de flottaison. */
-.heros{position:relative;background:linear-gradient(152deg,var(--profond) 0%,var(--nuit) 72%);color:var(--brume);padding:clamp(64px,10vw,132px) 0 0}
-.heros-grille{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,5vw,72px);align-items:end;padding-bottom:clamp(56px,7vw,92px)}
-@media(max-width:940px){.heros-grille{grid-template-columns:1fr;gap:36px;padding-bottom:0}}
-.heros h1{margin-bottom:24px;max-width:16ch;color:var(--brume)}
-.heros-texte>p{font-size:clamp(1.0625rem,1.6vw,1.1875rem);color:rgba(243,246,242,.78);margin-bottom:32px;max-width:54ch}
+/* ── Faits ───────────────────────────────────────────────────────────── */
+.faits{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px}
+.fait{border-radius:20px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start}
+.fait svg{flex:none;margin-top:2px;stroke:var(--jade);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fait b{display:block;font-weight:650;font-size:.9375rem}
+.fait span{font-size:.875rem;color:var(--sourdine)}
 
-/* Le sens du nom, pas un ornement : 安堵 est l'étymologie d'Ando. */
-.sens{display:flex;align-items:baseline;gap:12px;margin-bottom:clamp(28px,4vw,44px);color:rgba(243,246,242,.62);font-size:.9375rem}
-/* flex:none + nowrap : sans quoi les deux caractères se séparent sur une
-   largeur étroite, et 安 / 堵 sur deux lignes ne veut plus rien dire. */
-.sens b{font-size:1.5rem;font-weight:400;color:var(--jade);line-height:1;flex:none;white-space:nowrap}
+/* ── Justesse, en grille bento ───────────────────────────────────────── */
+.bento{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px}
+.carte{border-radius:28px;padding:30px;display:flex;flex-direction:column;gap:16px;min-width:0;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s ease}
+.carte:hover{transform:translateY(-3px);border-color:var(--lustre)}
+.carte.large{grid-column:span 2;gap:18px;overflow:hidden}
+@media(max-width:740px){.carte.large{grid-column:span 1}}
+.carte-tete{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.num{font-size:.8125rem;font-weight:650;color:var(--jade);font-variant-numeric:tabular-nums}
+.jeton{font-size:.75rem;font-weight:650;padding:5px 10px;border-radius:999px;border:1px solid var(--bord);color:var(--encre-2)}
+.carte.large h3{font-size:clamp(1.5rem,2.4vw,2rem);line-height:1.12;max-width:22ch}
+.carte h3{font-size:1.5rem;line-height:1.15}
+.carte p{color:var(--encre-2);font-size:.9375rem}
+.carte.large p{font-size:1rem;max-width:62ch}
 
-.heros .note-cta{color:rgba(243,246,242,.5)}
-.heros .bouton{background:var(--brume);color:var(--nuit);border-color:var(--brume)}
-.heros .bouton:hover{background:#fff;border-color:#fff}
-.heros .bouton.creux{background:transparent;color:var(--brume);border-color:rgba(243,246,242,.34)}
-.heros .bouton.creux:hover{border-color:var(--brume)}
+/* la frise : le retrait du CELI ne rétablit le droit qu'au 1er janvier suivant */
+.frise{margin-top:6px;padding:18px 20px;border-radius:18px;background:var(--verre);border:1px solid var(--bord);display:flex;flex-direction:column;gap:12px}
+.frise-barre{position:relative;height:10px;border-radius:99px;background:var(--ligne)}
+.frise-barre i{position:absolute;display:block;border-radius:99px}
+.frise-barre .parcouru{left:0;width:44%;top:0;bottom:0;background:var(--jade);opacity:.35}
+.frise-barre .pt{top:-5px;width:20px;height:20px;border-radius:50%;box-shadow:0 0 0 4px var(--papier)}
+.frise-barre .pt.retrait{left:44%;margin-left:-10px;background:var(--alerte)}
+.frise-barre .pt.retabli{right:0;margin-right:-2px;background:var(--jade)}
+.frise-legende{display:flex;justify-content:space-between;gap:12px;font-size:.8125rem;color:var(--sourdine)}
+.frise-legende .ko{color:var(--alerte);font-weight:600}
+.frise-legende .ok{color:var(--jade);font-weight:600}
 
-/* La ligne d'horizon. Un seul mouvement sur toute la page : elle se trace
-   depuis le centre au chargement, puis plus rien ne bouge. */
-.horizon{position:absolute;left:0;right:0;bottom:-1px;height:2px;transform:scaleX(1);transform-origin:center;
-  background:linear-gradient(to right,transparent,var(--jade) 20%,var(--jade) 80%,transparent);
-  box-shadow:0 0 18px 1px rgba(76,195,138,.38)}
-/* La ligne existe par défaut ; l'animation ne fait que la tracer. L'inverse
-   — un élément à scaleX(0) que seule l'animation révèle — la fait
-   disparaître dès que les animations ne tournent pas. */
-@media (prefers-reduced-motion:no-preference){
-  .horizon{animation:tracer 1200ms cubic-bezier(.16,.8,.3,1) both}
-}
-@keyframes tracer{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.heros-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.note-cta{font-size:.8125rem;color:var(--sourdine);margin-top:14px}
-.heros-visuel{display:flex;justify-content:center;will-change:transform}
-/* Le téléphone descend sous la ligne d'horizon et empiète sur la bande
-   claire qui suit. D'où le z-index, et la marge négative compensée par
-   .faits plus bas. */
-.heros-visuel .tel{max-width:300px;margin-bottom:clamp(-96px,-7vw,-56px);position:relative;z-index:2}
-@media(max-width:940px){.heros-visuel .tel{margin-bottom:-48px;max-width:252px}}
+.chiffres{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px}
+.chiffres>div{padding:14px 16px;border-radius:16px;border:1px solid var(--bord)}
+.chiffres dt{font-size:.8125rem;color:var(--sourdine)}
+.chiffres dd{margin:2px 0 0;font-size:1.25rem;font-weight:650}
 
-/* padding-top : la place que laisse le téléphone qui déborde de l'affiche. */
-.faits{border-bottom:1px solid var(--ligne);background:var(--surface);padding-top:clamp(64px,8vw,104px)}
-@media(max-width:940px){.faits{padding-top:72px}}
-.faits-grille{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ligne)}
-@media(max-width:760px){.faits-grille{grid-template-columns:repeat(2,1fr)}}
-.fait{background:var(--surface);padding:22px var(--gouttiere)}
-.fait b{display:block;font-size:.9375rem;font-weight:650;margin-bottom:3px}
-.fait span{font-size:.8125rem;color:var(--sourdine)}
+.carte-capture{margin:0;border-radius:28px;padding:28px 28px 0;display:flex;flex-direction:column;justify-content:space-between;gap:20px;overflow:hidden;
+  background:linear-gradient(160deg,#165659,#0D3738);border:1px solid rgba(243,246,242,.14);min-height:440px}
+.carte-capture figcaption{display:flex;flex-direction:column;gap:4px}
+.carte-capture .sur{font-size:.8125rem;color:rgba(243,246,242,.72)}
+.carte-capture .quoi{font-size:1.25rem;font-weight:600}
+.carte-capture .tel{align-self:center;width:230px;margin-bottom:-150px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
 
-.section{padding:clamp(56px,7.5vw,90px) 0}
-.section-entete{max-width:54ch;margin-bottom:clamp(30px,4vw,46px)}
-.section-entete p{margin-top:14px;color:var(--encre-2);font-size:1.0625rem}
+.pastilles{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px}
+.pastille{font-size:.8125rem;padding:6px 12px;border-radius:999px;border:1px solid var(--bord);color:var(--encre-2)}
+.pastille.forte{background:rgba(76,195,138,.14);border-color:transparent;color:var(--jade);font-weight:600}
+.lien-fleche{font-size:.9375rem;font-weight:650;color:var(--jade);display:inline-flex;align-items:center;gap:6px;min-height:44px}
 
-.recit-grille{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,80px);align-items:start}
-.recit-visuel{position:sticky;top:96px;display:flex;justify-content:center}
-.recit-visuel .tel{max-width:296px}
-.etape{min-height:74vh;display:flex;flex-direction:column;justify-content:center;padding:26px 0;opacity:.34;transition:opacity .45s ease}
-.etape.active{opacity:1}
-.etape-num{font-size:.8125rem;font-weight:650;color:var(--verdigris);margin-bottom:10px;font-variant-numeric:tabular-nums}
-.etape h3{font-size:clamp(1.35rem,2.4vw,1.75rem);font-variation-settings:"wdth" 114;margin-bottom:14px}
-.etape p{color:var(--encre-2);font-size:1rem;margin-bottom:16px}
-.etape dl{font-size:.8125rem;border-top:1px solid var(--ligne);padding-top:12px;max-width:36ch}
-.etape dt{color:var(--sourdine);float:left;clear:left;margin-right:8px}
-.etape dd{font-variant-numeric:tabular-nums;font-weight:650;text-align:right;margin-bottom:5px}
-@media(max-width:940px){
-  .recit-grille{grid-template-columns:1fr;gap:0}
-  .recit-visuel{order:-1;top:70px;z-index:5;background:linear-gradient(var(--papier) 72%,rgba(238,241,239,0));padding:10px 0 22px}
-  .recit-visuel .tel{max-width:196px}
-  .etape{min-height:60vh;opacity:1}
-}
+.marge-bloc{margin-top:auto;display:flex;align-items:center;gap:18px;padding:16px;border-radius:18px;border:1px solid var(--bord)}
+.cadran{flex:none;width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--jade) 0 17.6%,var(--ligne) 17.6% 100%);display:grid;place-items:center}
+.cadran span{width:48px;height:48px;border-radius:50%;background:var(--papier);display:grid;place-items:center;font-size:.8125rem;font-weight:650}
+.marge-bloc dl{display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums;margin:0}
+.marge-bloc dt{font-size:.8125rem;color:var(--sourdine)}
+.marge-bloc dd{margin:0;font-size:1.375rem;font-weight:650}
+.marge-bloc .apres{font-size:.8125rem;color:var(--encre-2)}
+.menu-note{font-size:.75rem;color:var(--sourdine)}
 
-.car-entete{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:26px}
-.car-nav{display:flex;gap:8px;flex-shrink:0}
-.car-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--ligne-forte);background:var(--surface);color:var(--encre);cursor:pointer;font-size:1.1rem;line-height:1;display:grid;place-items:center;transition:border-color .18s ease}
-.car-btn:hover{border-color:var(--encre)}
-.car-btn[disabled]{opacity:.34;cursor:default}
-.car-piste{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px 0 26px;cursor:grab}
-.car-piste::-webkit-scrollbar{display:none}
-.car-piste.attrape{cursor:grabbing;scroll-snap-type:none}
-.car-item{flex:0 0 232px;scroll-snap-align:start}
-.car-item figcaption{margin-top:16px}
-.car-item b{display:block;font-size:.9375rem;font-weight:650}
-.car-item span{display:block;font-size:.8125rem;color:var(--sourdine);margin-top:2px}
-.car-jauge{height:2px;background:var(--ligne);position:relative}
-.car-jauge i{position:absolute;left:0;top:0;height:100%;background:var(--encre);transition:width .2s ease,left .2s ease}
+/* ── Calculateur ─────────────────────────────────────────────────────── */
+.calc{border-radius:36px;padding:clamp(24px,4vw,56px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:clamp(32px,5vw,64px);position:relative;overflow:hidden}
+.calc>.lueur-coin{position:absolute;width:600px;height:600px;right:-200px;bottom:-300px;border-radius:50%;background:radial-gradient(closest-side,var(--lueur),transparent 70%);pointer-events:none}
+.calc-reglages{position:relative;display:flex;flex-direction:column;gap:28px}
+.calc-reglages h2{font-size:clamp(1.875rem,3.4vw,2.875rem)}
+.calc-reglages>p{font-size:1rem;color:var(--encre-2);max-width:48ch}
+.reglage{display:flex;flex-direction:column;gap:8px}
+.reglage-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.reglage label{font-size:.9375rem;color:var(--encre-2)}
+.reglage output{font-size:1.125rem;font-weight:650;font-variant-numeric:tabular-nums}
+.curseur{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;margin:0}
+.curseur::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:var(--ligne)}
+.curseur::-moz-range-track{height:6px;border-radius:99px;background:var(--ligne)}
+.curseur::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-9px;border-radius:50%;background:var(--encre);border:4px solid var(--jade);box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.curseur::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--encre);border:4px solid var(--jade)}
+.calc-sorties{position:relative;display:flex;flex-direction:column;gap:14px;justify-content:center}
+.sortie-ca{border-radius:24px;padding:24px 26px;background:var(--jade);color:var(--sur-jade);display:flex;flex-direction:column;gap:4px}
+.sortie-ca .quoi{font-size:.875rem;font-weight:650;display:flex;align-items:center;gap:8px}
+.sortie-ca .gros{font-size:clamp(2.25rem,4vw,3.25rem);font-weight:650;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.sortie-ca .sous{font-size:.875rem}
+.sortie-us{border-radius:24px;padding:22px 26px;border:1px dashed var(--bord);background:var(--verre);display:flex;flex-direction:column;gap:4px}
+.sortie-us .quoi{font-size:.875rem;font-weight:600;color:var(--encre-2)}
+.sortie-us .gros{font-size:1.875rem;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--encre-2);
+  text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:var(--alerte)}
+.sortie-us .sous{font-size:.875rem;color:var(--sourdine)}
+.ecarts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:10px}
+.ecarts>div{padding:16px 18px;border-radius:18px;border:1px solid var(--bord)}
+.ecarts dt{font-size:.8125rem;color:var(--sourdine)}
+.ecarts dd{margin:0;font-size:1.375rem;font-weight:650;font-variant-numeric:tabular-nums;color:var(--alerte)}
+.calc-note{font-size:.75rem;color:var(--sourdine)}
 
-.inventaire{columns:3;column-gap:36px;font-size:.9375rem;margin-top:44px}
-@media(max-width:880px){.inventaire{columns:2}}
-@media(max-width:560px){.inventaire{columns:1}}
-.inventaire li{break-inside:avoid;list-style:none;padding:9px 0 9px 18px;border-bottom:1px solid var(--ligne);position:relative;color:var(--encre-2)}
-.inventaire li::before{content:"";position:absolute;left:0;top:1.05em;width:8px;height:1px;background:var(--verdigris)}
-.inventaire li em{font-style:normal;color:var(--sourdine);font-size:.8125rem;font-weight:600}
+/* ── Galerie ─────────────────────────────────────────────────────────── */
+.gal-tete{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.gal-nav{display:flex;gap:8px;flex:none}
+.gal-btn{width:44px;height:44px;border-radius:999px;background:var(--verre);border:1px solid var(--bord);color:var(--encre);font-size:1.25rem;line-height:1;cursor:pointer;
+  display:grid;place-items:center;font-family:var(--sans);transition:background .2s ease,opacity .2s ease}
+.gal-btn:hover{background:var(--verre-2)}
+.gal-btn:disabled{opacity:.3;cursor:default}
+@media(max-width:700px){.gal-nav{display:none}}
+.galerie{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  padding:8px max(var(--gouttiere),calc((100% - 1200px)/2)) 28px;
+  scroll-padding-inline:max(var(--gouttiere),calc((100% - 1200px)/2))}
+.galerie::-webkit-scrollbar{display:none}
+.galerie.attrape{cursor:grabbing}
+.galerie figure{margin:0;flex:0 0 248px;scroll-snap-align:start;display:flex;flex-direction:column;gap:14px}
+.galerie .tel{box-shadow:0 24px 48px -24px rgba(0,0,0,.6),0 0 0 1px var(--bord)}
+.galerie figcaption{display:flex;flex-direction:column;gap:2px;padding:0 4px}
+.galerie figcaption b{font-weight:650;font-size:.9375rem}
+.galerie figcaption span{font-size:.875rem;color:var(--sourdine)}
+.inventaire{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.inventaire li{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;font-size:.875rem;color:var(--encre-2);background:var(--verre);border:1px solid var(--bord)}
+.inventaire em{font-style:normal;font-size:.6875rem;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(76,195,138,.16);color:var(--jade)}
+.inventaire em.plus-tard{background:transparent;border:1px solid var(--bord);color:var(--sourdine)}
 
-.compar-enveloppe{overflow-x:auto}
-.compar{width:100%;border-collapse:collapse;font-size:.9375rem;background:var(--surface);border:1px solid var(--ligne);min-width:580px}
-.compar th,.compar td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--ligne)}
-.compar thead th{font-size:.8125rem;font-weight:650;color:var(--sourdine);vertical-align:bottom;line-height:1.3}
-.compar thead th.nous{color:var(--encre);border-bottom:2px solid var(--encre)}
+/* ── Comparatif ──────────────────────────────────────────────────────── */
+.compar-enveloppe{border-radius:28px;overflow-x:auto}
+.compar{width:100%;min-width:640px;border-collapse:collapse;font-size:.9375rem}
+.compar th,.compar td{text-align:left;padding:16px 24px;border-bottom:1px solid var(--ligne)}
+.compar thead th{padding:20px 24px}
+.compar thead .nous{background:rgba(76,195,138,.10);font-size:1rem;font-weight:700}
+.compar thead th:not(.nous):not(:first-child){font-size:.8125rem;font-weight:650;color:var(--sourdine)}
 .compar tbody th{font-weight:500;color:var(--encre-2)}
-.compar td{color:var(--sourdine);font-size:.875rem}
-.compar td.nous{color:var(--encre);font-weight:600;background:rgba(76,195,138,.08)}
-.compar td.attente{color:var(--sourdine);font-weight:600}
-.compar-note{font-size:.75rem;color:var(--sourdine);margin-top:14px;max-width:70ch}
+.compar td{color:var(--sourdine);font-weight:500}
+.compar td.nous{background:rgba(76,195,138,.10);color:var(--jade);font-weight:650}
+.compar td.attente{background:rgba(76,195,138,.10);color:var(--encre-2);font-weight:650}
+.compar-note{font-size:.8125rem;color:var(--sourdine);margin-top:16px;max-width:80ch}
 
-.paliers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
-@media(max-width:880px){.paliers{grid-template-columns:1fr}}
-.palier{background:var(--surface);border:1px solid var(--ligne);border-radius:8px;padding:26px 24px}
-.palier.mis-en-avant{border:1.5px solid var(--encre);box-shadow:0 2px 0 var(--verdigris)}
-.palier.a-venir{background:transparent;border-style:dashed}
+/* ── Confidentialité ─────────────────────────────────────────────────── */
+.privee-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:16px}
+.privee-grille>div{border-radius:28px;padding:30px;display:flex;flex-direction:column;gap:10px}
+.privee-grille h3{font-size:1.125rem}
+.privee-grille p{font-size:.9375rem;color:var(--encre-2)}
+
+/* ── Prix ────────────────────────────────────────────────────────────── */
+.paliers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px;align-items:stretch}
+.palier{border-radius:28px;padding:30px;display:flex;flex-direction:column;gap:18px}
+.palier-nom{font-size:1.125rem;font-weight:650}
+.palier-prix{font-size:2.75rem;font-weight:650;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.palier-prix small{font-size:.9375rem;font-weight:400;color:var(--sourdine);letter-spacing:0}
+.palier-quoi{font-size:.9375rem;color:var(--sourdine)}
+.palier ul{list-style:none;padding:18px 0 0;border-top:1px solid var(--ligne);display:flex;flex-direction:column;gap:10px;font-size:.9375rem;color:var(--encre-2)}
+.palier li{display:flex;gap:10px}
+.palier li svg{flex:none;margin-top:2px;width:18px;height:18px;fill:none;stroke:var(--jade);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.palier .bouton{margin-top:auto;width:100%;height:48px}
+.palier.mis-en-avant{background:linear-gradient(170deg,rgba(76,195,138,.20),rgba(76,195,138,.04) 60%),var(--verre);border:1.5px solid var(--jade);box-shadow:0 30px 70px -30px var(--lueur)}
+.palier.a-venir{border:1.5px dashed var(--bord)}
 .palier.a-venir .palier-prix{color:var(--sourdine)}
-.palier-nom{font-size:1.0625rem;font-weight:650;font-variation-settings:"wdth" 110}
-.palier-prix{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;margin:12px 0 2px;letter-spacing:-.02em}
-.palier-prix small{font-size:.875rem;font-weight:500;color:var(--sourdine);letter-spacing:0}
-.palier-quoi{font-size:.8125rem;color:var(--sourdine);margin-bottom:18px;min-height:2.4em}
-.palier ul{list-style:none;font-size:.875rem;border-top:1px solid var(--ligne);padding-top:14px}
-.palier li{padding:6px 0 6px 16px;position:relative;color:var(--encre-2)}
-.palier li::before{content:"";position:absolute;left:0;top:.95em;width:7px;height:1px;background:var(--verdigris)}
-.palier li em{font-style:normal;color:var(--sourdine);font-size:.75rem;font-weight:600}
+.palier.a-venir ul{color:var(--sourdine)}
+.palier.a-venir li svg{stroke:currentColor;stroke-width:2}
+.etiq-achat{font-size:.75rem;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--jade);color:var(--sur-jade)}
 
-.privee{background:var(--encre);color:var(--papier)}
-.privee h2{color:#fff}
-.privee p{color:#C3D2CD;margin-top:16px;font-size:1.0625rem}
-.privee-grille{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:38px}
-@media(max-width:800px){.privee-grille{grid-template-columns:1fr;gap:22px}}
-.privee-grille h3{color:#fff;margin-bottom:8px}
-.privee-grille p{color:#A7BDB7;font-size:.9375rem;margin-top:0}
-.privee .graduation{background-image:repeating-linear-gradient(to right,#3A5951 0 1px,transparent 1px 12px);border-top-color:#3A5951}
-
-.final{text-align:center;padding:clamp(60px,8vw,100px) 0}
-.final h2{max-width:20ch;margin:0 auto 18px}
-.final p{margin:0 auto 28px;color:var(--encre-2)}
-.formulaire{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;max-width:470px;margin:0 auto}
-.formulaire input{flex:1 1 240px;padding:12px 14px;border:1px solid var(--ligne-forte);border-radius:6px;font-family:var(--sans);font-size:.9375rem;background:var(--surface);color:var(--encre)}
-.formulaire input::placeholder{color:#8B9B96}
-.formulaire button[disabled]{opacity:.55;cursor:progress}
-.hors-ecran{position:absolute;left:-9999px}
-/* piège à robots : invisible et hors du parcours clavier */
-.piege{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-.msg-beta{margin:16px auto 0;font-size:.9375rem;font-weight:600;min-height:1.5em;max-width:48ch}
-.msg-beta.ok{color:var(--verdigris)}
+/* ── Bêta ────────────────────────────────────────────────────────────── */
+.final{padding-bottom:clamp(64px,8vw,104px)}
+.final-bloc{border-radius:36px;padding:clamp(32px,6vw,80px) clamp(20px,4vw,48px);display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;position:relative;overflow:hidden}
+.final-bloc>.lueur-coin{position:absolute;width:800px;height:400px;left:50%;top:-200px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,var(--lueur),transparent 70%);pointer-events:none}
+.final-bloc h2{position:relative;max-width:16ch}
+.final-bloc>p{position:relative;font-size:1.125rem;color:var(--encre-2);max-width:50ch}
+.formulaire{position:relative;width:100%;max-width:520px;margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;padding:6px;border-radius:999px;background:var(--verre-2);border:1px solid var(--bord)}
+.formulaire input[type=email]{flex:1 1 220px;min-width:0;height:52px;padding:0 20px;border:0;border-radius:999px;background:transparent;color:var(--encre);font:inherit;font-size:1rem;outline-offset:-2px}
+.formulaire input::placeholder{color:var(--sourdine)}
+.formulaire .bouton{flex:1 0 auto}
+.msg-beta{position:relative;font-size:.9375rem;font-weight:600;min-height:1.4em}
+.msg-beta.ok{color:var(--jade)}
 .msg-beta.ko{color:var(--alerte)}
+.hors-ecran{position:absolute;left:-9999px}
+.piege{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 
-.pied{border-top:1px solid var(--ligne);padding:34px 0 44px;font-size:.8125rem;color:var(--sourdine)}
-.pied-haut{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px}
-.pied-liens{display:flex;gap:20px;flex-wrap:wrap}
-.pied-legal{max-width:78ch;line-height:1.65}
-.pied-legal + .pied-legal{margin-top:8px}
+/* ── Pied ────────────────────────────────────────────────────────────── */
+.pied{border-top:1px solid var(--ligne);margin-top:clamp(80px,10vw,136px)}
+.pied .zone{padding-top:40px;padding-bottom:56px;display:flex;flex-direction:column;gap:22px;font-size:.875rem;color:var(--sourdine)}
+.pied-haut{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:center}
+.pied .marque{font-size:1rem;color:var(--encre)}
+.pied-liens{display:flex;flex-wrap:wrap;gap:6px 20px}
+.pied-liens a:hover{color:var(--encre)}
+.pied-legal{max-width:80ch}
+
+/* Le seul mouvement lié au défilement, et il est deux fois protégé : par
+   prefers-reduced-motion, et par @supports. Les éléments sont visibles par
+   défaut — l'animation les fait monter, elle ne les fait pas exister. */
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .monte{animation:monte linear both;animation-timeline:view();animation-range:entry 0% cover 28%}
+  }
+  .flotte{animation:flotte 7s ease-in-out infinite}
+  .flotte-b{animation:flotte 8s ease-in-out -3s infinite}
+}
+@keyframes monte{from{opacity:0;transform:translateY(28px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 </style>
 <script type="application/ld+json">
 {
@@ -306,147 +386,253 @@ p{max-width:63ch}
 </head>
 <body>
 
+<div class="lueurs" aria-hidden="true"><i></i><i></i></div>
+
 <header class="barre">
-  <div class="zone barre-in">
-    <a href="#" class="marque">
-      <svg viewbox="0 0 24 24" aria-hidden="true" focusable="false">
+  <div class="barre-in verre">
+    <a class="marque" href="/en/">
+      <svg viewbox="0 0 24 24" aria-hidden="true">
         <circle class="anneau" cx="12" cy="12" r="9.3"></circle>
         <circle class="trait" cx="12" cy="10.5" r="1.25"></circle>
         <rect class="trait" x="8.3" y="13.1" width="7.4" height="1.5" rx=".75"></rect>
       </svg>
       Ando
     </a>
-    <nav>
+    <nav data-aria="navSections" aria-label="Sections">
       <a href="#justesse" data-t="n1">Precision</a>
+      <a href="#essayer" data-t="n5">Try it</a>
       <a href="#app" data-t="n2">The app</a>
-      <a href="#comparatif" data-t="n3">Comparison</a>
       <a href="#prix" data-t="n4">Pricing</a>
     </nav>
     <div class="barre-fin">
-      <div class="langue">
+      <div class="langue" role="group" data-aria="ariaLangue" aria-label="Language">
         <a href="/" id="lienFR" lang="fr" hreflang="fr-CA">FR</a>
         <a href="/en/" id="lienEN" lang="en" hreflang="en-CA" aria-current="page">EN</a>
       </div>
       <a href="#beta" class="bouton petit" data-t="cta1">Join the beta</a>
     </div>
   </div>
-  <div class="progres" id="progres"></div>
 </header>
 
 <main>
 
-<section class="heros">
-  <div class="zone heros-grille">
-    <div class="heros-texte">
-      <p class="sens"><b lang="ja">安堵</b><span data-t="hsens">ando — the relief of knowing where you stand</span></p>
-      <h1 data-t="h1">How much TFSA room do you have left?</h1>
-      <p data-t="hsub">Your budgeting app knows your spending. It doesn't know your contribution room, it amortizes your mortgage the American way, and it has never heard of an FHSA. Ando is built here, for the rules that apply here — in English and in French.</p>
-      <div class="heros-actions">
-        <a href="#beta" class="bouton" data-t="cta1">Join the beta</a>
-        <a href="#justesse" class="bouton creux" data-t="cta2">See the calculations</a>
-      </div>
-      <p class="note-cta" data-t="hnote">iOS 17 and later. English, French, Spanish, Portuguese.</p>
+<section class="zone heros">
+  <div class="heros-texte">
+    <p class="sens verre"><b lang="ja">安堵</b><span data-t="hsens">ando — the relief of knowing where you stand</span></p>
+    <h1 data-t="h1">How much <b>TFSA</b> room do you have left?</h1>
+    <p data-t="hsub">Your budgeting app knows your spending. It doesn't know your contribution room, it amortizes your mortgage the American way, and it has never heard of an FHSA. Ando is built here, for the rules that apply here — in English and in French.</p>
+    <div class="actions">
+      <a href="#beta" class="bouton" data-t="cta1">Join the beta</a>
+      <a href="#essayer" class="bouton creux" data-t="cta3">Try the calculation</a>
     </div>
-    <div class="heros-visuel" id="herosVisuel">
-      <div class="tel">
-        <img src="/img-en/17-comptes-enregistres.webp" data-shot="17-comptes-enregistres" width="620" height="1347" data-alt="alt17" alt="Ando Registered accounts screen: available TFSA room, anchor year, and FHSA room." fetchpriority="high">
-      </div>
+    <p class="note" data-t="hnote">iOS 17 and later. English, French, Spanish, Portuguese.</p>
+  </div>
+
+  <div class="heros-visuel">
+    <div class="halo" aria-hidden="true"></div>
+    <div class="tel">
+      <img src="/img-en/17-comptes-enregistres.webp" data-shot="17-comptes-enregistres" width="620" height="1347" data-alt="alt17" alt="Ando Registered accounts screen: available TFSA room, anchor year, and FHSA room." fetchpriority="high">
+    </div>
+    <div class="puce a verre flotte">
+      <span class="etiq" data-t="pu1e">TFSA room available</span>
+      <span class="val nb">12 500,00 $</span>
+      <span class="ap" data-t="pu1a">Anchored on CRA · 2026</span>
+    </div>
+    <div class="puce b verre flotte-b">
+      <span class="icone" aria-hidden="true">
+        <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"></path><path d="M5 10v10h14V10"></path></svg>
+      </span>
+      <span>
+        <b style="display:block;font-size:.9375rem;font-weight:650" data-t="pu2b">Mortgage</b>
+        <span style="font-size:.8125rem;color:var(--encre-2)" data-t="pu2s">Semi-annual compounding</span>
+      </span>
     </div>
   </div>
-  <div class="horizon"></div>
 </section>
 
-<div class="faits">
-  <div class="faits-grille">
-    <div class="fait"><b data-t="f1b">On your device</b><span data-t="f1s">No account needed to get started</span></div>
-    <div class="fait"><b data-t="f2b">Optional lock</b><span data-t="f2s">Face ID or a passcode, if you want one</span></div>
-    <div class="fait"><b data-t="f3b">English and French</b><span data-t="f3s">Both complete, plus Spanish and Portuguese</span></div>
-    <div class="fait"><b data-t="f4b">Built in Montréal</b><span data-t="f4s">For the rules that apply here</span></div>
+<div class="zone">
+  <div class="faits" data-aria="ariaFaits" aria-label="At a glance">
+    <div class="fait verre">
+      <svg width="22" height="22" viewbox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"></rect><path d="M10.5 18.5h3"></path></svg>
+      <div><b data-t="f1b">On your device</b><span data-t="f1s">No account needed to get started</span></div>
+    </div>
+    <div class="fait verre">
+      <svg width="22" height="22" viewbox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"></rect><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"></path></svg>
+      <div><b data-t="f2b">Optional lock</b><span data-t="f2s">Face ID or a passcode, if you want one</span></div>
+    </div>
+    <div class="fait verre">
+      <svg width="22" height="22" viewbox="0 0 24 24" aria-hidden="true"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c-.5 3.5-3 6.5-6.5 8"></path><path d="M13 21l4-9 4 9M14.5 18h5"></path></svg>
+      <div><b data-t="f3b">English and French</b><span data-t="f3s">Both complete, plus Spanish and Portuguese</span></div>
+    </div>
+    <div class="fait verre">
+      <svg width="22" height="22" viewbox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+      <div><b data-t="f4b">Built in Montréal</b><span data-t="f4s">For the rules that apply here</span></div>
+    </div>
   </div>
 </div>
 
-<section class="section" id="justesse">
-  <div class="zone">
-    <div class="section-entete rev">
-      <h2 data-t="jh">Three calculations others round off</h2>
-      <p data-t="jp">These aren't details. The wrong compounding method skews your mortgage payment every single month, and one contribution too many costs 1% per month in penalty. The screens below come from the app.</p>
-    </div>
+<section class="section zone" id="justesse">
+  <div class="entete monte">
+    <span class="chapeau" data-t="jeb">Precision</span>
+    <h2 data-t="jh">Three calculations others round off</h2>
+    <p data-t="jp">These aren't details. The wrong compounding method skews your mortgage payment every single month, and one contribution too many costs 1% per month in penalty. The screens below come from the app.</p>
+  </div>
 
-    <div class="recit-grille">
-      <div class="recit-visuel">
-        <div class="tel pile" id="pile">
-          <img class="actif" data-i="0" src="/img-en/17-comptes-enregistres.webp" data-shot="17-comptes-enregistres" width="620" height="1347" data-alt="alt17" alt="Ando Registered accounts screen: available TFSA room, anchor year, and FHSA room.">
-          <img data-i="1" src="/img-en/14-prets-detail.webp" data-shot="14-prets-detail" width="620" height="1347" data-alt="alt14" alt="Mortgage detail: balance, original principal, principal repaid, interest paid, remaining payments.">
-          <img data-i="2" src="/img-en/16-marges-de-credit-detail.webp" data-shot="16-marges-de-credit-detail" width="620" height="1347" data-alt="alt16" alt="Credit line detail: utilization, estimated monthly cost, minimum payment, daily rate.">
+  <div class="bento">
+
+    <article class="carte large verre monte">
+      <div class="carte-tete">
+        <span class="num" data-t="e1n">Calculation 01</span>
+        <span class="jeton" data-t="tPro">Pro</span>
+      </div>
+      <h3 data-t="e1h">Your contribution room, anchored to the CRA</h3>
+      <p data-t="e1p">You enter the room shown in CRA My Account once, with its reference year. Ando then projects every contribution and every withdrawal — including the rule that catches everyone: a TFSA withdrawal only restores your room on January 1 of the following year.</p>
+      <div class="frise" role="img" data-aria="ariaFrise" aria-label="Example: a withdrawal in June only restores the room on the following January 1.">
+        <div class="frise-barre">
+          <i class="parcouru"></i><i class="pt retrait"></i><i class="pt retabli"></i>
+        </div>
+        <div class="frise-legende">
+          <span data-t="e1t1">Jan 1</span>
+          <span class="ko" data-t="e1t2">Withdrawal in June: room unchanged</span>
+          <span class="ok" data-t="e1t3">Next Jan 1: restored</span>
         </div>
       </div>
+      <dl class="chiffres">
+        <div><dt data-t="e1d1">FHSA, per year</dt><dd class="nb" data-t="e1v1">$8,000</dd></div>
+        <div><dt data-t="e1d2">FHSA, lifetime</dt><dd class="nb" data-t="e1v2">$40,000</dd></div>
+        <div><dt data-t="e1d3">Room tracked</dt><dd data-t="e1v3">Per person</dd></div>
+      </dl>
+    </article>
 
-      <div class="recit-textes">
-        <article class="etape active" data-i="0">
-          <div class="etape-num" data-t="e1n">Calculation 01</div>
-          <h3 data-t="e1h">Your contribution room, anchored to the CRA</h3>
-          <p data-t="e1p">You enter the room shown in CRA My Account once, with its reference year. Ando then projects every contribution and every withdrawal — including the rule that catches everyone: a TFSA withdrawal only restores your room on January 1 of the following year.</p>
-          <dl>
-            <dt data-t="e1d1">FHSA, per year</dt><dd data-t="e1v1">$8,000</dd>
-            <dt data-t="e1d2">FHSA, lifetime</dt><dd data-t="e1v2">$40,000</dd>
-            <dt data-t="e1d3">Room tracked</dt><dd data-t="e1v3">Per person</dd>
-          </dl>
-        </article>
-
-        <article class="etape" data-i="1">
-          <div class="etape-num" data-t="e2n">Calculation 02</div>
-          <h3 data-t="e2h">The mortgage, with semi-annual compounding</h3>
-          <p data-t="e2p">In Canada, mortgage interest compounds twice a year, not twelve times. Apps built in the United States apply monthly compounding and get your payment wrong. Ando uses the equivalent periodic rate, separates principal from interest, and counts the payments you have left.</p>
-          <dl>
-            <dt data-t="e2d1">Mortgage</dt><dd data-t="e2v1">Semi-annual</dd>
-            <dt data-t="e2d2">Auto, personal</dt><dd data-t="e2v2">Monthly</dd>
-            <dt data-t="e2d3">Prepayments</dt><dd data-t="e2v3">Accounted for</dd>
-          </dl>
-        </article>
-
-        <article class="etape" data-i="2">
-          <div class="etape-num" data-t="e3n">Calculation 03</div>
-          <h3 data-t="e3h">Credit lines, at the daily rate</h3>
-          <p data-t="e3p">A Canadian line of credit accrues interest every day on the balance you have drawn. Ando shows the daily rate to four decimal places, estimates the real monthly cost, tracks your utilization, and handles all three minimum payment types instead of assuming one.</p>
-          <dl>
-            <dt data-t="e3d1">Compounding</dt><dd data-t="e3v1">Daily</dd>
-            <dt data-t="e3d2">Minimum payment</dt><dd data-t="e3v2">3 types</dd>
-            <dt data-t="e3d3">Utilization</dt><dd data-t="e3v3">Tracked</dd>
-          </dl>
-        </article>
+    <figure class="carte-capture monte">
+      <figcaption>
+        <span class="sur" data-t="jcap1">In the app</span>
+        <span class="quoi" data-t="jcap2">Registered Accounts</span>
+      </figcaption>
+      <div class="tel">
+        <img src="/img-en/17-comptes-enregistres.webp" data-shot="17-comptes-enregistres" width="620" height="1347" data-alt="alt17" alt="Ando Registered accounts screen: available TFSA room, anchor year, and FHSA room." loading="lazy">
       </div>
+    </figure>
+
+    <article class="carte verre monte">
+      <span class="num" data-t="e2n">Calculation 02</span>
+      <h3 data-t="e2h">The mortgage, with semi-annual compounding</h3>
+      <p data-t="e2p">In Canada, mortgage interest compounds twice a year, not twelve times. Apps built in the United States apply monthly compounding and get your payment wrong. Ando uses the equivalent periodic rate, separates principal from interest, and counts the payments you have left.</p>
+      <div class="pastilles">
+        <span class="pastille forte" data-t="e2g1">Mortgage: semi-annual</span>
+        <span class="pastille" data-t="e2g2">Auto, personal: monthly</span>
+        <span class="pastille" data-t="e2g3">Prepayments</span>
+      </div>
+      <a class="lien-fleche" href="#essayer" data-t="e2lien">See the gap on your loan</a>
+    </article>
+
+    <article class="carte verre monte">
+      <span class="num" data-t="e3n">Calculation 03</span>
+      <h3 data-t="e3h">Credit lines, at the daily rate</h3>
+      <p data-t="e3p">A Canadian line of credit accrues interest every day on the balance you have drawn. Ando shows the daily rate to four decimal places, estimates the real monthly cost, tracks your utilization, and handles all three minimum payment types instead of assuming one.</p>
+      <div class="marge-bloc">
+        <div class="cadran" role="img" data-aria="ariaCadran" aria-label="17.6% of the line used"><span class="nb">17,6 %</span></div>
+        <dl>
+          <dt data-t="e3r">8.45% per year → daily rate</dt>
+          <dd class="nb">≈ 0,0232 %</dd>
+          <dd class="apres nb" data-t="e3i">≈ $30.56 in interest this month</dd>
+        </dl>
+      </div>
+      <p class="menu-note" data-t="e3note">Demonstration household figures: a $25,000 line with a $4,400 balance.</p>
+    </article>
+
+  </div>
+</section>
+
+<section class="section zone" id="essayer">
+  <div class="calc verre monte">
+    <div class="lueur-coin" aria-hidden="true"></div>
+
+    <div class="calc-reglages">
+      <div class="entete" style="margin-bottom:0;gap:14px">
+        <span class="chapeau" data-t="yeb">Try it</span>
+        <h2 data-t="yh">Your payment, calculated the Canadian way</h2>
+        <p data-t="yp">Move the sliders. The monthly payment is computed with the semi-annual compounding Canada requires, then with the monthly compounding American apps use.</p>
+      </div>
+
+      <div class="reglage">
+        <div class="reglage-tete">
+          <label for="cMontant" data-t="yl1">Loan amount</label>
+          <output for="cMontant" id="vMontant">385 000 $</output>
+        </div>
+        <input class="curseur" id="cMontant" type="range" min="100000" max="1500000" step="5000" value="385000">
+      </div>
+      <div class="reglage">
+        <div class="reglage-tete">
+          <label for="cTaux" data-t="yl2">Annual rate</label>
+          <output for="cTaux" id="vTaux">4,79 %</output>
+        </div>
+        <!-- pas de 0,01 et non 0,05 : avec un pas de 0,05, le navigateur aligne
+             silencieusement la valeur initiale sur 4,80 %, et la page affichait
+             un paiement qui ne correspondait plus au taux du ménage de
+             démonstration (4,79 %) ni au calcul vérifié à la main. -->
+        <input class="curseur" id="cTaux" type="range" min="1" max="9" step="0.01" value="4.79">
+      </div>
+      <div class="reglage">
+        <div class="reglage-tete">
+          <label for="cAns" data-t="yl3">Amortization</label>
+          <output for="cAns" id="vAns">25 ans</output>
+        </div>
+        <input class="curseur" id="cAns" type="range" min="5" max="30" step="1" value="25">
+      </div>
+    </div>
+
+    <div class="calc-sorties" aria-live="polite">
+      <div class="sortie-ca">
+        <span class="quoi">
+          <svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+          <span data-t="yca">Ando · semi-annual</span>
+        </span>
+        <span class="gros" id="vPaieCA">2 193,38 $</span>
+        <span class="sous"><span data-t="ypm">per month · periodic rate</span> <span id="vTauxCA">0,3952 %</span></span>
+      </div>
+      <div class="sortie-us">
+        <span class="quoi" data-t="yus">American method · monthly</span>
+        <span class="gros" id="vPaieUS">2 203,82 $</span>
+        <span class="sous"><span data-t="ypm">per month · periodic rate</span> <span id="vTauxUS">0,3992 %</span></span>
+      </div>
+      <dl class="ecarts">
+        <div><dt data-t="ye1">Gap per month</dt><dd id="vEcartMois">10,44 $</dd></div>
+        <div><dt data-t="ye2">Over the full term</dt><dd id="vEcartTotal">3 132 $</dd></div>
+      </dl>
+      <p class="calc-note" data-t="ynote">Illustration: monthly payments, a fixed rate throughout, no prepayments. This is not financial advice.</p>
     </div>
   </div>
 </section>
 
-<div class="graduation"></div>
-
 <section class="section" id="app">
   <div class="zone">
-    <div class="car-entete rev">
-      <div class="section-entete" style="margin-bottom:0">
+    <div class="gal-tete monte">
+      <div class="entete" style="margin-bottom:0">
+        <span class="chapeau" data-t="aeb">The app</span>
         <h2 data-t="ah">And everything else a real finance app needs</h2>
         <p data-t="ap">Canadian precision is the reason to choose Ando. Day to day, it still has to be complete.</p>
       </div>
-      <div class="car-nav">
-        <button class="car-btn" id="carPrec" data-aria="carPrec" aria-label="Previous screen">‹</button>
-        <button class="car-btn" id="carSuiv" data-aria="carSuiv" aria-label="Next screen">›</button>
+      <div class="gal-nav">
+        <button class="gal-btn" id="galPrec" data-aria="galPrec" aria-label="Previous screen">‹</button>
+        <button class="gal-btn" id="galSuiv" data-aria="galSuiv" aria-label="Next screen">›</button>
       </div>
     </div>
+  </div>
 
-    <div class="car-piste" id="carPiste" tabindex="0" role="region" data-aria="carZone" aria-label="App screenshots">
-      <figure class="car-item"><div class="tel"><img src="/img-en/01-tableau-de-bord.webp" data-shot="01-tableau-de-bord" width="620" height="1347" data-alt="alt01" alt="Dashboard: multi-currency total balance, accounts, income and expenses for the month, loans." loading="lazy"></div><figcaption><b data-t="c1b">Dashboard</b><span data-t="c1s">Total balance converted, by currency</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img-en/04-comptes.webp" data-shot="04-comptes" width="620" height="1347" data-alt="alt04" alt="Account list: chequing, savings, TFSA, FHSA, credit card, US dollar account." loading="lazy"></div><figcaption><b data-t="c2b">Accounts</b><span data-t="c2s">Chequing, savings, registered, cards</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img-en/06-transactions.webp" data-shot="06-transactions" width="620" height="1347" data-alt="alt06" alt="Transaction list grouped by day, with amounts and categories." loading="lazy"></div><figcaption><b data-t="c3b">Transactions</b><span data-t="c3s">Grouped by day, searchable</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img-en/12-recurrences.webp" data-shot="12-recurrences" width="620" height="1347" data-alt="alt12" alt="Recurrences screen suggesting recurring transactions detected automatically." loading="lazy"></div><figcaption><b data-t="c4b">Recurrences</b><span data-t="c4s">Detected, then suggested</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img-en/08-budgets.webp" data-shot="08-budgets" width="620" height="1347" data-alt="alt08" alt="Budgets by category with progress bars." loading="lazy"></div><figcaption><b data-t="c5b">Budgets</b><span data-t="c5s">By category, by period</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img-en/10-projets-epargne.webp" data-shot="10-projets-epargne" width="620" height="1347" data-alt="alt10" alt="Savings goals with amounts saved and targets." loading="lazy"></div><figcaption><b data-t="c6b">Savings goals</b><span data-t="c6s">With a projected completion date</span></figcaption></figure>
-      <figure class="car-item"><div class="tel"><img src="/img-en/13-prets.webp" data-shot="13-prets" width="620" height="1347" data-alt="alt13" alt="Loan list: mortgage and car loan, with rates and balances." loading="lazy"></div><figcaption><b data-t="c7b">Loans</b><span data-t="c7s">Full amortization schedule</span></figcaption></figure>
-    </div>
-    <div class="car-jauge"><i id="carJauge" style="width:25%"></i></div>
-    <p class="compar-note" data-t="cnote">Real screenshots taken on iPhone. The amounts belong to a fictional Quebec household used for the demo.</p>
+  <div class="galerie" id="galerie" tabindex="0" role="region" data-aria="galZone" aria-label="App screenshots">
+    <figure><div class="tel"><img src="/img-en/01-tableau-de-bord.webp" data-shot="01-tableau-de-bord" width="620" height="1347" data-alt="alt01" alt="Dashboard: multi-currency total balance, accounts, income and expenses for the month, loans." loading="lazy"></div><figcaption><b data-t="c1b">Dashboard</b><span data-t="c1s">Total balance converted, by currency</span></figcaption></figure>
+    <figure><div class="tel"><img src="/img-en/04-comptes.webp" data-shot="04-comptes" width="620" height="1347" data-alt="alt04" alt="Account list: chequing, savings, TFSA, FHSA, credit card, US dollar account." loading="lazy"></div><figcaption><b data-t="c2b">Accounts</b><span data-t="c2s">Chequing, savings, registered, cards</span></figcaption></figure>
+    <figure><div class="tel"><img src="/img-en/06-transactions.webp" data-shot="06-transactions" width="620" height="1347" data-alt="alt06" alt="Transaction list grouped by day, with amounts and categories." loading="lazy"></div><figcaption><b data-t="c3b">Transactions</b><span data-t="c3s">Grouped by day, searchable</span></figcaption></figure>
+    <figure><div class="tel"><img src="/img-en/12-recurrences.webp" data-shot="12-recurrences" width="620" height="1347" data-alt="alt12" alt="Recurrences screen suggesting recurring transactions detected automatically." loading="lazy"></div><figcaption><b data-t="c4b">Recurrences</b><span data-t="c4s">Detected, then suggested</span></figcaption></figure>
+    <figure><div class="tel"><img src="/img-en/08-budgets.webp" data-shot="08-budgets" width="620" height="1347" data-alt="alt08" alt="Budgets by category with progress bars." loading="lazy"></div><figcaption><b data-t="c5b">Budgets</b><span data-t="c5s">By category, by period</span></figcaption></figure>
+    <figure><div class="tel"><img src="/img-en/10-projets-epargne.webp" data-shot="10-projets-epargne" width="620" height="1347" data-alt="alt10" alt="Savings goals with amounts saved and targets." loading="lazy"></div><figcaption><b data-t="c6b">Savings goals</b><span data-t="c6s">With a projected completion date</span></figcaption></figure>
+    <figure><div class="tel"><img src="/img-en/13-prets.webp" data-shot="13-prets" width="620" height="1347" data-alt="alt13" alt="Loan list: mortgage and car loan, with rates and balances." loading="lazy"></div><figcaption><b data-t="c7b">Loans</b><span data-t="c7s">Full amortization schedule</span></figcaption></figure>
+  </div>
 
-    <ul class="inventaire">
+  <div class="zone">
+    <p class="compar-note" style="margin-top:0;margin-bottom:22px" data-t="cnote">Real screenshots taken on iPhone. The amounts belong to a fictional Quebec household used for the demo.</p>
+    <ul class="inventaire" data-aria="ariaInv" aria-label="Features">
       <li data-t="i01">Multi-currency accounts with a converted total</li>
       <li data-t="i02">Recurring transactions, six frequencies</li>
       <li data-t="i03">Automatic recurrence detection</li>
@@ -462,105 +648,111 @@ p{max-width:63ch}
       <li data-t="i13">Widgets, four sizes, lock screen <em>Pro</em></li>
       <li data-t="i14">Sync across your devices <em>Pro</em></li>
       <li data-t="i15">Receipt scanning <em>Pro</em></li>
-      <li data-t="i16">Bank connection <em>coming</em></li>
-      <li data-t="i17">AI assistance <em>coming</em></li>
+      <li data-t="i16">Bank connection <em class="plus-tard">coming</em></li>
+      <li data-t="i17">AI assistance <em class="plus-tard">coming</em></li>
     </ul>
   </div>
 </section>
 
-<section class="section" id="comparatif">
-  <div class="zone">
-    <div class="section-entete rev">
-      <h2 data-t="kh">What you give up elsewhere</h2>
-      <p data-t="kp">Compared by product family rather than by brand, because features change faster than a web page.</p>
-    </div>
-    <div class="compar-enveloppe rev">
-      <table class="compar">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            <th scope="col" class="nous">Ando</th>
-            <th scope="col" data-t="kc2">Large American<br>apps</th>
-            <th scope="col" data-t="kc3">Newer Canadian<br>apps</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row" data-t="kr1">TFSA, FHSA and RRSP room tracking</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vNon">No</td></tr>
-          <tr><th scope="row" data-t="kr2">Semi-annual mortgage compounding</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vVar">Varies</td></tr>
-          <tr><th scope="row" data-t="kr3">Credit lines with daily interest</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vVar">Varies</td></tr>
-          <tr><th scope="row" data-t="kr4">Complete interface in both English and French</th><td class="nous" data-t="vOui">Yes</td><td data-t="vPart">Partial</td><td data-t="vVar">Varies</td></tr>
-          <tr><th scope="row" data-t="kr5">Works without a bank connection</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vNon">No</td></tr>
-          <tr><th scope="row" data-t="kr6">One-time purchase available</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vNon">No</td></tr>
-          <tr><th scope="row" data-t="kr7">AI features</th><td class="attente" data-t="vSoon">Coming</td><td data-t="vOui">Yes</td><td data-t="vOui">Yes</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="compar-note" data-t="knote">Based on features published by each vendor in 2026. Offerings change: check with each vendor before deciding. We deliberately show AI as a point where others are ahead.</p>
+<section class="section zone" id="comparatif">
+  <div class="entete monte">
+    <span class="chapeau" data-t="keb">Comparison</span>
+    <h2 data-t="kh">What you give up elsewhere</h2>
+    <p data-t="kp">Compared by product family rather than by brand, because features change faster than a web page.</p>
+  </div>
+  <div class="compar-enveloppe verre monte">
+    <table class="compar">
+      <thead>
+        <tr>
+          <th scope="col"><span class="hors-ecran" data-t="kc0">Feature</span></th>
+          <th scope="col" class="nous">Ando</th>
+          <th scope="col" data-t="kc2">Large American apps</th>
+          <th scope="col" data-t="kc3">Newer Canadian apps</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row" data-t="kr1">TFSA, FHSA and RRSP room tracking</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vNon">No</td></tr>
+        <tr><th scope="row" data-t="kr2">Semi-annual mortgage compounding</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vVar">Varies</td></tr>
+        <tr><th scope="row" data-t="kr3">Credit lines with daily interest</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vVar">Varies</td></tr>
+        <tr><th scope="row" data-t="kr4">Complete interface in both English and French</th><td class="nous" data-t="vOui">Yes</td><td data-t="vPart">Partial</td><td data-t="vVar">Varies</td></tr>
+        <tr><th scope="row" data-t="kr5">Works without a bank connection</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vNon">No</td></tr>
+        <tr><th scope="row" data-t="kr6">One-time purchase available</th><td class="nous" data-t="vOui">Yes</td><td data-t="vNon">No</td><td data-t="vNon">No</td></tr>
+        <tr><th scope="row" data-t="kr7">AI features</th><td class="attente" data-t="vSoon">Coming</td><td data-t="vOui">Yes</td><td data-t="vOui">Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="compar-note" data-t="knote">Based on features published by each vendor in 2026. Offerings change: check with each vendor before deciding. We deliberately show AI as a point where others are ahead.</p>
+</section>
+
+<section class="section zone">
+  <div class="entete monte">
+    <span class="chapeau" data-t="peb">Privacy</span>
+    <h2 data-t="ph">Your data stays where it belongs</h2>
+    <p data-t="pp">A bank statement says where you live, where you eat, who you pay and when you were sick. Ando is built so that information doesn't leave your device unless you ask it to.</p>
+  </div>
+  <div class="privee-grille">
+    <div class="verre carte monte"><h3 data-t="p1h">Local by default</h3><p data-t="p1p">Your data lives in the app, protected by the system's encryption. No sign-up is required to get started.</p></div>
+    <div class="verre carte monte"><h3 data-t="p2h">Sync stays yours</h3><p data-t="p2p">Syncing across your devices runs through your own private iCloud account, not through our servers.</p></div>
+    <div class="verre carte monte"><h3 data-t="p3h">No access to your bank accounts</h3><p data-t="p3p">The beta works without a bank connection. If one is added later, it will be optional and the app will stay complete without it.</p></div>
   </div>
 </section>
 
-<section class="section privee">
-  <div class="zone">
-    <div class="section-entete">
-      <h2 data-t="ph">Your data stays where it belongs</h2>
-      <p data-t="pp">A bank statement says where you live, where you eat, who you pay and when you were sick. Ando is built so that information doesn't leave your device unless you ask it to.</p>
-    </div>
-    <div class="privee-grille">
-      <div><h3 data-t="p1h">Local by default</h3><p data-t="p1p">Your data lives in the app, protected by the system's encryption. No sign-up is required to get started.</p></div>
-      <div><h3 data-t="p2h">Sync stays yours</h3><p data-t="p2p">Syncing across your devices runs through your own private iCloud account, not through our servers.</p></div>
-      <div><h3 data-t="p3h">No access to your bank accounts</h3><p data-t="p3p">The beta works without a bank connection. If one is added later, it will be optional and the app will stay complete without it.</p></div>
-    </div>
+<section class="section zone" id="prix">
+  <div class="entete monte">
+    <span class="chapeau" data-t="xeb">Pricing</span>
+    <h2 data-t="xh">Two tiers for the beta, one of them genuinely free</h2>
+    <p data-t="xp">What costs us nothing each month is paid for once. A subscription will come later, only for what carries a recurring cost, such as the bank connection or AI. Prices in Canadian dollars.</p>
   </div>
-  <div class="graduation" style="margin-top:56px"></div>
-</section>
+  <div class="paliers">
 
-<section class="section" id="prix">
-  <div class="zone">
-    <div class="section-entete rev">
-      <h2 data-t="xh">Two tiers for the beta, one of them genuinely free</h2>
-      <p data-t="xp">What costs us nothing each month is paid for once. A subscription will come later, only for what carries a recurring cost, such as the bank connection or AI. Prices in Canadian dollars.</p>
+    <div class="palier verre carte monte">
+      <div class="palier-nom">Courant</div>
+      <div class="palier-prix" data-t="x0prix">Free</div>
+      <div class="palier-quoi" data-t="x0quoi">All the manual tracking, with no time limit.</div>
+      <ul>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x0a">Accounts, transactions, recurrences</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x0b">Budgets and savings goals</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x0c">Loans, credit lines, credit cards</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x0d">Analysis and projections</span></li>
+      </ul>
+      <a href="#beta" class="bouton creux" data-t="x0cta">Start for free</a>
     </div>
-    <div class="paliers">
-      <div class="palier">
-        <div class="palier-nom">Courant</div>
-        <div class="palier-prix" data-t="x0prix">Free</div>
-        <div class="palier-quoi" data-t="x0quoi">All the manual tracking, with no time limit.</div>
-        <ul>
-          <li data-t="x0a">Accounts, transactions, recurrences</li>
-          <li data-t="x0b">Budgets and savings goals</li>
-          <li data-t="x0c">Loans, credit lines, credit cards</li>
-          <li data-t="x0d">Analysis and projections</li>
-        </ul>
-      </div>
-      <div class="palier mis-en-avant">
+
+    <div class="palier mis-en-avant carte monte">
+      <div class="carte-tete">
         <div class="palier-nom">Pro</div>
-        <div class="palier-prix" data-t="x1prix">$24.99 <small>one time</small></div>
-        <div class="palier-quoi" data-t="x1quoi">The contribution room calculator and everything that costs nothing to run.</div>
-        <ul>
-          <li data-t="x1a">Everything in Courant</li>
-          <li data-t="x1b">TFSA, FHSA and RRSP room</li>
-          <li data-t="x1c">Widgets and lock screen</li>
-          <li data-t="x1d">Sync across your devices</li>
-          <li data-t="x1e">Receipt scanning</li>
-        </ul>
+        <span class="etiq-achat" data-t="xunique">One-time purchase</span>
       </div>
-      <div class="palier a-venir">
-        <div class="palier-nom">Max</div>
-        <div class="palier-prix" data-t="x2prix">Coming</div>
-        <div class="palier-quoi" data-t="x2quoi">For transactions that arrive on their own. Price announced at launch.</div>
-        <ul>
-          <li data-t="x2a">Everything in Pro</li>
-          <li data-t="x2b">Canadian bank connections</li>
-          <li data-t="x2c">Automatic reconciliation</li>
-          <li data-t="x2d">AI assistance <em>coming</em></li>
-        </ul>
-      </div>
+      <div class="palier-prix" data-t="x1prix">$24.99 <small>one time</small></div>
+      <div class="palier-quoi" data-t="x1quoi">The contribution room calculator and everything that costs nothing to run.</div>
+      <ul>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x1a">Everything in Courant</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x1b">TFSA, FHSA and RRSP room</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x1c">Widgets and lock screen</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x1d">Sync across your devices</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span data-t="x1e">Receipt scanning</span></li>
+      </ul>
+      <a href="#beta" class="bouton" data-t="cta1">Join the beta</a>
     </div>
+
+    <div class="palier a-venir monte">
+      <div class="palier-nom">Max</div>
+      <div class="palier-prix" data-t="x2prix">Coming</div>
+      <div class="palier-quoi" data-t="x2quoi">For transactions that arrive on their own. Price announced at launch.</div>
+      <ul>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"></path></svg><span data-t="x2a">Everything in Pro</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"></path></svg><span data-t="x2b">Canadian bank connections</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"></path></svg><span data-t="x2c">Automatic reconciliation</span></li>
+        <li><svg viewbox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"></path></svg><span data-t="x2d">AI assistance <em>coming</em></span></li>
+      </ul>
+    </div>
+
   </div>
 </section>
 
-<section class="final" id="beta">
-  <div class="zone">
+<section class="section final zone" id="beta">
+  <div class="final-bloc verre monte">
+    <div class="lueur-coin" aria-hidden="true"></div>
     <h2 data-t="bh">The beta opens soon on TestFlight</h2>
     <p data-t="bp">Leave your email and you'll get the invitation. Nothing else: no newsletter, no sharing with third parties.</p>
     <form class="formulaire" id="formBeta" novalidate>
@@ -571,7 +763,7 @@ p{max-width:63ch}
       <button type="submit" class="bouton" id="btnBeta" data-t="bbtn">Send me the invitation</button>
     </form>
     <p class="msg-beta" id="msgBeta" role="status" aria-live="polite"></p>
-    <p class="note-cta" data-t="bnote" style="margin-top:16px">You can opt out at any time.</p>
+    <p class="note" data-t="bnote">You can opt out at any time.</p>
   </div>
 </section>
 
@@ -580,30 +772,87 @@ p{max-width:63ch}
 <footer class="pied">
   <div class="zone">
     <div class="pied-haut">
-      <span class="marque" style="font-size:1rem">Ando</span>
-      <div class="pied-liens">
+      <span class="marque">
+        <svg viewbox="0 0 24 24" aria-hidden="true">
+          <circle class="anneau" cx="12" cy="12" r="9.3"></circle>
+          <circle class="trait" cx="12" cy="10.5" r="1.25"></circle>
+          <rect class="trait" x="8.3" y="13.1" width="7.4" height="1.5" rx=".75"></rect>
+        </svg>
+        Ando
+      </span>
+      <nav class="pied-liens" data-aria="ariaPied" aria-label="Footer">
         <a href="#justesse" data-t="n1">Precision</a>
         <a href="#prix" data-t="n4">Pricing</a>
         <a href="/en/privacy/" data-t="fl1">Privacy</a>
         <a href="/en/terms/" data-t="fl3">Terms</a>
         <a href="/en/support/" data-t="fl4">Support</a>
         <a href="mailto:bonjour@bmsk.ca" data-t="fl2">Contact</a>
-      </div>
+      </nav>
     </div>
     <p class="pied-legal" data-t="fg1">Ando is not affiliated with the Canada Revenue Agency or with any financial institution. The contribution room shown is a projection calculated from the amounts you enter: your official record remains CRA My Account.</p>
     <p class="pied-legal" data-t="fg2">Ando does not provide financial, tax or investment advice. Screenshots show demonstration data.</p>
-    <p class="pied-legal" data-t="fg3" style="margin-top:16px">Built in Montréal.</p>
+    <p class="pied-legal" data-t="fg3">Built in Montréal.</p>
   </div>
 </footer>
 
 <script>
 (function(){
   var doux = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  /* ─────────── Bilingue. Le français est dans le HTML ; on ne stocke que l'anglais. ─────────── */
-  /* Le dictionnaire anglais vit dans page/en.json et est appliqué au build. */
-
   var langueActive = document.documentElement.lang.slice(0,2) === "en" ? "en" : "fr";
+  var locale = langueActive === "en" ? "en-CA" : "fr-CA";
+
+  /* ─────────── Calculateur hypothécaire ───────────
+     Au Canada, la loi sur l'intérêt impose la capitalisation semestrielle pour
+     les prêts hypothécaires : le taux nominal se compose deux fois par année.
+     Le taux mensuel équivalent est donc (1 + r/2)^(1/6) − 1, et non r/12 —
+     cette seconde formule, correcte aux États-Unis, surestime le paiement.
+     Les deux sont calculées ici côte à côte, sur la même annuité. */
+  var calc = document.getElementById("cMontant");
+  if (calc) {
+    var champs = {
+      montant: document.getElementById("cMontant"),
+      taux:    document.getElementById("cTaux"),
+      ans:     document.getElementById("cAns")
+    };
+    var sorties = {
+      montant: document.getElementById("vMontant"), taux: document.getElementById("vTaux"),
+      ans: document.getElementById("vAns"), paieCA: document.getElementById("vPaieCA"),
+      paieUS: document.getElementById("vPaieUS"), tauxCA: document.getElementById("vTauxCA"),
+      tauxUS: document.getElementById("vTauxUS"), ecartMois: document.getElementById("vEcartMois"),
+      ecartTotal: document.getElementById("vEcartTotal")
+    };
+    var MOT_ANS = { fr: " ans", en: " years" };
+    var argent  = new Intl.NumberFormat(locale, {style:"currency", currency:"CAD", minimumFractionDigits:2, maximumFractionDigits:2});
+    var argent0 = new Intl.NumberFormat(locale, {style:"currency", currency:"CAD", maximumFractionDigits:0});
+    function pourcent(x, d){
+      return new Intl.NumberFormat(locale, {minimumFractionDigits:d, maximumFractionDigits:d}).format(x)
+             + (langueActive === "en" ? "%" : " %");
+    }
+    function annuite(capital, i, n){ return capital * i / (1 - Math.pow(1 + i, -n)); }
+    function majCalc(){
+      var capital = Number(champs.montant.value);
+      var r = Number(champs.taux.value) / 100;
+      var ans = Number(champs.ans.value);
+      var n = ans * 12;
+      var iCA = Math.pow(1 + r / 2, 1 / 6) - 1;   // capitalisation semestrielle
+      var iUS = r / 12;                            // capitalisation mensuelle
+      var pCA = annuite(capital, iCA, n);
+      var pUS = annuite(capital, iUS, n);
+      sorties.montant.textContent = argent0.format(capital);
+      sorties.taux.textContent    = pourcent(Number(champs.taux.value), 2);
+      sorties.ans.textContent     = ans + MOT_ANS[langueActive];
+      sorties.paieCA.textContent  = argent.format(pCA);
+      sorties.paieUS.textContent  = argent.format(pUS);
+      sorties.tauxCA.textContent  = pourcent(iCA * 100, 4);
+      sorties.tauxUS.textContent  = pourcent(iUS * 100, 4);
+      sorties.ecartMois.textContent  = argent.format(pUS - pCA);
+      sorties.ecartTotal.textContent = argent0.format((pUS - pCA) * n);
+    }
+    Object.keys(champs).forEach(function(k){
+      champs[k].addEventListener("input", majCalc);
+    });
+    majCalc();
+  }
 
   /* ─────────── Inscription à la bêta ─────────── */
   var MSG = {
@@ -659,70 +908,23 @@ p{max-width:63ch}
     });
   }
 
-  /* ─────────── Filet de progression et parallaxe ─────────── */
-  var progres = document.getElementById("progres");
-  var heros = document.getElementById("herosVisuel");
-  var enAttente = false;
-  function surDefilement(){
-    var y = window.scrollY;
-    var h = document.documentElement.scrollHeight - window.innerHeight;
-    progres.style.width = (h > 0 ? (y / h) * 100 : 0) + "%";
-    if (!doux && heros && y < window.innerHeight * 1.4) {
-      heros.style.transform = "translate3d(0," + (y * -0.055) + "px,0)";
-    }
-    enAttente = false;
-  }
-  window.addEventListener("scroll", function(){
-    if (!enAttente) { enAttente = true; requestAnimationFrame(surDefilement); }
-  }, {passive:true});
-  surDefilement();
-
-  /* ─────────── Révélations ─────────── */
-  if ("IntersectionObserver" in window) {
-    var oRev = new IntersectionObserver(function(es){
-      es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add("vu"); oRev.unobserve(e.target); } });
-    }, {threshold:0.18});
-    document.querySelectorAll(".rev").forEach(function(el){ oRev.observe(el); });
-  } else {
-    document.querySelectorAll(".rev").forEach(function(el){ el.classList.add("vu"); });
-  }
-
-  /* ─────────── Récit défilant ─────────── */
-  var etapes = Array.prototype.slice.call(document.querySelectorAll(".etape"));
-  var ecrans = Array.prototype.slice.call(document.querySelectorAll("#pile img"));
-  if (etapes.length && "IntersectionObserver" in window) {
-    var oRecit = new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        if (!e.isIntersecting) return;
-        var i = e.target.getAttribute("data-i");
-        etapes.forEach(function(a){ a.classList.toggle("active", a === e.target); });
-        ecrans.forEach(function(img){ img.classList.toggle("actif", img.getAttribute("data-i") === i); });
-      });
-    }, {rootMargin:"-45% 0px -45% 0px", threshold:0});
-    etapes.forEach(function(el){ oRecit.observe(el); });
-  }
-
-  /* ─────────── Carrousel ─────────── */
-  var piste = document.getElementById("carPiste");
-  var prec  = document.getElementById("carPrec");
-  var suiv  = document.getElementById("carSuiv");
-  var jauge = document.getElementById("carJauge");
-  if (piste) {
+  /* ─────────── Galerie ─────────── */
+  var piste = document.getElementById("galerie");
+  var prec  = document.getElementById("galPrec");
+  var suiv  = document.getElementById("galSuiv");
+  if (piste && prec && suiv) {
     function pas(){
-      var item = piste.querySelector(".car-item");
-      return item ? item.getBoundingClientRect().width + 22 : 254;
+      var item = piste.querySelector("figure");
+      return item ? item.getBoundingClientRect().width + 20 : 268;
     }
-    function majJauge(){
+    function majBoutons(){
       var maxi = piste.scrollWidth - piste.clientWidth;
-      var part = Math.max((piste.clientWidth / piste.scrollWidth) * 100, 8);
-      jauge.style.width = part + "%";
-      jauge.style.left  = (maxi > 0 ? (piste.scrollLeft / maxi) * (100 - part) : 0) + "%";
       prec.disabled = piste.scrollLeft <= 2;
       suiv.disabled = piste.scrollLeft >= maxi - 2;
     }
     prec.addEventListener("click", function(){ piste.scrollBy({left:-pas(), behavior: doux ? "auto" : "smooth"}); });
     suiv.addEventListener("click", function(){ piste.scrollBy({left: pas(), behavior: doux ? "auto" : "smooth"}); });
-    piste.addEventListener("scroll", majJauge, {passive:true});
+    piste.addEventListener("scroll", majBoutons, {passive:true});
     piste.addEventListener("keydown", function(e){
       if (e.key === "ArrowRight"){ e.preventDefault(); suiv.click(); }
       if (e.key === "ArrowLeft"){ e.preventDefault(); prec.click(); }
@@ -739,8 +941,8 @@ p{max-width:63ch}
     ["pointerup","pointercancel"].forEach(function(ev){
       piste.addEventListener(ev, function(){ attrape = false; piste.classList.remove("attrape"); });
     });
-    window.addEventListener("resize", majJauge);
-    majJauge();
+    window.addEventListener("resize", majBoutons);
+    majBoutons();
   }
 })();
 </script>

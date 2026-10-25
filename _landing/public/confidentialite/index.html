@@ -29,16 +29,25 @@
   src:url(/fonts/archivo-latin.woff2) format('woff2');
   unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 :root{
-  /* Palette relevée dans l'icône de l'app, pixel par pixel : aucune couleur
-     de cette page n'est inventée. Le dégradé du fond donne --nuit et
-     --profond, l'anneau donne --brume, la marque donne --jade. */
-  --nuit:#0D3738; --profond:#165659;
-  --brume:#F3F6F2; --papier:#E6ECE8; --surface:#FBFCFB;
-  --encre:#0B2220; --encre-2:#30443F;
-  --jade:#4CC38A; --verdigris:#2E7D6C;
-  --alerte:#B4473C; --sourdine:#5E726D; --ligne:#D6DFDA; --ligne-forte:#BCC9C3;
+  /* « Verre de nuit ». Les NOMS des jetons sont restés ceux de la version
+     claire, et seules leurs valeurs ont basculé : build.py recopie ce bloc
+     tel quel dans les quatre pages légales, et scripts/og-images.py dans les
+     cartes de partage. Les deux suivent donc la nouvelle direction sans
+     qu'une seule ligne y soit retouchée — et ne peuvent pas diverger.
+     --papier et --encre ont échangé leurs rôles : le fond est l'encre. */
+  --nuit:#061A1B; --profond:#0B2E2F;
+  --brume:#F3F6F2; --papier:#061A1B; --surface:rgba(243,246,242,.055);
+  --encre:#F3F6F2; --encre-2:rgba(243,246,242,.78);
+  --jade:#4CC38A; --verdigris:#4CC38A;
+  --alerte:#F0A55A; --sourdine:rgba(243,246,242,.62);
+  --ligne:rgba(243,246,242,.12); --ligne-forte:rgba(243,246,242,.22);
+  /* propres au verre */
+  --verre:rgba(243,246,242,.055); --verre-2:rgba(243,246,242,.09);
+  --bord:rgba(243,246,242,.13); --lustre:rgba(243,246,242,.22);
+  --lueur:rgba(76,195,138,.22); --bezel:#020B0B; --sur-jade:#04201A;
   --sans:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;
   --gouttiere:clamp(20px,5vw,40px);
+  color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--papier);color:var(--encre);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
