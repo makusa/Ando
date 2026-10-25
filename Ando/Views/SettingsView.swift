@@ -98,7 +98,7 @@ struct SettingsView: View {
             HStack {
                 Label(lang["settings.language.section"], systemImage: "globe")
                 Spacer()
-                Text(lang.current.flag + " " + lang.current.displayName)
+                Text(lang.current.displayName)
                     .foregroundStyle(.secondary)
             }
         }
@@ -379,7 +379,7 @@ private struct LanguagePickerView: View {
                     lang.setLanguage(language)
                 } label: {
                     HStack {
-                        Text(language.flag + "  " + language.displayName)
+                        Text(language.displayName)
                             .foregroundStyle(.primary)
                         Spacer()
                         if lang.current == language {

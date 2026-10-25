@@ -28,14 +28,18 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
-    var flag: String {
-        switch self {
-        case .french:     return "🇫🇷"
-        case .english:    return "🇬🇧"
-        case .spanish:    return "🇪🇸"
-        case .portuguese: return "🇧🇷"
-        }
-    }
+    // La propriété `flag` a été retirée le 25 octobre 2026 (R10).
+    //
+    // Deux raisons, dont une seule est technique. D'abord, les indicateurs
+    // régionaux sortent en carrés « ? » sur toute capture prise au
+    // simulateur : la fonte d'émojis n'a pas ces glyphes, et c'est ainsi
+    // que des captures cassées ont failli partir sur l'App Store.
+    //
+    // Ensuite, et surtout : un drapeau français pour « Français » et un
+    // drapeau britannique pour « English » sont faux pour une app
+    // canadienne. Le Québec n'est pas la France, et le Canada n'est pas le
+    // Royaume-Uni. Le nom de la langue, écrit dans cette langue, dit la
+    // même chose sans se tromper de pays.
 
     /// Locale used for date/number formatting in this language.
     var locale: Locale {
