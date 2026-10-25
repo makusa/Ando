@@ -66,6 +66,7 @@
 		5DEB54F0A54AE27FF69F51B2 /* RecurringTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D22F513F98BF734866212F /* RecurringTransaction.swift */; };
 		5FB251E433DBECB7B2B5969A /* TransactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D288AD7D8B2625CF90E38A07 /* TransactionsView.swift */; };
 		60219A4B3CB27F75EE2105A3 /* AccountDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070B17F90E1FCC6A18AD3259 /* AccountDetailView.swift */; };
+		609BB8E3D2032F27F219397B /* AndoProLockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49CC90FC99613DC1B54D99C1 /* AndoProLockView.swift */; };
 		61BD3BF78A59E11DAEEA2FD0 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7C4BA0C2810B6E42262657C /* DashboardView.swift */; };
 		62260153EC469F498DA0E357 /* FlinksSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37DBE48E763202C39E6DF629 /* FlinksSyncEngine.swift */; };
 		633EA07CFBD55E922011E9B2 /* MerchantDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900D5F596CE276A36C963A04 /* MerchantDictionary.swift */; };
@@ -234,6 +235,7 @@
 		39ABEE8ABDB56F08E65C9D9C /* DuplicateReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateReviewView.swift; sourceTree = "<group>"; };
 		45D9A24483A5600971DEE41E /* LoanDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoanDetailView.swift; sourceTree = "<group>"; };
 		4968AE57545C9F0C747977FA /* PlaidManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaidManager.swift; sourceTree = "<group>"; };
+		49CC90FC99613DC1B54D99C1 /* AndoProLockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AndoProLockView.swift; sourceTree = "<group>"; };
 		4A29789F063C2815C81D5890 /* SeedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedData.swift; sourceTree = "<group>"; };
 		4A6A001249B19AFDCED1075C /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		4E65C44DEB7BC54FD8A6A622 /* TransactionMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionMatcherTests.swift; sourceTree = "<group>"; };
@@ -383,6 +385,7 @@
 			children = (
 				7513AE943E561B80B569B77B /* AndoAccessoryWidget.swift */,
 				FFB51DFBE247DF13116D1D34 /* AndoBalanceWidget.swift */,
+				49CC90FC99613DC1B54D99C1 /* AndoProLockView.swift */,
 				1B440415544304FF178AE5D4 /* AndoRoomWidget.swift */,
 				E8A5C7932C297B0A7C9DBFBB /* AndoWidget.entitlements */,
 				CE45B91A8BEF322DB8D19179 /* AndoWidgetBundle.swift */,
@@ -842,6 +845,7 @@
 			files = (
 				2550104A35BAF4FFA7D14793 /* AndoAccessoryWidget.swift in Sources */,
 				AE0779842455F675F78CB7E2 /* AndoBalanceWidget.swift in Sources */,
+				609BB8E3D2032F27F219397B /* AndoProLockView.swift in Sources */,
 				1FE2A122FF385704E1AA0738 /* AndoRoomWidget.swift in Sources */,
 				E8CA33E3664CC06F3C700318 /* AndoWidgetBundle.swift in Sources */,
 				CE97A45F221BA18FDDD9D6EF /* AndoWidgetComponents.swift in Sources */,

@@ -254,6 +254,7 @@ enum LocalizedStrings {
         "tx.suggestion":      ["fr": "Suggestion :",       "en": "Suggested:",       "es": "Sugerencia:",     "pt": "Sugestão:"],
         "action.apply":       ["fr": "Appliquer",          "en": "Apply",            "es": "Aplicar",         "pt": "Aplicar"],
         "scan.title":         ["fr": "Scanner un reçu",    "en": "Scan a Receipt",   "es": "Escanear un recibo","pt": "Digitalizar um recibo"],
+        "entitlement.widgets.name": ["fr": "Widgets", "en": "Widgets", "es": "Widgets", "pt": "Widgets"],
         "scan.camera":        ["fr": "Prendre une photo",  "en": "Take a photo",     "es": "Tomar una foto",  "pt": "Tirar uma foto"],
         "scan.pick":          ["fr": "Choisir une image",  "en": "Choose an image",  "es": "Elegir una imagen","pt": "Escolher uma imagem"],
         "scan.hint":          ["fr": "Sélectionnez la photo d'un reçu à analyser.", "en": "Select a photo of a receipt to analyze.", "es": "Selecciona la foto de un recibo para analizar.", "pt": "Selecione a foto de um recibo para analisar."],

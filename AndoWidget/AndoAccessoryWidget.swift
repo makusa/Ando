@@ -26,6 +26,14 @@ struct AndoAccessoryView: View {
     }
 
     var body: some View {
+        if data.isPro {
+            contenu
+        } else {
+            AndoProLockView(data: data)
+        }
+    }
+
+    @ViewBuilder private var contenu: some View {
         switch family {
         case .accessoryCircular:
             // Prefer a contribution-room gauge (the differentiator); fall back to net worth.

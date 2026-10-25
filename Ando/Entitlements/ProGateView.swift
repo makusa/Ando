@@ -27,6 +27,8 @@ enum GatedFeature {
     case unlimitedAccounts
     case registered
     case fileImport
+    case receiptScan
+    case widgets
 
     // Bank sync feature (Flinks ou Plaid — même gate)
     case bankSync
@@ -49,6 +51,8 @@ enum GatedFeature {
         case .unlimitedAccounts: return lang["entitlement.unlimited.accounts"]
         case .registered:        return lang["reg.hub.title"]
         case .fileImport:        return lang["import.ofx.title"]
+        case .receiptScan:       return lang["scan.title"]
+        case .widgets:           return lang["entitlement.widgets.name"]
         case .bankSync:          return lang["flinks.title"]
         }
     }
@@ -69,6 +73,8 @@ enum GatedFeature {
         case .unlimitedAccounts: return "building.columns.fill"
         case .registered:        return "leaf.fill"
         case .fileImport:        return "arrow.down.doc"
+        case .receiptScan:       return "doc.text.viewfinder"
+        case .widgets:           return "square.grid.2x2.fill"
         case .bankSync:          return "building.columns"
         }
     }

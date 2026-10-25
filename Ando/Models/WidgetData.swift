@@ -24,6 +24,15 @@ struct AndoWidgetData: Codable {
     /// Valeur par défaut pour rester compatible avec les données déjà
     /// écrites par une version antérieure.
     var netWorthIsPartial: Bool = false
+
+    /// `false` tant que Pro n'a pas été acheté : les widgets affichent alors
+    /// un écran verrouillé au lieu des montants.
+    ///
+    /// La valeur par défaut est volontairement `false`, et non `true` comme
+    /// pour `netWorthIsPartial` : une charge utile écrite par une version
+    /// antérieure ne doit pas déverrouiller les widgets par omission. Le
+    /// verrou se lève dès la première écriture faite par l'app.
+    var isPro: Bool = false
     let monthIncome: Double
     let monthExpense: Double
     let recentTransactions: [WidgetTx]
@@ -239,5 +248,7 @@ struct AndoWidgetData: Codable {
         "expense":    ["fr": "Dépenses",      "en": "Expenses",      "es": "Gastos",         "pt": "Despesas"],
         "over":       ["fr": "Dépassement",   "en": "Over",          "es": "Exceso",         "pt": "Excesso"],
         "noData":     ["fr": "Ouvrez l'app",  "en": "Open the app",  "es": "Abre la app",    "pt": "Abra o app"],
+        "proLocked":  ["fr": "Ando Pro",      "en": "Ando Pro",      "es": "Ando Pro",       "pt": "Ando Pro"],
+        "proHint":    ["fr": "Achat unique dans l'app", "en": "One-time purchase in the app", "es": "Compra única en la app", "pt": "Compra única no app"],
     ]
 }

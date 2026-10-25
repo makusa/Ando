@@ -20,6 +20,14 @@ struct AndoBalanceView: View {
     let entry: AndoEntry
     @Environment(\.widgetFamily) private var family
     var body: some View {
+        if entry.data.isPro {
+            contenu
+        } else {
+            AndoProLockView(data: entry.data)
+        }
+    }
+
+    @ViewBuilder private var contenu: some View {
         switch entry.content {
         case .netWorth:
             switch family {

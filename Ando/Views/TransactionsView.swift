@@ -233,7 +233,16 @@ struct TransactionsView: View {
             .sheet(isPresented: $showAddTransfer) {
                 AddTransferView()
             }
-            .sheet(isPresented: $showScanReceipt) { ScanReceiptView() }
+            .sheet(isPresented: $showScanReceipt) {
+                if entitlements.hasPaidTier {
+                    ScanReceiptView()
+                } else {
+                    NavigationStack {
+                        ProGateView(feature: .receiptScan)
+                            .environment(entitlements)
+                    }
+                }
+            }
             .sheet(isPresented: $showReview) {
                 DuplicateReviewView()
             }

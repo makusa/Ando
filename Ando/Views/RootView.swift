@@ -72,6 +72,15 @@ struct RootView: View {
             // Re-sync so the widget picks up the new in-app language right away.
             WidgetDataWriter.write(context: context)
         }
+        .onChange(of: entitlements.hasPaidTier) {
+            // Les widgets font partie de Pro, et l'extension lit l'état d'achat
+            // dans la charge utile partagée. Or refreshEntitlements() est
+            // asynchrone : l'écriture faite au lancement part avec
+            // hasPaidTier encore à false, et les widgets d'un acheteur
+            // resteraient verrouillés jusqu'à la prochaine écriture. On
+            // réécrit donc dès que le droit est connu.
+            WidgetDataWriter.write(context: context)
+        }
         .task {
             // Clean duplicate system categories left by the seed/CloudKit race.
             _ = CategoryDeduplicator.dedupeSystemCategories(context: context)

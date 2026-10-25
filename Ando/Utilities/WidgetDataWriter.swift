@@ -214,6 +214,10 @@ enum WidgetDataWriter {
             netWorth:           netWorth,
             netWorthMonthChange: netWorthMonthChange,
             netWorthIsPartial:  fxManquants > 0,
+            // Les widgets font partie de Pro. L'état est recopié ici à chaque
+            // écriture : l'extension tourne dans un autre processus et n'a
+            // aucun accès à StoreKit ni au gestionnaire de droits.
+            isPro:              EntitlementManager.shared.hasPaidTier,
             monthIncome:        monthIncome,
             monthExpense:       monthExpense,
             recentTransactions: Array(recent),

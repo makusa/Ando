@@ -366,7 +366,16 @@ struct DashboardView: View {
             }) {
                 NotificationsView(onNavigateToRecurrences: { pendingRecurringDeepLink = true })
             }
-            .sheet(isPresented: $showScanReceipt) { ScanReceiptView() }
+            .sheet(isPresented: $showScanReceipt) {
+                if entitlements.hasPaidTier {
+                    ScanReceiptView()
+                } else {
+                    NavigationStack {
+                        ProGateView(feature: .receiptScan)
+                            .environment(entitlements)
+                    }
+                }
+            }
             .sheet(isPresented: $showAddTransfer) { AddTransferView() }
             .sheet(isPresented: $showAddAccount)   { AddEditAccountView(mode: .create) }
             .sheet(isPresented: $showLibrary)      { DashboardLibraryView() }

@@ -24,6 +24,14 @@ struct AndoRoomView: View {
     private var accentColor: Color { rooms.contains(where: { $0.isOver }) ? .red : .green }
 
     var body: some View {
+        if data.isPro {
+            contenu
+        } else {
+            AndoProLockView(data: data)
+        }
+    }
+
+    @ViewBuilder private var contenu: some View {
         switch family {
         case .systemSmall:       smallView
         case .accessoryCircular: circularView
